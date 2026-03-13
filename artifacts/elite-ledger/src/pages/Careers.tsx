@@ -28,8 +28,8 @@ function ApplicationModal({ position, onClose }: { position: string; onClose: ()
         throw new Error(data.error || "Submission failed");
       }
       setSubmitted(true);
-    } catch (err: any) {
-      setError(err.message || "Something went wrong. Please try again.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
     } finally {
       setSubmitting(false);
     }

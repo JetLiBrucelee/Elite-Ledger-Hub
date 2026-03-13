@@ -112,10 +112,10 @@ export default function MarketPage({ name, tagline, description, stats, features
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Button asChild className="bg-primary hover:bg-primary/90 text-primary-foreground px-10 py-6 text-lg">
-              <Link href="/register">Open Account</Link>
+              <Link href="/plans">Start Trading</Link>
             </Button>
             <Button asChild variant="outline" className="border-white/20 text-white hover:bg-white/5 px-10 py-6 text-lg">
-              <Link href="/plans">View Plans</Link>
+              <Link href="/register">Open Account</Link>
             </Button>
           </div>
         </div>
