@@ -1,5 +1,6 @@
 import { db, investmentPlansTable, usersTable } from "@workspace/db";
 import bcryptjs from "bcryptjs";
+import crypto from "crypto";
 
 async function seed() {
   console.log("Seeding investment plans...");
@@ -16,9 +17,9 @@ async function seed() {
         month1Return: "80800",
         month2Return: "163000",
         month3Return: "330000",
-        description: "40k → 80.8k → ~163k → ~330k In just 3 months dream territory, sustainable reality.",
+        description: "Our entry-level managed portfolio for investors beginning their wealth-building journey. The Bronze Package delivers compounding returns through a curated mix of forex pairs and liquid equities, managed by our institutional trading desk over a 3-month term.",
         features: [
-          "102% monthly returns",
+          "102% targeted monthly returns",
           "3-month investment period",
           "$40,000 minimum investment",
           "Dedicated account manager",
@@ -35,9 +36,9 @@ async function seed() {
         month1Return: "211500",
         month2Return: "596000",
         month3Return: "1680000",
-        description: "75k → 211.5k → ~596k → ~1.68M In 3 months dream territory, sustainable reality.",
+        description: "Designed for experienced investors seeking accelerated growth, the Silver Package combines our proprietary momentum strategies with active risk management. Capital is deployed across Forex, commodities, and high-yield instruments over a structured 3-month cycle.",
         features: [
-          "182% monthly returns",
+          "182% targeted monthly returns",
           "3-month investment period",
           "$75,000 minimum investment",
           "Senior account manager",
@@ -55,9 +56,9 @@ async function seed() {
         month1Return: "480120",
         month2Return: "1540000",
         month3Return: "4930000",
-        description: "150k → 480k → ~1.54M → ~4.93M In 3 months dream, repeating +220% monthly is not fantasy-level, but sustainable reality.",
+        description: "Our Gold Package grants access to institutional-grade trading strategies across multiple asset classes. Our quant team applies algorithmic execution and dynamic hedging to deliver consistent performance throughout the 3-month period, with daily reporting and dedicated VIP support.",
         features: [
-          "220.08% monthly returns",
+          "220% targeted monthly returns",
           "3-month investment period",
           "$150,000 minimum investment",
           "VIP account manager",
@@ -76,16 +77,16 @@ async function seed() {
         month1Return: "1051230",
         month2Return: "3680000",
         month3Return: "12900000",
-        description: "Repeating +250% monthly is extremely rare but sustainable — 300k → 1.05M → ~3.68M → ~12.9M in just 3 months is dream-level, usually followed by massive territory, sustainable reality dream.",
+        description: "The Platinum Package is reserved for high-net-worth investors seeking elite-tier returns. Capital is managed by our senior portfolio strategists using hedge fund-calibre execution, multi-market exposure, and rigorous risk controls across the 3-month term.",
         features: [
-          "250.41% monthly returns",
+          "250% targeted monthly returns",
           "3-month investment period",
           "$300,000 minimum investment",
           "Elite personal advisor",
           "Real-time performance tracking",
           "Premium trading signals",
           "Hedge fund strategies",
-          "Tax optimization support",
+          "Tax optimisation support",
           "Private market access",
         ],
       },
@@ -98,9 +99,9 @@ async function seed() {
         month1Return: "2000000",
         month2Return: "8000000",
         month3Return: "32000000",
-        description: "Repeating +300% monthly is never a fantasy territory — 500k → 2M → 8M → 32M in just 3 months it is sustainable without eventual massive crashes, rugs, or blow-ups.",
+        description: "Elite Ledger Capital's flagship offering for ultra-high-net-worth investors. The Diamond Package provides full bespoke portfolio management, institutional deal flow, and concierge-level support. A dedicated wealth management team oversees every aspect of your capital deployment over the 3-month cycle.",
         features: [
-          "300% monthly returns",
+          "300% targeted monthly returns",
           "3-month investment period",
           "$500,000 minimum investment",
           "Dedicated wealth management team",
@@ -121,16 +122,36 @@ async function seed() {
   const existingAdmin = await db.select().from(usersTable);
   const hasAdmin = existingAdmin.some((u) => u.role === "admin");
   if (!hasAdmin) {
-    const passwordHash = await bcryptjs.hash("admin123", 10);
-    await db.insert(usersTable).values({
-      firstName: "Admin",
-      lastName: "User",
-      email: "admin@eliteledger.com",
-      passwordHash,
-      role: "admin",
-      status: "approved",
-    });
-    console.log("Admin user created: admin@eliteledger.com / admin123");
+    const adminEmail = process.env.ADMIN_EMAIL;
+    const adminPassword = process.env.ADMIN_PASSWORD;
+
+    if (!adminEmail || !adminPassword) {
+      const generatedPassword = crypto.randomBytes(16).toString("hex");
+      const passwordHash = await bcryptjs.hash(generatedPassword, 12);
+      const email = adminEmail || "admin@eliteledger.com";
+      await db.insert(usersTable).values({
+        firstName: "Admin",
+        lastName: "User",
+        email,
+        passwordHash,
+        role: "admin",
+        status: "approved",
+      });
+      console.log(`Admin user created: ${email}`);
+      console.log(`Generated admin password (store securely): ${generatedPassword}`);
+      console.log("Set ADMIN_EMAIL and ADMIN_PASSWORD environment variables to control admin credentials.");
+    } else {
+      const passwordHash = await bcryptjs.hash(adminPassword, 12);
+      await db.insert(usersTable).values({
+        firstName: "Admin",
+        lastName: "User",
+        email: adminEmail,
+        passwordHash,
+        role: "admin",
+        status: "approved",
+      });
+      console.log(`Admin user created: ${adminEmail}`);
+    }
   } else {
     console.log("Admin user already exists, skipping");
   }
