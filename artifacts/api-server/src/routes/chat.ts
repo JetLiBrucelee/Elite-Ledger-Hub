@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import { Router, type IRouter } from "express";
 import { db, chatMessagesTable, chatSessionsTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
@@ -6,11 +7,17 @@ import { addSSEClient, removeSSEClient, broadcastToSession, broadcastToAdmins, c
 
 const RESERVED_SESSION_IDS = new Set(["admin", "system", "broadcast"]);
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function isValidSessionId(id: string): boolean {
+  return UUID_REGEX.test(id) && !RESERVED_SESSION_IDS.has(id);
+}
+
 const router: IRouter = Router();
 
 router.get("/chat/messages", async (req, res): Promise<void> => {
   const sessionId = req.query.sessionId as string;
-  if (!sessionId || RESERVED_SESSION_IDS.has(sessionId)) {
+  if (!sessionId || !isValidSessionId(sessionId)) {
     res.json([]);
     return;
   }
@@ -42,12 +49,12 @@ router.post("/chat/messages", async (req, res): Promise<void> => {
 
   const { message, senderName, sessionId: providedSessionId } = parsed.data;
 
-  if (providedSessionId && RESERVED_SESSION_IDS.has(providedSessionId)) {
+  if (providedSessionId && !isValidSessionId(providedSessionId)) {
     res.status(400).json({ error: "Invalid session ID" });
     return;
   }
 
-  const sessionId = providedSessionId || createSSEClientId("visitor");
+  const sessionId = providedSessionId || crypto.randomUUID();
 
   const [existingSession] = await db
     .select()
@@ -102,8 +109,8 @@ router.post("/chat/messages", async (req, res): Promise<void> => {
 router.get("/chat/events", (req, res): void => {
   const sessionId = req.query.sessionId as string;
 
-  if (!sessionId || RESERVED_SESSION_IDS.has(sessionId)) {
-    res.status(400).json({ error: "Invalid or missing sessionId" });
+  if (!sessionId || !isValidSessionId(sessionId)) {
+    res.status(400).json({ error: "Invalid or missing sessionId. Must be a UUID." });
     return;
   }
 
