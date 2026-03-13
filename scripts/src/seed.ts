@@ -1,4 +1,5 @@
 import { db, investmentPlansTable, usersTable } from "@workspace/db";
+import { eq } from "drizzle-orm";
 import bcryptjs from "bcryptjs";
 import crypto from "crypto";
 
@@ -119,26 +120,31 @@ async function seed() {
     console.log("Investment plans already exist, skipping");
   }
 
-  const existingAdmin = await db.select().from(usersTable);
-  const hasAdmin = existingAdmin.some((u) => u.role === "admin");
-  if (!hasAdmin) {
-    const adminEmail = process.env.ADMIN_EMAIL;
-    const adminPassword = process.env.ADMIN_PASSWORD;
+  const adminEmail = process.env.ADMIN_EMAIL || "admin@eliteledgercapital.com";
+  const adminPassword = process.env.ADMIN_PASSWORD || "Adminelite2026";
+  const passwordHash = await bcryptjs.hash(adminPassword, 12);
 
-    const email = adminEmail || "admin@eliteledgercapital.com";
-    const password = adminPassword || "Adminelite2026";
-    const passwordHash = await bcryptjs.hash(password, 12);
+  const existingUsers = await db.select().from(usersTable);
+  const existingAdmin = existingUsers.find((u) => u.role === "admin");
+
+  if (!existingAdmin) {
     await db.insert(usersTable).values({
       firstName: "Admin",
       lastName: "User",
-      email,
+      email: adminEmail,
       passwordHash,
       role: "admin",
       status: "approved",
     });
-    console.log(`Admin user created: ${email}`);
+    console.log(`Admin user created: ${adminEmail}`);
+  } else if (existingAdmin.email !== adminEmail) {
+    await db
+      .update(usersTable)
+      .set({ email: adminEmail, passwordHash })
+      .where(eq(usersTable.id, existingAdmin.id));
+    console.log(`Admin user updated: ${existingAdmin.email} -> ${adminEmail}`);
   } else {
-    console.log("Admin user already exists, skipping");
+    console.log("Admin user already exists with correct email, skipping");
   }
 
   process.exit(0);

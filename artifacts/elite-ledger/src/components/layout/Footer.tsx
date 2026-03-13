@@ -62,9 +62,15 @@ export function Footer() {
               <li><Link href="/plans" className="text-sm text-muted-foreground hover:text-primary transition-colors">Join CopyTrading</Link></li>
               <li><Link href="/register" className="text-sm text-muted-foreground hover:text-primary transition-colors">Become A Master</Link></li>
               <li><Link href="/plans" className="text-sm text-muted-foreground hover:text-primary transition-colors">Master's Rating</Link></li>
+            </ul>
+          </div>
 
-              <li className="!mt-8"><h4 className="font-bold text-white text-base">Promotion</h4></li>
+          <div>
+            <h4 className="font-bold text-white text-base mb-5">Promotion</h4>
+            <ul className="space-y-3">
               <li><Link href="/contact" className="text-sm text-muted-foreground hover:text-primary transition-colors">Give Aways</Link></li>
+              <li><Link href="/contact" className="text-sm text-muted-foreground hover:text-primary transition-colors">Trading Contests</Link></li>
+              <li><Link href="/contact" className="text-sm text-muted-foreground hover:text-primary transition-colors">Referral Program</Link></li>
             </ul>
           </div>
         </div>
