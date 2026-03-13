@@ -26,8 +26,8 @@ export function useCursor() {
 
     ring.style.transform = `translate(${x - 20}px, ${y - 20}px) scale(${hovered ? 1.5 : 1})`;
     ring.style.opacity = hidden ? "0" : "1";
-    ring.style.borderColor = hovered ? "var(--primary)" : "rgba(var(--primary-rgb, 212 175 55), 0.5)";
-    ring.style.backgroundColor = hovered ? "rgba(var(--primary-rgb, 212 175 55), 0.2)" : "transparent";
+    ring.style.borderColor = hovered ? "hsl(43 96% 56%)" : "hsla(43 96% 56% / 0.5)";
+    ring.style.backgroundColor = hovered ? "hsla(43 96% 56% / 0.2)" : "transparent";
   }, []);
 
   useEffect(() => {
@@ -38,13 +38,13 @@ export function useCursor() {
 
     const dot = document.createElement("div");
     dot.style.cssText =
-      "position:fixed;top:0;left:0;width:16px;height:16px;background:var(--primary);border-radius:50%;pointer-events:none;z-index:9999;mix-blend-mode:screen;will-change:transform;transition:opacity 0.15s";
+      "position:fixed;top:0;left:0;width:16px;height:16px;background:hsl(43 96% 56%);border-radius:50%;pointer-events:none;z-index:9999;will-change:transform;transition:opacity 0.15s";
     document.body.appendChild(dot);
     dotRef.current = dot;
 
     const ring = document.createElement("div");
     ring.style.cssText =
-      "position:fixed;top:0;left:0;width:40px;height:40px;border:1px solid rgba(var(--primary-rgb,212 175 55),0.5);border-radius:50%;pointer-events:none;z-index:9998;will-change:transform;transition:transform 0.2s ease-out,border-color 0.2s,background-color 0.2s,opacity 0.15s";
+      "position:fixed;top:0;left:0;width:40px;height:40px;border:1px solid hsla(43 96% 56% / 0.5);border-radius:50%;pointer-events:none;z-index:9998;will-change:transform;transition:transform 0.2s ease-out,border-color 0.2s,background-color 0.2s,opacity 0.15s";
     document.body.appendChild(ring);
     ringRef.current = ring;
 

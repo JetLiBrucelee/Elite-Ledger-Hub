@@ -1,11 +1,132 @@
-import { Link } from "wouter";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { X, Send, CheckCircle } from "lucide-react";
+
+function ApplicationModal({ position, onClose }: { position: string; onClose: () => void }) {
+  const [formData, setFormData] = useState({ name: "", email: "", message: "" });
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+    setError("");
+
+    try {
+      const res = await fetch(`${import.meta.env.BASE_URL}api/applications`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...formData, position }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({ error: "Submission failed" }));
+        throw new Error(data.error || "Submission failed");
+      }
+      setSubmitted(true);
+    } catch (err: any) {
+      setError(err.message || "Something went wrong. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={onClose}>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="bg-[#14161c] border border-white/10 rounded-2xl p-8 w-full max-w-lg relative"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button onClick={onClose} className="absolute top-4 right-4 text-white/50 hover:text-white transition-colors">
+          <X className="w-5 h-5" />
+        </button>
+
+        {submitted ? (
+          <div className="text-center py-8">
+            <CheckCircle className="w-16 h-16 text-emerald-500 mx-auto mb-4" />
+            <h3 className="text-2xl font-bold text-white mb-2">Application Submitted!</h3>
+            <p className="text-muted-foreground mb-6">
+              Thank you for applying for <span className="text-primary font-medium">{position}</span>. Our team will review your application and get back to you.
+            </p>
+            <Button onClick={onClose} className="bg-primary hover:bg-primary/90 text-primary-foreground">
+              Close
+            </Button>
+          </div>
+        ) : (
+          <>
+            <h3 className="text-2xl font-bold text-white mb-1">Apply Now</h3>
+            <p className="text-muted-foreground mb-6">
+              Position: <span className="text-primary font-medium">{position}</span>
+            </p>
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-white mb-1.5">Full Name</label>
+                <input
+                  type="text"
+                  required
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="w-full px-4 py-3 bg-background border border-white/10 rounded-lg text-white placeholder-white/30 focus:outline-none focus:border-primary/50 transition-colors"
+                  placeholder="John Doe"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-white mb-1.5">Email Address</label>
+                <input
+                  type="email"
+                  required
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className="w-full px-4 py-3 bg-background border border-white/10 rounded-lg text-white placeholder-white/30 focus:outline-none focus:border-primary/50 transition-colors"
+                  placeholder="john@example.com"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-white mb-1.5">Cover Message</label>
+                <textarea
+                  required
+                  rows={4}
+                  value={formData.message}
+                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                  className="w-full px-4 py-3 bg-background border border-white/10 rounded-lg text-white placeholder-white/30 focus:outline-none focus:border-primary/50 transition-colors resize-none"
+                  placeholder="Tell us about yourself and why you'd be a great fit..."
+                />
+              </div>
+
+              {error && <p className="text-red-400 text-sm">{error}</p>}
+
+              <Button
+                type="submit"
+                disabled={submitting}
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-6 text-base"
+              >
+                {submitting ? (
+                  <div className="w-5 h-5 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <>
+                    <Send className="w-4 h-4 mr-2" />
+                    Submit Application
+                  </>
+                )}
+              </Button>
+            </form>
+          </>
+        )}
+      </motion.div>
+    </div>
+  );
+}
 
 export default function Careers() {
+  const [applyPosition, setApplyPosition] = useState<string | null>(null);
+
   const benefits = [
     { icon: "💰", title: "Financial Incentives", desc: "Above the industry's average, top-notch remuneration package. We recognize and reward high performance with several bonus schemes and incentives." },
     { icon: "📈", title: "Personal Growth", desc: "Education, Learning, Training and Development, Team building events with Career growth opportunities and Mentorships." },
@@ -102,8 +223,12 @@ export default function Careers() {
                       <span>{job.type}</span>
                     </div>
                   </div>
-                  <Button asChild variant="outline" className="border-primary/30 text-primary hover:bg-primary/10 shrink-0">
-                    <Link href="/contact">Apply Now</Link>
+                  <Button
+                    variant="outline"
+                    className="border-primary/30 text-primary hover:bg-primary/10 shrink-0"
+                    onClick={() => setApplyPosition(job.title)}
+                  >
+                    Apply Now
                   </Button>
                 </Card>
               </motion.div>
@@ -118,13 +243,20 @@ export default function Careers() {
           <p className="text-lg text-muted-foreground mb-10 max-w-2xl mx-auto">
             We are constantly seeking talented individuals to join our dynamic team. If you are a passionate and driven professional who thrives in a fast-paced environment, we encourage you to reach out.
           </p>
-          <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white px-10 py-6 text-lg">
-            <Link href="/contact">Send Your CV</Link>
+          <Button
+            className="bg-blue-600 hover:bg-blue-700 text-white px-10 py-6 text-lg"
+            onClick={() => setApplyPosition("General Application")}
+          >
+            Send Your CV
           </Button>
         </div>
       </section>
 
       <Footer />
+
+      {applyPosition && (
+        <ApplicationModal position={applyPosition} onClose={() => setApplyPosition(null)} />
+      )}
     </div>
   );
 }

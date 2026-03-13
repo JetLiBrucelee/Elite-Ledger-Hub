@@ -47,12 +47,12 @@ export function Footer() {
           <div>
             <h4 className="font-bold text-white text-base mb-5">Top Markets</h4>
             <ul className="space-y-3">
-              <li><Link href="/plans" className="text-sm text-muted-foreground hover:text-primary transition-colors">Forex</Link></li>
-              <li><Link href="/plans" className="text-sm text-muted-foreground hover:text-primary transition-colors">Commodities</Link></li>
-              <li><Link href="/plans" className="text-sm text-muted-foreground hover:text-primary transition-colors">Indices</Link></li>
-              <li><Link href="/plans" className="text-sm text-muted-foreground hover:text-primary transition-colors">Stocks</Link></li>
-              <li><Link href="/plans" className="text-sm text-muted-foreground hover:text-primary transition-colors">Futures</Link></li>
-              <li><Link href="/plans" className="text-sm text-muted-foreground hover:text-primary transition-colors">Cryptocurrencies</Link></li>
+              <li><Link href="/markets/forex" className="text-sm text-muted-foreground hover:text-primary transition-colors">Forex</Link></li>
+              <li><Link href="/markets/commodities" className="text-sm text-muted-foreground hover:text-primary transition-colors">Commodities</Link></li>
+              <li><Link href="/markets/indices" className="text-sm text-muted-foreground hover:text-primary transition-colors">Indices</Link></li>
+              <li><Link href="/markets/stocks" className="text-sm text-muted-foreground hover:text-primary transition-colors">Stocks</Link></li>
+              <li><Link href="/markets/futures" className="text-sm text-muted-foreground hover:text-primary transition-colors">Futures</Link></li>
+              <li><Link href="/markets/cryptocurrencies" className="text-sm text-muted-foreground hover:text-primary transition-colors">Cryptocurrencies</Link></li>
             </ul>
           </div>
 

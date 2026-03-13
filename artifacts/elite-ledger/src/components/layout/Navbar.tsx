@@ -40,12 +40,12 @@ const navGroups: NavGroup[] = [
   {
     label: "TopMarkets",
     items: [
-      { name: "Forex", href: "/plans" },
-      { name: "Commodities", href: "/plans" },
-      { name: "Indices", href: "/plans" },
-      { name: "Stocks", href: "/plans" },
-      { name: "Futures", href: "/plans" },
-      { name: "Cryptocurrencies", href: "/plans" },
+      { name: "Forex", href: "/markets/forex" },
+      { name: "Commodities", href: "/markets/commodities" },
+      { name: "Indices", href: "/markets/indices" },
+      { name: "Stocks", href: "/markets/stocks" },
+      { name: "Futures", href: "/markets/futures" },
+      { name: "Cryptocurrencies", href: "/markets/cryptocurrencies" },
     ],
   },
   { label: "Promotion", href: "/promotion" },

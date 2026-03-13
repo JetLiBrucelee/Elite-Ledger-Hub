@@ -18,6 +18,12 @@ import Privacy from "@/pages/Privacy";
 import RiskDisclosure from "@/pages/RiskDisclosure";
 import Careers from "@/pages/Careers";
 import Promotion from "@/pages/Promotion";
+import Forex from "@/pages/markets/Forex";
+import CommoditiesPage from "@/pages/markets/Commodities";
+import Indices from "@/pages/markets/Indices";
+import Stocks from "@/pages/markets/Stocks";
+import Futures from "@/pages/markets/Futures";
+import CryptocurrenciesPage from "@/pages/markets/Cryptocurrencies";
 import UserOverview from "@/pages/dashboard/Overview";
 import Investments from "@/pages/dashboard/Investments";
 import Transactions from "@/pages/dashboard/Transactions";
@@ -69,6 +75,12 @@ function AppRouter() {
       <Route path="/risk-disclosure" component={RiskDisclosure} />
       <Route path="/careers" component={Careers} />
       <Route path="/promotion" component={Promotion} />
+      <Route path="/markets/forex" component={Forex} />
+      <Route path="/markets/commodities" component={CommoditiesPage} />
+      <Route path="/markets/indices" component={Indices} />
+      <Route path="/markets/stocks" component={Stocks} />
+      <Route path="/markets/futures" component={Futures} />
+      <Route path="/markets/cryptocurrencies" component={CryptocurrenciesPage} />
 
       <Route path="/dashboard">
         <ProtectedRoute>

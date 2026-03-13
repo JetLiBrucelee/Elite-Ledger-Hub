@@ -86,6 +86,12 @@ artifacts-monorepo/
 - `/about` — About page with mission, stats, values
 - `/careers` — Careers page with benefits, open positions, send CV CTA
 - `/promotion` — Promotions page with giveaways, contests, referral program, deposit bonus
+- `/markets/forex` — Forex market page with stats, features, instruments
+- `/markets/commodities` — Commodities market page (Gold, Oil, Agriculture)
+- `/markets/indices` — Indices market page (S&P 500, DAX, Nikkei)
+- `/markets/stocks` — Stocks market page (500+ equities)
+- `/markets/futures` — Futures market page (derivatives trading)
+- `/markets/cryptocurrencies` — Crypto market page (BTC, ETH, 30+ pairs)
 - `/contact` — Contact form + info
 - `/login` — Sign in form
 - `/register` — Registration form (admin approval required)
