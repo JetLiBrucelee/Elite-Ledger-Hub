@@ -40,7 +40,7 @@ artifacts-monorepo/
 
 ## Database Schema
 
-- **users** — id, firstName, lastName, email, passwordHash, phone, country, role (user/admin), status (pending/approved/rejected/blocked), createdAt
+- **users** — id, firstName, lastName, email, passwordHash, phone, country, role (user/admin), status (pending/approved/rejected/blocked), balance (numeric 15,2 default 0), plan (varchar 50), createdAt, updatedAt
 - **sessions** — id, userId, token, expiresAt, createdAt
 - **investment_plans** — id, name, tier (bronze/silver/gold/platinum/diamond), minInvestment, returnPercentage, durationMonths, description, features (json), schedule (json)
 - **user_investments** — id, userId, planId, planName, planTier, investedAmount, currentValue, returnPercentage, status, startDate, endDate
@@ -67,8 +67,8 @@ artifacts-monorepo/
 
 ### Admin (requires admin role)
 - `GET /api/admin/users` — List all users (optional ?status= filter)
-- `POST /api/admin/users/create` — Create a new user
-- `PATCH /api/admin/users/:id` — Edit user details (name, email, role, status, etc.)
+- `POST /api/admin/users` — Create a new user (with balance/plan)
+- `PATCH /api/admin/users/:id` — Edit user details (name, email, role, status, balance, plan)
 - `POST /api/admin/users/:id/approve` — Approve user
 - `POST /api/admin/users/:id/reject` — Reject user
 - `POST /api/admin/users/:id/block` — Block user (revokes sessions)

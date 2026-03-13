@@ -179,6 +179,10 @@ router.patch("/admin/users/:id", requireAdmin, async (req, res): Promise<void> =
     return;
   }
 
+  if (updateData.status === "blocked") {
+    await db.delete(sessionsTable).where(eq(sessionsTable.userId, id));
+  }
+
   res.json(userToDTO(user));
 });
 
