@@ -5,8 +5,17 @@ import router from "./routes";
 
 const app: Express = express();
 
+const allowedOrigin = process.env.ALLOWED_ORIGIN;
 app.use(cors({
-  origin: true,
+  origin: allowedOrigin
+    ? (origin, callback) => {
+        if (!origin || origin === allowedOrigin) {
+          callback(null, true);
+        } else {
+          callback(new Error(`CORS: origin '${origin}' not allowed`));
+        }
+      }
+    : true,
   credentials: true,
 }));
 app.use(cookieParser());
