@@ -1,4 +1,4 @@
-import { Switch, Route, Router as WouterRouter, Redirect } from "wouter";
+import { Switch, Route, Router as WouterRouter, Redirect, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -108,6 +108,13 @@ function AppRouter() {
   );
 }
 
+function PublicChatWidget() {
+  const [location] = useLocation();
+  const isPrivateRoute = location.startsWith("/dashboard") || location.startsWith("/admin");
+  if (isPrivateRoute) return null;
+  return <ChatWidget />;
+}
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
@@ -116,7 +123,7 @@ function App() {
           <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
             <CustomCursor />
             <AppRouter />
-            <ChatWidget />
+            <PublicChatWidget />
           </WouterRouter>
           <Toaster />
         </TooltipProvider>

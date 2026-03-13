@@ -18,8 +18,12 @@ const router: IRouter = Router();
 
 router.get("/chat/messages", async (req, res): Promise<void> => {
   const sessionId = req.query.sessionId as string;
-  if (!sessionId || !isValidSessionId(sessionId)) {
-    res.json([]);
+  if (!sessionId) {
+    res.status(400).json({ error: "sessionId query parameter is required" });
+    return;
+  }
+  if (!isValidSessionId(sessionId)) {
+    res.status(400).json({ error: "Invalid session ID format" });
     return;
   }
 
