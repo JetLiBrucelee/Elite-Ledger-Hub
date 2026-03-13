@@ -165,13 +165,14 @@ paths:
     get:
       operationId: getChatMessages
       tags: [chat]
-      summary: Get chat messages for the current user or session
+      summary: Get chat messages for a session
       parameters:
         - name: sessionId
           in: query
-          required: false
+          required: true
           schema:
             type: string
+            format: uuid
       responses:
         "200":
           description: Chat messages
@@ -181,6 +182,8 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/ChatMessage"
+        "400":
+          description: Missing or invalid sessionId
 
     post:
       operationId: sendChatMessage
@@ -199,6 +202,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ChatMessage"
+        "400":
+          description: Invalid request body or session ID
+        "429":
+          description: Rate limit exceeded — too many messages per minute
 
   /chat/events:
     get:
