@@ -1,5 +1,5 @@
 import crypto from "crypto";
-import { Router, type IRouter } from "express";
+import { Router, type IRouter, type Request, type Response } from "express";
 import { db, chatMessagesTable, chatSessionsTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { SendChatMessageBody } from "@workspace/api-zod";
@@ -7,11 +7,49 @@ import { addSSEClient, removeSSEClient, broadcastToSession, broadcastToAdmins, c
 import { getUserFromToken } from "../lib/auth";
 
 const RESERVED_SESSION_IDS = new Set(["admin", "system", "broadcast"]);
-
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 function isValidSessionId(id: string): boolean {
   return UUID_REGEX.test(id) && !RESERVED_SESSION_IDS.has(id);
+}
+
+const RATE_LIMIT_WINDOW_MS = 60_000;
+const RATE_LIMIT_MAX = 20;
+
+interface RateLimitEntry {
+  count: number;
+  resetAt: number;
+}
+
+const rateLimitMap = new Map<string, RateLimitEntry>();
+
+function getClientIp(req: Request): string {
+  const forwarded = req.headers["x-forwarded-for"];
+  if (typeof forwarded === "string") return forwarded.split(",")[0].trim();
+  return req.socket.remoteAddress ?? "unknown";
+}
+
+function isRateLimited(ip: string): boolean {
+  const now = Date.now();
+  const entry = rateLimitMap.get(ip);
+
+  if (!entry || now > entry.resetAt) {
+    rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+    return false;
+  }
+
+  entry.count += 1;
+  if (entry.count > RATE_LIMIT_MAX) return true;
+  return false;
+}
+
+function rateLimitChatMiddleware(req: Request, res: Response, next: () => void): void {
+  const ip = getClientIp(req);
+  if (isRateLimited(ip)) {
+    res.status(429).json({ error: "Too many messages. Please wait before sending again." });
+    return;
+  }
+  next();
 }
 
 const router: IRouter = Router();
@@ -45,7 +83,7 @@ router.get("/chat/messages", async (req, res): Promise<void> => {
   );
 });
 
-router.post("/chat/messages", async (req, res): Promise<void> => {
+router.post("/chat/messages", rateLimitChatMiddleware, async (req, res): Promise<void> => {
   const parsed = SendChatMessageBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
