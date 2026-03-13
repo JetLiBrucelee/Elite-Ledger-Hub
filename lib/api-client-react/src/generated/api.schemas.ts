@@ -45,6 +45,7 @@ export const UserStatus = {
   pending: "pending",
   approved: "approved",
   rejected: "rejected",
+  blocked: "blocked",
 } as const;
 
 export interface User {
@@ -64,6 +65,95 @@ export interface User {
 export interface AuthResponse {
   user: User;
   message: string;
+}
+
+export type AdminCreateUserRequestRole =
+  (typeof AdminCreateUserRequestRole)[keyof typeof AdminCreateUserRequestRole];
+
+export const AdminCreateUserRequestRole = {
+  user: "user",
+  admin: "admin",
+} as const;
+
+export type AdminCreateUserRequestStatus =
+  (typeof AdminCreateUserRequestStatus)[keyof typeof AdminCreateUserRequestStatus];
+
+export const AdminCreateUserRequestStatus = {
+  pending: "pending",
+  approved: "approved",
+  rejected: "rejected",
+  blocked: "blocked",
+} as const;
+
+export interface AdminCreateUserRequest {
+  firstName: string;
+  lastName: string;
+  email: string;
+  /** @minLength 6 */
+  password: string;
+  phone?: string;
+  country?: string;
+  role?: AdminCreateUserRequestRole;
+  status?: AdminCreateUserRequestStatus;
+}
+
+export type AdminEditUserRequestRole =
+  (typeof AdminEditUserRequestRole)[keyof typeof AdminEditUserRequestRole];
+
+export const AdminEditUserRequestRole = {
+  user: "user",
+  admin: "admin",
+} as const;
+
+export type AdminEditUserRequestStatus =
+  (typeof AdminEditUserRequestStatus)[keyof typeof AdminEditUserRequestStatus];
+
+export const AdminEditUserRequestStatus = {
+  pending: "pending",
+  approved: "approved",
+  rejected: "rejected",
+  blocked: "blocked",
+} as const;
+
+export interface AdminEditUserRequest {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phone?: string;
+  country?: string;
+  role?: AdminEditUserRequestRole;
+  status?: AdminEditUserRequestStatus;
+}
+
+export type JobApplicationStatus =
+  (typeof JobApplicationStatus)[keyof typeof JobApplicationStatus];
+
+export const JobApplicationStatus = {
+  pending: "pending",
+  reviewed: "reviewed",
+  rejected: "rejected",
+} as const;
+
+export interface JobApplication {
+  id: number;
+  name: string;
+  email: string;
+  position: string;
+  message: string;
+  status: JobApplicationStatus;
+  createdAt: string;
+}
+
+export type UpdateApplicationStatusRequestStatus =
+  (typeof UpdateApplicationStatusRequestStatus)[keyof typeof UpdateApplicationStatusRequestStatus];
+
+export const UpdateApplicationStatusRequestStatus = {
+  reviewed: "reviewed",
+  rejected: "rejected",
+} as const;
+
+export interface UpdateApplicationStatusRequest {
+  status: UpdateApplicationStatusRequestStatus;
 }
 
 export type InvestmentPlanTier =
@@ -205,11 +295,11 @@ export interface UserInvestment {
 }
 
 export type GetChatMessagesParams = {
-  sessionId?: string;
+  sessionId: string;
 };
 
 export type ChatEventsParams = {
-  sessionId?: string;
+  sessionId: string;
 };
 
 export type AdminGetUsersParams = {
@@ -223,4 +313,5 @@ export const AdminGetUsersStatus = {
   pending: "pending",
   approved: "approved",
   rejected: "rejected",
+  blocked: "blocked",
 } as const;

@@ -7,5 +7,5 @@
  */
 
 export type ChatEventsParams = {
-  sessionId?: string;
+  sessionId: string;
 };

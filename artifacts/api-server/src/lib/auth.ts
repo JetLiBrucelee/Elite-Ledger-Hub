@@ -49,6 +49,10 @@ export async function requireApproved(req: Request, res: Response, next: NextFun
     res.status(401).json({ error: "Invalid or expired session" });
     return;
   }
+  if (user.status === "blocked") {
+    res.status(403).json({ error: "Your account has been blocked" });
+    return;
+  }
   if (user.status !== "approved") {
     res.status(403).json({ error: "Account not approved" });
     return;
@@ -66,6 +70,10 @@ export async function requireAdmin(req: Request, res: Response, next: NextFuncti
   const user = await getUserFromToken(token);
   if (!user) {
     res.status(401).json({ error: "Invalid or expired session" });
+    return;
+  }
+  if (user.status === "blocked") {
+    res.status(403).json({ error: "Your account has been blocked" });
     return;
   }
   if (user.role !== "admin") {

@@ -40,7 +40,7 @@ artifacts-monorepo/
 
 ## Database Schema
 
-- **users** — id, firstName, lastName, email, passwordHash, phone, country, role (user/admin), status (pending/approved/rejected), createdAt
+- **users** — id, firstName, lastName, email, passwordHash, phone, country, role (user/admin), status (pending/approved/rejected/blocked), createdAt
 - **sessions** — id, userId, token, expiresAt, createdAt
 - **investment_plans** — id, name, tier (bronze/silver/gold/platinum/diamond), minInvestment, returnPercentage, durationMonths, description, features (json), schedule (json)
 - **user_investments** — id, userId, planId, planName, planTier, investedAmount, currentValue, returnPercentage, status, startDate, endDate
@@ -66,13 +66,22 @@ artifacts-monorepo/
 - `GET /api/chat/events?sessionId=X` — SSE stream for real-time messages
 
 ### Admin (requires admin role)
-- `GET /api/admin/users` — List all users
+- `GET /api/admin/users` — List all users (optional ?status= filter)
+- `POST /api/admin/users/create` — Create a new user
+- `PATCH /api/admin/users/:id` — Edit user details (name, email, role, status, etc.)
 - `POST /api/admin/users/:id/approve` — Approve user
 - `POST /api/admin/users/:id/reject` — Reject user
+- `POST /api/admin/users/:id/block` — Block user (revokes sessions)
+- `POST /api/admin/users/:id/unblock` — Unblock user (restores to approved)
+- `GET /api/admin/applications` — List all job applications
+- `PATCH /api/admin/applications/:id/status` — Update application status (reviewed/rejected)
 - `GET /api/admin/chat/sessions` — List chat sessions
 - `GET /api/admin/chat/sessions/:sessionId/messages` — Get session messages
 - `POST /api/admin/chat/reply` — Reply to chat
 - `GET /api/admin/stats` — Dashboard statistics
+
+### Job Applications (public)
+- `POST /api/applications` — Submit a job application (from Careers page)
 
 ### User Dashboard (requires auth)
 - `GET /api/user/dashboard` — Dashboard overview (balance, investments, transactions)
@@ -99,7 +108,8 @@ artifacts-monorepo/
 - `/dashboard/investments` — User investments list (protected)
 - `/dashboard/transactions` — Transaction history (protected)
 - `/admin` — Admin system overview (admin only)
-- `/admin/users` — User management with approve/reject (admin only)
+- `/admin/users` — User management with approve/reject/block/unblock/create/edit (admin only)
+- `/admin/applications` — Job applications management with review/reject (admin only)
 - `/admin/chat` — Live chat inbox (admin only)
 
 ## Key Accounts

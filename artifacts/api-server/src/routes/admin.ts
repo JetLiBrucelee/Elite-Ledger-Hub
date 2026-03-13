@@ -1,5 +1,6 @@
 import { Router, type IRouter } from "express";
-import { db, usersTable, chatMessagesTable, chatSessionsTable, userInvestmentsTable, transactionsTable } from "@workspace/db";
+import bcryptjs from "bcryptjs";
+import { db, usersTable, sessionsTable, chatMessagesTable, chatSessionsTable, userInvestmentsTable, transactionsTable, jobApplicationsTable } from "@workspace/db";
 import { eq, desc, count, sql } from "drizzle-orm";
 import { AdminApproveUserParams, AdminRejectUserParams, AdminReplyChatBody, AdminGetSessionMessagesParams } from "@workspace/api-zod";
 import { requireAdmin } from "../lib/auth";
@@ -8,25 +9,37 @@ import type { AuthenticatedRequest } from "../types";
 
 const router: IRouter = Router();
 
+function userToDTO(u: {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string | null;
+  country: string | null;
+  role: string;
+  status: string;
+  createdAt: Date;
+}) {
+  return {
+    id: u.id,
+    firstName: u.firstName,
+    lastName: u.lastName,
+    email: u.email,
+    phone: u.phone,
+    country: u.country,
+    role: u.role,
+    status: u.status,
+    createdAt: u.createdAt.toISOString(),
+  };
+}
+
 router.get("/admin/users", requireAdmin, async (req, res): Promise<void> => {
   const statusFilter = req.query.status as string | undefined;
   const users = statusFilter
     ? await db.select().from(usersTable).where(eq(usersTable.status, statusFilter)).orderBy(desc(usersTable.createdAt))
     : await db.select().from(usersTable).orderBy(desc(usersTable.createdAt));
 
-  res.json(
-    users.map((u) => ({
-      id: u.id,
-      firstName: u.firstName,
-      lastName: u.lastName,
-      email: u.email,
-      phone: u.phone,
-      country: u.country,
-      role: u.role,
-      status: u.status,
-      createdAt: u.createdAt.toISOString(),
-    }))
-  );
+  res.json(users.map(userToDTO));
 });
 
 router.post("/admin/users/:id/approve", requireAdmin, async (req, res): Promise<void> => {
@@ -47,17 +60,7 @@ router.post("/admin/users/:id/approve", requireAdmin, async (req, res): Promise<
     return;
   }
 
-  res.json({
-    id: user.id,
-    firstName: user.firstName,
-    lastName: user.lastName,
-    email: user.email,
-    phone: user.phone,
-    country: user.country,
-    role: user.role,
-    status: user.status,
-    createdAt: user.createdAt.toISOString(),
-  });
+  res.json(userToDTO(user));
 });
 
 router.post("/admin/users/:id/reject", requireAdmin, async (req, res): Promise<void> => {
@@ -78,16 +81,193 @@ router.post("/admin/users/:id/reject", requireAdmin, async (req, res): Promise<v
     return;
   }
 
+  res.json(userToDTO(user));
+});
+
+router.post("/admin/users/:id/block", requireAdmin, async (req, res): Promise<void> => {
+  const id = Number(req.params.id);
+  if (!id || isNaN(id)) {
+    res.status(400).json({ error: "Invalid user ID" });
+    return;
+  }
+
+  const [user] = await db
+    .update(usersTable)
+    .set({ status: "blocked" })
+    .where(eq(usersTable.id, id))
+    .returning();
+
+  if (!user) {
+    res.status(404).json({ error: "User not found" });
+    return;
+  }
+
+  await db.delete(sessionsTable).where(eq(sessionsTable.userId, id));
+
+  res.json(userToDTO(user));
+});
+
+router.post("/admin/users/:id/unblock", requireAdmin, async (req, res): Promise<void> => {
+  const id = Number(req.params.id);
+  if (!id || isNaN(id)) {
+    res.status(400).json({ error: "Invalid user ID" });
+    return;
+  }
+
+  const [user] = await db
+    .update(usersTable)
+    .set({ status: "approved" })
+    .where(eq(usersTable.id, id))
+    .returning();
+
+  if (!user) {
+    res.status(404).json({ error: "User not found" });
+    return;
+  }
+
+  res.json(userToDTO(user));
+});
+
+router.patch("/admin/users/:id", requireAdmin, async (req, res): Promise<void> => {
+  const id = Number(req.params.id);
+  if (!id || isNaN(id)) {
+    res.status(400).json({ error: "Invalid user ID" });
+    return;
+  }
+
+  const { firstName, lastName, email, phone, country, role, status } = req.body || {};
+
+  const updateData: Record<string, string | null> = {};
+  if (typeof firstName === "string" && firstName.trim()) updateData.firstName = firstName.trim();
+  if (typeof lastName === "string" && lastName.trim()) updateData.lastName = lastName.trim();
+  if (typeof email === "string" && email.trim()) updateData.email = email.trim();
+  if (typeof phone === "string") updateData.phone = phone.trim() || null;
+  if (typeof country === "string") updateData.country = country.trim() || null;
+  if (typeof role === "string" && ["user", "admin"].includes(role)) updateData.role = role;
+  if (typeof status === "string" && ["pending", "approved", "rejected", "blocked"].includes(status)) updateData.status = status;
+
+  if (Object.keys(updateData).length === 0) {
+    res.status(400).json({ error: "No valid fields to update" });
+    return;
+  }
+
+  if (updateData.email) {
+    const [existing] = await db.select({ id: usersTable.id }).from(usersTable).where(eq(usersTable.email, updateData.email));
+    if (existing && existing.id !== id) {
+      res.status(400).json({ error: "An account with this email already exists" });
+      return;
+    }
+  }
+
+  const [user] = await db
+    .update(usersTable)
+    .set(updateData)
+    .where(eq(usersTable.id, id))
+    .returning();
+
+  if (!user) {
+    res.status(404).json({ error: "User not found" });
+    return;
+  }
+
+  res.json(userToDTO(user));
+});
+
+router.post("/admin/users/create", requireAdmin, async (req, res): Promise<void> => {
+  const { firstName, lastName, email, password, phone, country, role, status } = req.body || {};
+
+  if (!firstName || typeof firstName !== "string" || !firstName.trim()) {
+    res.status(400).json({ error: "First name is required" });
+    return;
+  }
+  if (!lastName || typeof lastName !== "string" || !lastName.trim()) {
+    res.status(400).json({ error: "Last name is required" });
+    return;
+  }
+  if (!email || typeof email !== "string" || !email.includes("@")) {
+    res.status(400).json({ error: "Valid email is required" });
+    return;
+  }
+  if (!password || typeof password !== "string" || password.length < 6) {
+    res.status(400).json({ error: "Password must be at least 6 characters" });
+    return;
+  }
+
+  const [existing] = await db.select().from(usersTable).where(eq(usersTable.email, email));
+  if (existing) {
+    res.status(400).json({ error: "An account with this email already exists" });
+    return;
+  }
+
+  const passwordHash = await bcryptjs.hash(password, 10);
+  const [user] = await db
+    .insert(usersTable)
+    .values({
+      firstName: firstName.trim(),
+      lastName: lastName.trim(),
+      email: email.trim(),
+      passwordHash,
+      phone: phone || null,
+      country: country || null,
+      role: role || "user",
+      status: status || "approved",
+    })
+    .returning();
+
+  res.status(201).json(userToDTO(user));
+});
+
+router.get("/admin/applications", requireAdmin, async (_req, res): Promise<void> => {
+  const applications = await db
+    .select()
+    .from(jobApplicationsTable)
+    .orderBy(desc(jobApplicationsTable.createdAt));
+
+  res.json(
+    applications.map((a) => ({
+      id: a.id,
+      name: a.name,
+      email: a.email,
+      position: a.position,
+      message: a.message,
+      status: a.status,
+      createdAt: a.createdAt.toISOString(),
+    }))
+  );
+});
+
+router.patch("/admin/applications/:id/status", requireAdmin, async (req, res): Promise<void> => {
+  const id = Number(req.params.id);
+  if (!id || isNaN(id)) {
+    res.status(400).json({ error: "Invalid application ID" });
+    return;
+  }
+
+  const { status } = req.body || {};
+  if (!status || !["reviewed", "rejected"].includes(status)) {
+    res.status(400).json({ error: "Status must be 'reviewed' or 'rejected'" });
+    return;
+  }
+
+  const [application] = await db
+    .update(jobApplicationsTable)
+    .set({ status })
+    .where(eq(jobApplicationsTable.id, id))
+    .returning();
+
+  if (!application) {
+    res.status(404).json({ error: "Application not found" });
+    return;
+  }
+
   res.json({
-    id: user.id,
-    firstName: user.firstName,
-    lastName: user.lastName,
-    email: user.email,
-    phone: user.phone,
-    country: user.country,
-    role: user.role,
-    status: user.status,
-    createdAt: user.createdAt.toISOString(),
+    id: application.id,
+    name: application.name,
+    email: application.email,
+    position: application.position,
+    message: application.message,
+    status: application.status,
+    createdAt: application.createdAt.toISOString(),
   });
 });
 

@@ -113,6 +113,11 @@ router.post("/auth/login", async (req, res): Promise<void> => {
     return;
   }
 
+  if (user.status === "blocked") {
+    res.status(403).json({ error: "Your account has been blocked. Please contact support for assistance.", code: "ACCOUNT_BLOCKED" });
+    return;
+  }
+
   const token = generateToken();
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
   await db.insert(sessionsTable).values({

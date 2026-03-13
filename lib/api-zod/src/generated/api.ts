@@ -45,7 +45,7 @@ export const LoginResponse = zod.object({
     phone: zod.string().nullish(),
     country: zod.string().nullish(),
     role: zod.enum(["user", "admin"]),
-    status: zod.enum(["pending", "approved", "rejected"]),
+    status: zod.enum(["pending", "approved", "rejected", "blocked"]),
     createdAt: zod.date(),
   }),
   message: zod.string(),
@@ -62,7 +62,7 @@ export const GetMeResponse = zod.object({
   phone: zod.string().nullish(),
   country: zod.string().nullish(),
   role: zod.enum(["user", "admin"]),
-  status: zod.enum(["pending", "approved", "rejected"]),
+  status: zod.enum(["pending", "approved", "rejected", "blocked"]),
   createdAt: zod.date(),
 });
 
@@ -113,10 +113,10 @@ export const GetPlanResponse = zod.object({
 });
 
 /**
- * @summary Get chat messages for the current user or session
+ * @summary Get chat messages for a session
  */
 export const GetChatMessagesQueryParams = zod.object({
-  sessionId: zod.coerce.string().optional(),
+  sessionId: zod.coerce.string().uuid(),
 });
 
 export const GetChatMessagesResponseItem = zod.object({
@@ -142,14 +142,14 @@ export const SendChatMessageBody = zod.object({
  * @summary SSE stream for real-time chat updates
  */
 export const ChatEventsQueryParams = zod.object({
-  sessionId: zod.coerce.string().optional(),
+  sessionId: zod.coerce.string().uuid(),
 });
 
 /**
  * @summary Get all users (admin only)
  */
 export const AdminGetUsersQueryParams = zod.object({
-  status: zod.enum(["pending", "approved", "rejected"]).optional(),
+  status: zod.enum(["pending", "approved", "rejected", "blocked"]).optional(),
 });
 
 export const AdminGetUsersResponseItem = zod.object({
@@ -160,7 +160,7 @@ export const AdminGetUsersResponseItem = zod.object({
   phone: zod.string().nullish(),
   country: zod.string().nullish(),
   role: zod.enum(["user", "admin"]),
-  status: zod.enum(["pending", "approved", "rejected"]),
+  status: zod.enum(["pending", "approved", "rejected", "blocked"]),
   createdAt: zod.date(),
 });
 export const AdminGetUsersResponse = zod.array(AdminGetUsersResponseItem);
@@ -180,7 +180,7 @@ export const AdminApproveUserResponse = zod.object({
   phone: zod.string().nullish(),
   country: zod.string().nullish(),
   role: zod.enum(["user", "admin"]),
-  status: zod.enum(["pending", "approved", "rejected"]),
+  status: zod.enum(["pending", "approved", "rejected", "blocked"]),
   createdAt: zod.date(),
 });
 
@@ -199,7 +199,127 @@ export const AdminRejectUserResponse = zod.object({
   phone: zod.string().nullish(),
   country: zod.string().nullish(),
   role: zod.enum(["user", "admin"]),
-  status: zod.enum(["pending", "approved", "rejected"]),
+  status: zod.enum(["pending", "approved", "rejected", "blocked"]),
+  createdAt: zod.date(),
+});
+
+/**
+ * @summary Block an active user
+ */
+export const AdminBlockUserParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const AdminBlockUserResponse = zod.object({
+  id: zod.number(),
+  firstName: zod.string(),
+  lastName: zod.string(),
+  email: zod.string(),
+  phone: zod.string().nullish(),
+  country: zod.string().nullish(),
+  role: zod.enum(["user", "admin"]),
+  status: zod.enum(["pending", "approved", "rejected", "blocked"]),
+  createdAt: zod.date(),
+});
+
+/**
+ * @summary Unblock a blocked user
+ */
+export const AdminUnblockUserParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const AdminUnblockUserResponse = zod.object({
+  id: zod.number(),
+  firstName: zod.string(),
+  lastName: zod.string(),
+  email: zod.string(),
+  phone: zod.string().nullish(),
+  country: zod.string().nullish(),
+  role: zod.enum(["user", "admin"]),
+  status: zod.enum(["pending", "approved", "rejected", "blocked"]),
+  createdAt: zod.date(),
+});
+
+/**
+ * @summary Edit a user's details
+ */
+export const AdminEditUserParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const AdminEditUserBody = zod.object({
+  firstName: zod.string().optional(),
+  lastName: zod.string().optional(),
+  email: zod.string().email().optional(),
+  phone: zod.string().optional(),
+  country: zod.string().optional(),
+  role: zod.enum(["user", "admin"]).optional(),
+  status: zod.enum(["pending", "approved", "rejected", "blocked"]).optional(),
+});
+
+export const AdminEditUserResponse = zod.object({
+  id: zod.number(),
+  firstName: zod.string(),
+  lastName: zod.string(),
+  email: zod.string(),
+  phone: zod.string().nullish(),
+  country: zod.string().nullish(),
+  role: zod.enum(["user", "admin"]),
+  status: zod.enum(["pending", "approved", "rejected", "blocked"]),
+  createdAt: zod.date(),
+});
+
+/**
+ * @summary Create a new user from admin panel
+ */
+export const adminCreateUserBodyPasswordMin = 6;
+
+export const AdminCreateUserBody = zod.object({
+  firstName: zod.string(),
+  lastName: zod.string(),
+  email: zod.string().email(),
+  password: zod.string().min(adminCreateUserBodyPasswordMin),
+  phone: zod.string().optional(),
+  country: zod.string().optional(),
+  role: zod.enum(["user", "admin"]).optional(),
+  status: zod.enum(["pending", "approved", "rejected", "blocked"]).optional(),
+});
+
+/**
+ * @summary Get all job applications
+ */
+export const AdminGetApplicationsResponseItem = zod.object({
+  id: zod.number(),
+  name: zod.string(),
+  email: zod.string(),
+  position: zod.string(),
+  message: zod.string(),
+  status: zod.enum(["pending", "reviewed", "rejected"]),
+  createdAt: zod.date(),
+});
+export const AdminGetApplicationsResponse = zod.array(
+  AdminGetApplicationsResponseItem,
+);
+
+/**
+ * @summary Update a job application status
+ */
+export const AdminUpdateApplicationStatusParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const AdminUpdateApplicationStatusBody = zod.object({
+  status: zod.enum(["reviewed", "rejected"]),
+});
+
+export const AdminUpdateApplicationStatusResponse = zod.object({
+  id: zod.number(),
+  name: zod.string(),
+  email: zod.string(),
+  position: zod.string(),
+  message: zod.string(),
+  status: zod.enum(["pending", "reviewed", "rejected"]),
   createdAt: zod.date(),
 });
 

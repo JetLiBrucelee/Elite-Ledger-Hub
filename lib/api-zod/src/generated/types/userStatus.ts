@@ -12,4 +12,5 @@ export const UserStatus = {
   pending: "pending",
   approved: "approved",
   rejected: "rejected",
+  blocked: "blocked",
 } as const;

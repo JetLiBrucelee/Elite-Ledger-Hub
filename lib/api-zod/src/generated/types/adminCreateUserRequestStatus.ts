@@ -6,10 +6,10 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type AdminGetUsersStatus =
-  (typeof AdminGetUsersStatus)[keyof typeof AdminGetUsersStatus];
+export type AdminCreateUserRequestStatus =
+  (typeof AdminCreateUserRequestStatus)[keyof typeof AdminCreateUserRequestStatus];
 
-export const AdminGetUsersStatus = {
+export const AdminCreateUserRequestStatus = {
   pending: "pending",
   approved: "approved",
   rejected: "rejected",

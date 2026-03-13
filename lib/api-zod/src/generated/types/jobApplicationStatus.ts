@@ -6,12 +6,11 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type AdminGetUsersStatus =
-  (typeof AdminGetUsersStatus)[keyof typeof AdminGetUsersStatus];
+export type JobApplicationStatus =
+  (typeof JobApplicationStatus)[keyof typeof JobApplicationStatus];
 
-export const AdminGetUsersStatus = {
+export const JobApplicationStatus = {
   pending: "pending",
-  approved: "approved",
+  reviewed: "reviewed",
   rejected: "rejected",
-  blocked: "blocked",
 } as const;

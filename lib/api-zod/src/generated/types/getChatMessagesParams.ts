@@ -7,5 +7,5 @@
  */
 
 export type GetChatMessagesParams = {
-  sessionId?: string;
+  sessionId: string;
 };

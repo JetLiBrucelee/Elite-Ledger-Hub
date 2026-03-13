@@ -1,41 +1,352 @@
-import { useAdminGetUsers, useAdminApproveUser, useAdminRejectUser, getAdminGetUsersQueryKey } from "@workspace/api-client-react";
+import { useState } from "react";
+import {
+  useAdminGetUsers,
+  useAdminApproveUser,
+  useAdminRejectUser,
+  useAdminBlockUser,
+  useAdminUnblockUser,
+  useAdminEditUser,
+  useAdminCreateUser,
+  getAdminGetUsersQueryKey,
+} from "@workspace/api-client-react";
+import type { User, AdminCreateUserRequest, AdminEditUserRequest } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { formatDate } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Check, X } from "lucide-react";
+import { Check, X, Ban, Unlock, Pencil, Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
+function CreateUserDialog({ onClose }: { onClose: () => void }) {
+  const [formData, setFormData] = useState<AdminCreateUserRequest>({
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    phone: "",
+    country: "",
+    role: "user",
+    status: "approved",
+  });
+  const createMutation = useAdminCreateUser();
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await createMutation.mutateAsync({ data: formData });
+      toast({ title: "User created successfully" });
+      queryClient.invalidateQueries({ queryKey: getAdminGetUsersQueryKey({}) });
+      onClose();
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Failed to create user";
+      toast({ title: msg, variant: "destructive" });
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={onClose}>
+      <div
+        className="bg-[#14161c] border border-white/10 rounded-2xl p-8 w-full max-w-lg relative max-h-[90vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button onClick={onClose} className="absolute top-4 right-4 text-white/50 hover:text-white transition-colors">
+          <X className="w-5 h-5" />
+        </button>
+
+        <h3 className="text-2xl font-bold text-white mb-6">Create New User</h3>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-white mb-1.5">First Name</label>
+              <input
+                type="text"
+                required
+                value={formData.firstName}
+                onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                className="w-full px-4 py-3 bg-background border border-white/10 rounded-lg text-white placeholder-white/30 focus:outline-none focus:border-primary/50 transition-colors"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-white mb-1.5">Last Name</label>
+              <input
+                type="text"
+                required
+                value={formData.lastName}
+                onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                className="w-full px-4 py-3 bg-background border border-white/10 rounded-lg text-white placeholder-white/30 focus:outline-none focus:border-primary/50 transition-colors"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-white mb-1.5">Email</label>
+            <input
+              type="email"
+              required
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              className="w-full px-4 py-3 bg-background border border-white/10 rounded-lg text-white placeholder-white/30 focus:outline-none focus:border-primary/50 transition-colors"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-white mb-1.5">Password</label>
+            <input
+              type="password"
+              required
+              minLength={6}
+              value={formData.password}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              className="w-full px-4 py-3 bg-background border border-white/10 rounded-lg text-white placeholder-white/30 focus:outline-none focus:border-primary/50 transition-colors"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-white mb-1.5">Phone</label>
+              <input
+                type="text"
+                value={formData.phone || ""}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                className="w-full px-4 py-3 bg-background border border-white/10 rounded-lg text-white placeholder-white/30 focus:outline-none focus:border-primary/50 transition-colors"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-white mb-1.5">Country</label>
+              <input
+                type="text"
+                value={formData.country || ""}
+                onChange={(e) => setFormData({ ...formData, country: e.target.value })}
+                className="w-full px-4 py-3 bg-background border border-white/10 rounded-lg text-white placeholder-white/30 focus:outline-none focus:border-primary/50 transition-colors"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-white mb-1.5">Role</label>
+              <select
+                value={formData.role || "user"}
+                onChange={(e) => setFormData({ ...formData, role: e.target.value as "user" | "admin" })}
+                className="w-full px-4 py-3 bg-background border border-white/10 rounded-lg text-white focus:outline-none focus:border-primary/50 transition-colors"
+              >
+                <option value="user">User</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-white mb-1.5">Status</label>
+              <select
+                value={formData.status || "approved"}
+                onChange={(e) => setFormData({ ...formData, status: e.target.value as "pending" | "approved" | "rejected" | "blocked" })}
+                className="w-full px-4 py-3 bg-background border border-white/10 rounded-lg text-white focus:outline-none focus:border-primary/50 transition-colors"
+              >
+                <option value="approved">Approved</option>
+                <option value="pending">Pending</option>
+                <option value="rejected">Rejected</option>
+                <option value="blocked">Blocked</option>
+              </select>
+            </div>
+          </div>
+
+          <Button
+            type="submit"
+            disabled={createMutation.isPending}
+            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-6 text-base mt-4"
+          >
+            {createMutation.isPending ? "Creating..." : "Create User"}
+          </Button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function EditUserDialog({ user, onClose }: { user: User; onClose: () => void }) {
+  const [formData, setFormData] = useState<AdminEditUserRequest>({
+    firstName: user.firstName,
+    lastName: user.lastName,
+    email: user.email,
+    phone: user.phone || "",
+    country: user.country || "",
+    role: user.role as "user" | "admin",
+    status: user.status as "pending" | "approved" | "rejected" | "blocked",
+  });
+  const editMutation = useAdminEditUser();
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await editMutation.mutateAsync({ id: user.id, data: formData });
+      toast({ title: "User updated successfully" });
+      queryClient.invalidateQueries({ queryKey: getAdminGetUsersQueryKey({}) });
+      onClose();
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Failed to update user";
+      toast({ title: msg, variant: "destructive" });
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={onClose}>
+      <div
+        className="bg-[#14161c] border border-white/10 rounded-2xl p-8 w-full max-w-lg relative max-h-[90vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button onClick={onClose} className="absolute top-4 right-4 text-white/50 hover:text-white transition-colors">
+          <X className="w-5 h-5" />
+        </button>
+
+        <h3 className="text-2xl font-bold text-white mb-6">Edit User</h3>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-white mb-1.5">First Name</label>
+              <input
+                type="text"
+                value={formData.firstName || ""}
+                onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                className="w-full px-4 py-3 bg-background border border-white/10 rounded-lg text-white placeholder-white/30 focus:outline-none focus:border-primary/50 transition-colors"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-white mb-1.5">Last Name</label>
+              <input
+                type="text"
+                value={formData.lastName || ""}
+                onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                className="w-full px-4 py-3 bg-background border border-white/10 rounded-lg text-white placeholder-white/30 focus:outline-none focus:border-primary/50 transition-colors"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-white mb-1.5">Email</label>
+            <input
+              type="email"
+              value={formData.email || ""}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              className="w-full px-4 py-3 bg-background border border-white/10 rounded-lg text-white placeholder-white/30 focus:outline-none focus:border-primary/50 transition-colors"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-white mb-1.5">Phone</label>
+              <input
+                type="text"
+                value={formData.phone || ""}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                className="w-full px-4 py-3 bg-background border border-white/10 rounded-lg text-white placeholder-white/30 focus:outline-none focus:border-primary/50 transition-colors"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-white mb-1.5">Country</label>
+              <input
+                type="text"
+                value={formData.country || ""}
+                onChange={(e) => setFormData({ ...formData, country: e.target.value })}
+                className="w-full px-4 py-3 bg-background border border-white/10 rounded-lg text-white placeholder-white/30 focus:outline-none focus:border-primary/50 transition-colors"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-white mb-1.5">Role</label>
+              <select
+                value={formData.role || "user"}
+                onChange={(e) => setFormData({ ...formData, role: e.target.value as "user" | "admin" })}
+                className="w-full px-4 py-3 bg-background border border-white/10 rounded-lg text-white focus:outline-none focus:border-primary/50 transition-colors"
+              >
+                <option value="user">User</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-white mb-1.5">Status</label>
+              <select
+                value={formData.status || "approved"}
+                onChange={(e) => setFormData({ ...formData, status: e.target.value as "pending" | "approved" | "rejected" | "blocked" })}
+                className="w-full px-4 py-3 bg-background border border-white/10 rounded-lg text-white focus:outline-none focus:border-primary/50 transition-colors"
+              >
+                <option value="approved">Approved</option>
+                <option value="pending">Pending</option>
+                <option value="rejected">Rejected</option>
+                <option value="blocked">Blocked</option>
+              </select>
+            </div>
+          </div>
+
+          <Button
+            type="submit"
+            disabled={editMutation.isPending}
+            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-6 text-base mt-4"
+          >
+            {editMutation.isPending ? "Saving..." : "Save Changes"}
+          </Button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 export default function AdminUsers() {
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
   const { data: users = [], isLoading } = useAdminGetUsers({});
   const approveMutation = useAdminApproveUser();
   const rejectMutation = useAdminRejectUser();
+  const blockMutation = useAdminBlockUser();
+  const unblockMutation = useAdminUnblockUser();
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
   if (isLoading) return <div className="text-white p-8">Loading users...</div>;
 
-  const handleAction = async (id: number, action: 'approve' | 'reject') => {
+  const handleAction = async (id: number, action: "approve" | "reject" | "block" | "unblock") => {
     try {
-      if (action === 'approve') {
+      if (action === "approve") {
         await approveMutation.mutateAsync({ id });
         toast({ title: "User Approved" });
-      } else {
+      } else if (action === "reject") {
         await rejectMutation.mutateAsync({ id });
         toast({ title: "User Rejected", variant: "destructive" });
+      } else if (action === "block") {
+        await blockMutation.mutateAsync({ id });
+        toast({ title: "User Blocked", variant: "destructive" });
+      } else if (action === "unblock") {
+        await unblockMutation.mutateAsync({ id });
+        toast({ title: "User Unblocked" });
       }
       queryClient.invalidateQueries({ queryKey: getAdminGetUsersQueryKey({}) });
-    } catch (e) {
+    } catch {
       toast({ title: "Action failed", variant: "destructive" });
+    }
+  };
+
+  const statusBadgeVariant = (status: string) => {
+    switch (status) {
+      case "approved": return "success" as const;
+      case "pending": return "warning" as const;
+      case "blocked": return "destructive" as const;
+      default: return "destructive" as const;
     }
   };
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-display font-bold text-white">User Management</h1>
-        <p className="text-muted-foreground">Review and manage platform access.</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-display font-bold text-white">User Management</h1>
+          <p className="text-muted-foreground">Review and manage platform access.</p>
+        </div>
+        <Button
+          onClick={() => setShowCreateDialog(true)}
+          className="bg-primary hover:bg-primary/90 text-primary-foreground"
+        >
+          <Plus className="w-4 h-4 mr-2" /> Create User
+        </Button>
       </div>
 
       <Card className="overflow-hidden">
@@ -66,28 +377,45 @@ export default function AdminUsers() {
                     <Badge variant="outline">{u.role}</Badge>
                   </td>
                   <td className="px-6 py-4">
-                    <Badge variant={
-                      u.status === 'approved' ? 'success' : 
-                      u.status === 'pending' ? 'warning' : 'destructive'
-                    }>
+                    <Badge variant={statusBadgeVariant(u.status)}>
                       {u.status}
                     </Badge>
                   </td>
                   <td className="px-6 py-4">
-                    {u.status === 'pending' && (
-                      <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {u.status === "pending" && (
+                        <>
+                          <Button size="sm" variant="outline" className="h-8 border-emerald-500/30 text-emerald-500 hover:bg-emerald-500/10"
+                                  onClick={() => handleAction(u.id, "approve")}
+                                  disabled={approveMutation.isPending}>
+                            <Check className="w-4 h-4 mr-1" /> Approve
+                          </Button>
+                          <Button size="sm" variant="outline" className="h-8 border-destructive/30 text-destructive hover:bg-destructive/10"
+                                  onClick={() => handleAction(u.id, "reject")}
+                                  disabled={rejectMutation.isPending}>
+                            <X className="w-4 h-4 mr-1" /> Reject
+                          </Button>
+                        </>
+                      )}
+                      {u.status === "approved" && u.role !== "admin" && (
+                        <Button size="sm" variant="outline" className="h-8 border-orange-500/30 text-orange-500 hover:bg-orange-500/10"
+                                onClick={() => handleAction(u.id, "block")}
+                                disabled={blockMutation.isPending}>
+                          <Ban className="w-4 h-4 mr-1" /> Block
+                        </Button>
+                      )}
+                      {u.status === "blocked" && (
                         <Button size="sm" variant="outline" className="h-8 border-emerald-500/30 text-emerald-500 hover:bg-emerald-500/10"
-                                onClick={() => handleAction(u.id, 'approve')}
-                                disabled={approveMutation.isPending}>
-                          <Check className="w-4 h-4 mr-1" /> Approve
+                                onClick={() => handleAction(u.id, "unblock")}
+                                disabled={unblockMutation.isPending}>
+                          <Unlock className="w-4 h-4 mr-1" /> Unblock
                         </Button>
-                        <Button size="sm" variant="outline" className="h-8 border-destructive/30 text-destructive hover:bg-destructive/10"
-                                onClick={() => handleAction(u.id, 'reject')}
-                                disabled={rejectMutation.isPending}>
-                          <X className="w-4 h-4 mr-1" /> Reject
-                        </Button>
-                      </div>
-                    )}
+                      )}
+                      <Button size="sm" variant="outline" className="h-8 border-blue-500/30 text-blue-500 hover:bg-blue-500/10"
+                              onClick={() => setEditingUser(u)}>
+                        <Pencil className="w-4 h-4 mr-1" /> Edit
+                      </Button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -95,6 +423,9 @@ export default function AdminUsers() {
           </table>
         </div>
       </Card>
+
+      {showCreateDialog && <CreateUserDialog onClose={() => setShowCreateDialog(false)} />}
+      {editingUser && <EditUserDialog user={editingUser} onClose={() => setEditingUser(null)} />}
     </div>
   );
 }

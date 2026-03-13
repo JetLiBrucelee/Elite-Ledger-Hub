@@ -31,6 +31,7 @@ import DashboardSettings from "@/pages/dashboard/Settings";
 import AdminOverview from "@/pages/admin/Overview";
 import AdminUsers from "@/pages/admin/Users";
 import AdminChat from "@/pages/admin/Chat";
+import AdminApplications from "@/pages/admin/Applications";
 
 const queryClient = new QueryClient();
 
@@ -116,6 +117,11 @@ function AppRouter() {
       <Route path="/admin/chat">
         <AdminRoute>
           <DashboardLayout><AdminChat /></DashboardLayout>
+        </AdminRoute>
+      </Route>
+      <Route path="/admin/applications">
+        <AdminRoute>
+          <DashboardLayout><AdminApplications /></DashboardLayout>
         </AdminRoute>
       </Route>
 

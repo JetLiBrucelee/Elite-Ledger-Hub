@@ -234,7 +234,7 @@ paths:
           required: false
           schema:
             type: string
-            enum: [pending, approved, rejected]
+            enum: [pending, approved, rejected, blocked]
       responses:
         "200":
           description: List of users
@@ -282,6 +282,128 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
+
+  /admin/users/{id}/block:
+    post:
+      operationId: adminBlockUser
+      tags: [admin]
+      summary: Block an active user
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: User blocked
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  /admin/users/{id}/unblock:
+    post:
+      operationId: adminUnblockUser
+      tags: [admin]
+      summary: Unblock a blocked user
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: User unblocked
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  /admin/users/{id}:
+    patch:
+      operationId: adminEditUser
+      tags: [admin]
+      summary: Edit a user's details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminEditUserRequest"
+      responses:
+        "200":
+          description: User updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  /admin/users/create:
+    post:
+      operationId: adminCreateUser
+      tags: [admin]
+      summary: Create a new user from admin panel
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminCreateUserRequest"
+      responses:
+        "201":
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  /admin/applications:
+    get:
+      operationId: adminGetApplications
+      tags: [admin]
+      summary: Get all job applications
+      responses:
+        "200":
+          description: List of job applications
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/JobApplication"
+
+  /admin/applications/{id}/status:
+    patch:
+      operationId: adminUpdateApplicationStatus
+      tags: [admin]
+      summary: Update a job application status
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateApplicationStatusRequest"
+      responses:
+        "200":
+          description: Application status updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobApplication"
 
   /admin/chat/sessions:
     get:
@@ -499,7 +621,7 @@ components:
           enum: [user, admin]
         status:
           type: string
-          enum: [pending, approved, rejected]
+          enum: [pending, approved, rejected, blocked]
         createdAt:
           type: string
           format: date-time
@@ -511,6 +633,93 @@ components:
         - role
         - status
         - createdAt
+
+    AdminCreateUserRequest:
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 6
+        phone:
+          type: string
+        country:
+          type: string
+        role:
+          type: string
+          enum: [user, admin]
+        status:
+          type: string
+          enum: [pending, approved, rejected, blocked]
+      required:
+        - firstName
+        - lastName
+        - email
+        - password
+
+    AdminEditUserRequest:
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        country:
+          type: string
+        role:
+          type: string
+          enum: [user, admin]
+        status:
+          type: string
+          enum: [pending, approved, rejected, blocked]
+
+    JobApplication:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        position:
+          type: string
+        message:
+          type: string
+        status:
+          type: string
+          enum: [pending, reviewed, rejected]
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - email
+        - position
+        - message
+        - status
+        - createdAt
+
+    UpdateApplicationStatusRequest:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [reviewed, rejected]
+      required:
+        - status
 
     InvestmentPlan:
       type: object
