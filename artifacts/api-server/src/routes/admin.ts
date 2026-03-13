@@ -110,7 +110,12 @@ router.get("/admin/chat/sessions", requireAdmin, async (_req, res): Promise<void
 });
 
 router.get("/admin/chat/messages/:sessionId", requireAdmin, async (req, res): Promise<void> => {
-  const sessionId = String(req.params.sessionId);
+  const parsed = AdminGetSessionMessagesParams.safeParse(req.params);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.message });
+    return;
+  }
+  const { sessionId } = parsed.data;
 
   const messages = await db
     .select()

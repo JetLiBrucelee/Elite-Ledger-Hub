@@ -77,7 +77,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/AuthResponse"
         "401":
-          description: Invalid credentials or account not approved
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Account pending approval or rejected
           content:
             application/json:
               schema:
@@ -324,6 +330,19 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ChatMessage"
+
+  /admin/chat/events:
+    get:
+      operationId: adminChatEvents
+      tags: [admin]
+      summary: SSE stream for admin to receive all incoming chat messages in real time
+      responses:
+        "200":
+          description: SSE event stream (admin only; requires active admin session)
+        "401":
+          description: Not authenticated
+        "403":
+          description: Admin access required
 
   /admin/stats:
     get:
