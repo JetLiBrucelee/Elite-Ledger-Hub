@@ -33,6 +33,7 @@ export * from "./loginRequest";
 export * from "./messageResponse";
 export * from "./registerRequest";
 export * from "./sendMessageRequest";
+export * from "./submitApplicationRequest";
 export * from "./transaction";
 export * from "./transactionStatus";
 export * from "./transactionType";

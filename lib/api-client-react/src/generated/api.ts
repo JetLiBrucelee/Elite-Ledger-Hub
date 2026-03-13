@@ -35,6 +35,7 @@ import type {
   MessageResponse,
   RegisterRequest,
   SendMessageRequest,
+  SubmitApplicationRequest,
   Transaction,
   UpdateApplicationStatusRequest,
   User,
@@ -861,6 +862,92 @@ export function useChatEvents<
 }
 
 /**
+ * @summary Submit a job application
+ */
+export const getSubmitApplicationUrl = () => {
+  return `/api/applications`;
+};
+
+export const submitApplication = async (
+  submitApplicationRequest: SubmitApplicationRequest,
+  options?: RequestInit,
+): Promise<JobApplication> => {
+  return customFetch<JobApplication>(getSubmitApplicationUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(submitApplicationRequest),
+  });
+};
+
+export const getSubmitApplicationMutationOptions = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof submitApplication>>,
+    TError,
+    { data: BodyType<SubmitApplicationRequest> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof submitApplication>>,
+  TError,
+  { data: BodyType<SubmitApplicationRequest> },
+  TContext
+> => {
+  const mutationKey = ["submitApplication"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof submitApplication>>,
+    { data: BodyType<SubmitApplicationRequest> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return submitApplication(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type SubmitApplicationMutationResult = NonNullable<
+  Awaited<ReturnType<typeof submitApplication>>
+>;
+export type SubmitApplicationMutationBody = BodyType<SubmitApplicationRequest>;
+export type SubmitApplicationMutationError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Submit a job application
+ */
+export const useSubmitApplication = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof submitApplication>>,
+    TError,
+    { data: BodyType<SubmitApplicationRequest> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof submitApplication>>,
+  TError,
+  { data: BodyType<SubmitApplicationRequest> },
+  TContext
+> => {
+  return useMutation(getSubmitApplicationMutationOptions(options));
+};
+
+/**
  * @summary Get all users (admin only)
  */
 export const getAdminGetUsersUrl = (params?: AdminGetUsersParams) => {
@@ -953,6 +1040,92 @@ export function useAdminGetUsers<
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+/**
+ * @summary Create a new user from admin panel
+ */
+export const getAdminCreateUserUrl = () => {
+  return `/api/admin/users`;
+};
+
+export const adminCreateUser = async (
+  adminCreateUserRequest: AdminCreateUserRequest,
+  options?: RequestInit,
+): Promise<User> => {
+  return customFetch<User>(getAdminCreateUserUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(adminCreateUserRequest),
+  });
+};
+
+export const getAdminCreateUserMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adminCreateUser>>,
+    TError,
+    { data: BodyType<AdminCreateUserRequest> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof adminCreateUser>>,
+  TError,
+  { data: BodyType<AdminCreateUserRequest> },
+  TContext
+> => {
+  const mutationKey = ["adminCreateUser"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof adminCreateUser>>,
+    { data: BodyType<AdminCreateUserRequest> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return adminCreateUser(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type AdminCreateUserMutationResult = NonNullable<
+  Awaited<ReturnType<typeof adminCreateUser>>
+>;
+export type AdminCreateUserMutationBody = BodyType<AdminCreateUserRequest>;
+export type AdminCreateUserMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Create a new user from admin panel
+ */
+export const useAdminCreateUser = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adminCreateUser>>,
+    TError,
+    { data: BodyType<AdminCreateUserRequest> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof adminCreateUser>>,
+  TError,
+  { data: BodyType<AdminCreateUserRequest> },
+  TContext
+> => {
+  return useMutation(getAdminCreateUserMutationOptions(options));
+};
 
 /**
  * @summary Approve a pending user
@@ -1375,92 +1548,6 @@ export const useAdminEditUser = <
   TContext
 > => {
   return useMutation(getAdminEditUserMutationOptions(options));
-};
-
-/**
- * @summary Create a new user from admin panel
- */
-export const getAdminCreateUserUrl = () => {
-  return `/api/admin/users/create`;
-};
-
-export const adminCreateUser = async (
-  adminCreateUserRequest: AdminCreateUserRequest,
-  options?: RequestInit,
-): Promise<User> => {
-  return customFetch<User>(getAdminCreateUserUrl(), {
-    ...options,
-    method: "POST",
-    headers: { "Content-Type": "application/json", ...options?.headers },
-    body: JSON.stringify(adminCreateUserRequest),
-  });
-};
-
-export const getAdminCreateUserMutationOptions = <
-  TError = ErrorType<unknown>,
-  TContext = unknown,
->(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof adminCreateUser>>,
-    TError,
-    { data: BodyType<AdminCreateUserRequest> },
-    TContext
-  >;
-  request?: SecondParameter<typeof customFetch>;
-}): UseMutationOptions<
-  Awaited<ReturnType<typeof adminCreateUser>>,
-  TError,
-  { data: BodyType<AdminCreateUserRequest> },
-  TContext
-> => {
-  const mutationKey = ["adminCreateUser"];
-  const { mutation: mutationOptions, request: requestOptions } = options
-    ? options.mutation &&
-      "mutationKey" in options.mutation &&
-      options.mutation.mutationKey
-      ? options
-      : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey }, request: undefined };
-
-  const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof adminCreateUser>>,
-    { data: BodyType<AdminCreateUserRequest> }
-  > = (props) => {
-    const { data } = props ?? {};
-
-    return adminCreateUser(data, requestOptions);
-  };
-
-  return { mutationFn, ...mutationOptions };
-};
-
-export type AdminCreateUserMutationResult = NonNullable<
-  Awaited<ReturnType<typeof adminCreateUser>>
->;
-export type AdminCreateUserMutationBody = BodyType<AdminCreateUserRequest>;
-export type AdminCreateUserMutationError = ErrorType<unknown>;
-
-/**
- * @summary Create a new user from admin panel
- */
-export const useAdminCreateUser = <
-  TError = ErrorType<unknown>,
-  TContext = unknown,
->(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof adminCreateUser>>,
-    TError,
-    { data: BodyType<AdminCreateUserRequest> },
-    TContext
-  >;
-  request?: SecondParameter<typeof customFetch>;
-}): UseMutationResult<
-  Awaited<ReturnType<typeof adminCreateUser>>,
-  TError,
-  { data: BodyType<AdminCreateUserRequest> },
-  TContext
-> => {
-  return useMutation(getAdminCreateUserMutationOptions(options));
 };
 
 /**

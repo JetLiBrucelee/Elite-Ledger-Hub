@@ -59,6 +59,9 @@ export interface User {
   country?: string | null;
   role: UserRole;
   status: UserStatus;
+  balance: number;
+  /** @nullable */
+  plan?: string | null;
   createdAt: string;
 }
 
@@ -95,6 +98,8 @@ export interface AdminCreateUserRequest {
   country?: string;
   role?: AdminCreateUserRequestRole;
   status?: AdminCreateUserRequestStatus;
+  balance?: number;
+  plan?: string;
 }
 
 export type AdminEditUserRequestRole =
@@ -123,6 +128,15 @@ export interface AdminEditUserRequest {
   country?: string;
   role?: AdminEditUserRequestRole;
   status?: AdminEditUserRequestStatus;
+  balance?: number;
+  plan?: string;
+}
+
+export interface SubmitApplicationRequest {
+  name: string;
+  email: string;
+  position: string;
+  message: string;
 }
 
 export type JobApplicationStatus =

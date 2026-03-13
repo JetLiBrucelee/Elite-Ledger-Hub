@@ -19,5 +19,8 @@ export interface User {
   country?: string | null;
   role: UserRole;
   status: UserStatus;
+  balance: number;
+  /** @nullable */
+  plan?: string | null;
   createdAt: Date;
 }

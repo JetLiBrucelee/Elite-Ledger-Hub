@@ -18,4 +18,6 @@ export interface AdminCreateUserRequest {
   country?: string;
   role?: AdminCreateUserRequestRole;
   status?: AdminCreateUserRequestStatus;
+  balance?: number;
+  plan?: string;
 }

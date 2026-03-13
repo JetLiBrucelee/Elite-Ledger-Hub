@@ -18,6 +18,8 @@ function userToDTO(u: {
   country: string | null;
   role: string;
   status: string;
+  balance: string;
+  plan: string | null;
   createdAt: Date;
 }) {
   return {
@@ -29,9 +31,14 @@ function userToDTO(u: {
     country: u.country,
     role: u.role,
     status: u.status,
+    balance: Number(u.balance),
+    plan: u.plan,
     createdAt: u.createdAt.toISOString(),
   };
 }
+
+const VALID_ROLES = ["user", "admin"];
+const VALID_STATUSES = ["pending", "approved", "rejected", "blocked"];
 
 router.get("/admin/users", requireAdmin, async (req, res): Promise<void> => {
   const statusFilter = req.query.status as string | undefined;
@@ -143,8 +150,10 @@ router.patch("/admin/users/:id", requireAdmin, async (req, res): Promise<void> =
   if (typeof email === "string" && email.trim()) updateData.email = email.trim();
   if (typeof phone === "string") updateData.phone = phone.trim() || null;
   if (typeof country === "string") updateData.country = country.trim() || null;
-  if (typeof role === "string" && ["user", "admin"].includes(role)) updateData.role = role;
-  if (typeof status === "string" && ["pending", "approved", "rejected", "blocked"].includes(status)) updateData.status = status;
+  if (typeof role === "string" && VALID_ROLES.includes(role)) updateData.role = role;
+  if (typeof status === "string" && VALID_STATUSES.includes(status)) updateData.status = status;
+  if (typeof req.body.balance === "number") (updateData as Record<string, unknown>).balance = String(req.body.balance);
+  if (typeof req.body.plan === "string") (updateData as Record<string, unknown>).plan = req.body.plan.trim() || null;
 
   if (Object.keys(updateData).length === 0) {
     res.status(400).json({ error: "No valid fields to update" });
@@ -173,8 +182,8 @@ router.patch("/admin/users/:id", requireAdmin, async (req, res): Promise<void> =
   res.json(userToDTO(user));
 });
 
-router.post("/admin/users/create", requireAdmin, async (req, res): Promise<void> => {
-  const { firstName, lastName, email, password, phone, country, role, status } = req.body || {};
+router.post("/admin/users", requireAdmin, async (req, res): Promise<void> => {
+  const { firstName, lastName, email, password, phone, country, role, status, balance, plan } = req.body || {};
 
   if (!firstName || typeof firstName !== "string" || !firstName.trim()) {
     res.status(400).json({ error: "First name is required" });
@@ -190,6 +199,14 @@ router.post("/admin/users/create", requireAdmin, async (req, res): Promise<void>
   }
   if (!password || typeof password !== "string" || password.length < 6) {
     res.status(400).json({ error: "Password must be at least 6 characters" });
+    return;
+  }
+  if (role && !VALID_ROLES.includes(role)) {
+    res.status(400).json({ error: "Role must be 'user' or 'admin'" });
+    return;
+  }
+  if (status && !VALID_STATUSES.includes(status)) {
+    res.status(400).json({ error: "Status must be one of: pending, approved, rejected, blocked" });
     return;
   }
 
@@ -211,6 +228,8 @@ router.post("/admin/users/create", requireAdmin, async (req, res): Promise<void>
       country: country || null,
       role: role || "user",
       status: status || "approved",
+      balance: typeof balance === "number" ? String(balance) : "0",
+      plan: plan || null,
     })
     .returning();
 

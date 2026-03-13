@@ -28,6 +28,8 @@ function CreateUserDialog({ onClose }: { onClose: () => void }) {
     country: "",
     role: "user",
     status: "approved",
+    balance: 0,
+    plan: "",
   });
   const createMutation = useAdminCreateUser();
   const queryClient = useQueryClient();
@@ -148,6 +150,34 @@ function CreateUserDialog({ onClose }: { onClose: () => void }) {
               </select>
             </div>
           </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-white mb-1.5">Balance ($)</label>
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                value={formData.balance ?? 0}
+                onChange={(e) => setFormData({ ...formData, balance: parseFloat(e.target.value) || 0 })}
+                className="w-full px-4 py-3 bg-background border border-white/10 rounded-lg text-white placeholder-white/30 focus:outline-none focus:border-primary/50 transition-colors"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-white mb-1.5">Plan / Tier</label>
+              <select
+                value={formData.plan || ""}
+                onChange={(e) => setFormData({ ...formData, plan: e.target.value })}
+                className="w-full px-4 py-3 bg-background border border-white/10 rounded-lg text-white focus:outline-none focus:border-primary/50 transition-colors"
+              >
+                <option value="">None</option>
+                <option value="Starter">Starter</option>
+                <option value="Silver">Silver</option>
+                <option value="Gold">Gold</option>
+                <option value="Platinum">Platinum</option>
+                <option value="Diamond">Diamond</option>
+              </select>
+            </div>
+          </div>
 
           <Button
             type="submit"
@@ -171,6 +201,8 @@ function EditUserDialog({ user, onClose }: { user: User; onClose: () => void }) 
     country: user.country || "",
     role: user.role as "user" | "admin",
     status: user.status as "pending" | "approved" | "rejected" | "blocked",
+    balance: user.balance ?? 0,
+    plan: user.plan || "",
   });
   const editMutation = useAdminEditUser();
   const queryClient = useQueryClient();
@@ -277,6 +309,34 @@ function EditUserDialog({ user, onClose }: { user: User; onClose: () => void }) 
               </select>
             </div>
           </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-white mb-1.5">Balance ($)</label>
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                value={formData.balance ?? 0}
+                onChange={(e) => setFormData({ ...formData, balance: parseFloat(e.target.value) || 0 })}
+                className="w-full px-4 py-3 bg-background border border-white/10 rounded-lg text-white placeholder-white/30 focus:outline-none focus:border-primary/50 transition-colors"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-white mb-1.5">Plan / Tier</label>
+              <select
+                value={formData.plan || ""}
+                onChange={(e) => setFormData({ ...formData, plan: e.target.value })}
+                className="w-full px-4 py-3 bg-background border border-white/10 rounded-lg text-white focus:outline-none focus:border-primary/50 transition-colors"
+              >
+                <option value="">None</option>
+                <option value="Starter">Starter</option>
+                <option value="Silver">Silver</option>
+                <option value="Gold">Gold</option>
+                <option value="Platinum">Platinum</option>
+                <option value="Diamond">Diamond</option>
+              </select>
+            </div>
+          </div>
 
           <Button
             type="submit"
@@ -356,6 +416,8 @@ export default function AdminUsers() {
               <tr>
                 <th className="px-6 py-4 font-medium">User</th>
                 <th className="px-6 py-4 font-medium">Contact</th>
+                <th className="px-6 py-4 font-medium">Plan</th>
+                <th className="px-6 py-4 font-medium">Balance</th>
                 <th className="px-6 py-4 font-medium">Role</th>
                 <th className="px-6 py-4 font-medium">Status</th>
                 <th className="px-6 py-4 font-medium">Actions</th>
@@ -372,6 +434,12 @@ export default function AdminUsers() {
                     <div className="text-white">{u.email}</div>
                     {u.phone && <div className="text-xs text-muted-foreground mt-1">{u.phone}</div>}
                     {u.country && <div className="text-xs text-muted-foreground">{u.country}</div>}
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className="text-white">{u.plan || "—"}</span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className="text-white font-mono">${(u.balance ?? 0).toLocaleString("en-US", { minimumFractionDigits: 2 })}</span>
                   </td>
                   <td className="px-6 py-4">
                     <Badge variant="outline">{u.role}</Badge>

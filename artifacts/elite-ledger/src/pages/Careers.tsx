@@ -5,33 +5,23 @@ import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { X, Send, CheckCircle } from "lucide-react";
+import { useSubmitApplication } from "@workspace/api-client-react";
 
 function ApplicationModal({ position, onClose }: { position: string; onClose: () => void }) {
   const [formData, setFormData] = useState({ name: "", email: "", message: "" });
-  const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
+  const submitMutation = useSubmitApplication();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitting(true);
     setError("");
 
     try {
-      const res = await fetch(`${import.meta.env.BASE_URL}api/applications`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...formData, position }),
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({ error: "Submission failed" }));
-        throw new Error(data.error || "Submission failed");
-      }
+      await submitMutation.mutateAsync({ data: { ...formData, position } });
       setSubmitted(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
-    } finally {
-      setSubmitting(false);
     }
   };
 
@@ -104,10 +94,10 @@ function ApplicationModal({ position, onClose }: { position: string; onClose: ()
 
               <Button
                 type="submit"
-                disabled={submitting}
+                disabled={submitMutation.isPending}
                 className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-6 text-base"
               >
-                {submitting ? (
+                {submitMutation.isPending ? (
                   <div className="w-5 h-5 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
                 ) : (
                   <>

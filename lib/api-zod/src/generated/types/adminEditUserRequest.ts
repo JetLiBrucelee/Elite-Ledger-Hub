@@ -16,4 +16,6 @@ export interface AdminEditUserRequest {
   country?: string;
   role?: AdminEditUserRequestRole;
   status?: AdminEditUserRequestStatus;
+  balance?: number;
+  plan?: string;
 }

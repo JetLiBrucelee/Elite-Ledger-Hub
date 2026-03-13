@@ -223,6 +223,31 @@ paths:
         "200":
           description: SSE event stream
 
+  /applications:
+    post:
+      operationId: submitApplication
+      tags: [applications]
+      summary: Submit a job application
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubmitApplicationRequest"
+      responses:
+        "201":
+          description: Application submitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobApplication"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /admin/users:
     get:
       operationId: adminGetUsers
@@ -244,6 +269,23 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/User"
+    post:
+      operationId: adminCreateUser
+      tags: [admin]
+      summary: Create a new user from admin panel
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminCreateUserRequest"
+      responses:
+        "201":
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
 
   /admin/users/{id}/approve:
     post:
@@ -341,25 +383,6 @@ paths:
       responses:
         "200":
           description: User updated
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/User"
-
-  /admin/users/create:
-    post:
-      operationId: adminCreateUser
-      tags: [admin]
-      summary: Create a new user from admin panel
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/AdminCreateUserRequest"
-      responses:
-        "201":
-          description: User created
           content:
             application/json:
               schema:
@@ -622,6 +645,10 @@ components:
         status:
           type: string
           enum: [pending, approved, rejected, blocked]
+        balance:
+          type: number
+        plan:
+          type: ["string", "null"]
         createdAt:
           type: string
           format: date-time
@@ -632,6 +659,7 @@ components:
         - email
         - role
         - status
+        - balance
         - createdAt
 
     AdminCreateUserRequest:
@@ -657,6 +685,10 @@ components:
         status:
           type: string
           enum: [pending, approved, rejected, blocked]
+        balance:
+          type: number
+        plan:
+          type: string
       required:
         - firstName
         - lastName
@@ -683,6 +715,28 @@ components:
         status:
           type: string
           enum: [pending, approved, rejected, blocked]
+        balance:
+          type: number
+        plan:
+          type: string
+
+    SubmitApplicationRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        position:
+          type: string
+        message:
+          type: string
+      required:
+        - name
+        - email
+        - position
+        - message
 
     JobApplication:
       type: object

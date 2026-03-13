@@ -25,6 +25,8 @@ function userToDTO(user: {
   country: string | null;
   role: string;
   status: string;
+  balance: string;
+  plan: string | null;
   createdAt: Date;
 }) {
   return {
@@ -36,6 +38,8 @@ function userToDTO(user: {
     country: user.country,
     role: user.role,
     status: user.status,
+    balance: Number(user.balance),
+    plan: user.plan,
     createdAt: user.createdAt.toISOString(),
   };
 }
