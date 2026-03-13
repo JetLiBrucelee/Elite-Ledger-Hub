@@ -68,7 +68,7 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
           <Link href="/" className="flex items-center gap-2">
             <img src={`${import.meta.env.BASE_URL}images/logo-mark.png`} alt="Logo" className="w-6 h-6" />
             <span className="font-display font-bold text-sm tracking-tight text-white">
-              ELITE <span className="text-primary">LEDGER</span>
+              ELITE LEDGER <span className="text-primary">CAPITAL</span>
             </span>
           </Link>
         </div>

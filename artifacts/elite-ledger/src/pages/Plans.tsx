@@ -60,7 +60,7 @@ const investmentPlans = [
     duration: 3,
     description: "Elite tier for high-net-worth individuals demanding aggressive top-percentile growth.",
     schedule: [
-      { month: 1, text: "300k + 250.41%", amount: 1050000 },
+      { month: 1, text: "300k + 250.41%", amount: 1051230 },
       { month: 2, text: "1.05M + 250.41%", amount: 3680000 },
       { month: 3, text: "3.68M + 250.41%", amount: 12900000 },
     ],

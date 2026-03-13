@@ -9,7 +9,7 @@ export function Footer() {
             <Link href="/" className="flex items-center gap-2 mb-6">
               <img src={`${import.meta.env.BASE_URL}images/logo-mark.png`} alt="Logo" className="w-8 h-8" />
               <span className="font-display font-bold text-xl tracking-tight text-white">
-                ELITE <span className="text-primary">LEDGER</span>
+                ELITE LEDGER <span className="text-primary">CAPITAL</span>
               </span>
             </Link>
             <p className="text-muted-foreground max-w-sm mb-6 leading-relaxed">

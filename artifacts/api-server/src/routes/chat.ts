@@ -4,6 +4,7 @@ import { db, chatMessagesTable, chatSessionsTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { SendChatMessageBody } from "@workspace/api-zod";
 import { addSSEClient, removeSSEClient, broadcastToSession, broadcastToAdmins, createSSEClientId } from "../lib/sse";
+import { getUserFromToken } from "../lib/auth";
 
 const RESERVED_SESSION_IDS = new Set(["admin", "system", "broadcast"]);
 
@@ -47,7 +48,14 @@ router.post("/chat/messages", async (req, res): Promise<void> => {
     return;
   }
 
-  const { message, senderName, sessionId: providedSessionId } = parsed.data;
+  const { message, senderName: bodySenderName, sessionId: providedSessionId } = parsed.data;
+
+  const sessionToken = req.cookies?.session_token as string | undefined;
+  const loggedInUser = sessionToken ? await getUserFromToken(sessionToken) : null;
+  const senderType = loggedInUser ? "user" : "visitor";
+  const senderName = loggedInUser
+    ? `${loggedInUser.firstName} ${loggedInUser.lastName}`.trim()
+    : bodySenderName;
 
   if (providedSessionId && !isValidSessionId(providedSessionId)) {
     res.status(400).json({ error: "Invalid session ID" });
@@ -85,7 +93,7 @@ router.post("/chat/messages", async (req, res): Promise<void> => {
     .insert(chatMessagesTable)
     .values({
       sessionId,
-      senderType: "visitor",
+      senderType,
       senderName,
       message,
     })
