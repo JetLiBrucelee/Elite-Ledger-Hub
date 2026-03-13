@@ -1,0 +1,24 @@
+packages:
+  "framer-motion": "For premium smooth page transitions and scroll-triggered animations"
+  "recharts": "For user and admin dashboard portfolio growth and statistics charts"
+  "clsx": "Utility for constructing className strings conditionally"
+  "tailwind-merge": "Utility for merging tailwind classes without style conflicts"
+  "date-fns": "For formatting transaction and message dates"
+  "react-hook-form": "For robust form state management and validation"
+  "@hookform/resolvers": "Zod integration for react-hook-form"
+
+images:
+  - path: "artifacts/elite-ledger/public/images/hero-bg.png"
+    description: "Abstract premium fintech background, extremely dark deep black, with subtle glowing metallic gold geometric lines, luxurious and sophisticated, depth of field"
+    aspect_ratio: "16:9"
+  - path: "artifacts/elite-ledger/public/images/pattern-bg.png"
+    description: "Subtle dark luxury texture background, almost black noise with very faint metallic gold dust and subtle light leaks, high-end professional"
+    aspect_ratio: "16:9"
+  - path: "artifacts/elite-ledger/public/images/logo-mark.png"
+    description: "Minimalist abstract geometric monogram logo, high gloss metallic gold on a perfectly transparent background, corporate wealth management vibe"
+    aspect_ratio: "1:1"
+
+notes:
+  - The API uses @workspace/api-client-react for all generated hooks.
+  - SSE for real-time chat connects to /api/chat/events.
+  - Auth uses httpOnly cookies, frontend uses useGetMe() to check session.
