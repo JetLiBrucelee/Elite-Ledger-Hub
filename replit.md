@@ -94,7 +94,12 @@ artifacts-monorepo/
 - `/plans` — Investment plans with 5 tabbed tiers (Bronze/Silver/Gold/Platinum/Diamond)
 - `/about` — About page with mission, stats, values
 - `/careers` — Careers page with benefits, open positions, send CV CTA
-- `/promotion` — Promotions page with giveaways, contests, referral program, deposit bonus
+- `/promotion` — Promotions overview page with giveaways, contests, referral program, deposit bonus
+- `/giveaways` — Give Aways page with campaigns, eligibility rules, how it works
+- `/trading-contests` — Trading Contests page with active contests, leaderboard, prize breakdown
+- `/referral-program` — Referral Program page with tiered bonuses, how it works, referral link
+- `/copytrading` — Join CopyTrading page explaining how copy trading works, top masters, benefits
+- `/masters-rating` — Master's Rating page with ranked master trader table (ROI, win rate, drawdown, risk)
 - `/markets/forex` — Forex market page with stats, features, instruments
 - `/markets/commodities` — Commodities market page (Gold, Oil, Agriculture)
 - `/markets/indices` — Indices market page (S&P 500, DAX, Nikkei)

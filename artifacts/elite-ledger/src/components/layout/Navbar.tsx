@@ -32,9 +32,9 @@ const navGroups: NavGroup[] = [
   {
     label: "Copytrading",
     items: [
-      { name: "Join CopyTrading", href: "/plans" },
+      { name: "Join CopyTrading", href: "/copytrading" },
       { name: "Become A Master", href: "/register" },
-      { name: "Master's Rating", href: "/plans" },
+      { name: "Master's Rating", href: "/masters-rating" },
     ],
   },
   {
@@ -48,7 +48,14 @@ const navGroups: NavGroup[] = [
       { name: "Cryptocurrencies", href: "/markets/cryptocurrencies" },
     ],
   },
-  { label: "Promotion", href: "/promotion" },
+  {
+    label: "Promotion",
+    items: [
+      { name: "Give Aways", href: "/giveaways" },
+      { name: "Trading Contests", href: "/trading-contests" },
+      { name: "Referral Program", href: "/referral-program" },
+    ],
+  },
   {
     label: "Account",
     items: [

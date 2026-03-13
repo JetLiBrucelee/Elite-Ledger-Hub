@@ -18,6 +18,11 @@ import Privacy from "@/pages/Privacy";
 import RiskDisclosure from "@/pages/RiskDisclosure";
 import Careers from "@/pages/Careers";
 import Promotion from "@/pages/Promotion";
+import GiveAways from "@/pages/GiveAways";
+import TradingContests from "@/pages/TradingContests";
+import ReferralProgram from "@/pages/ReferralProgram";
+import JoinCopyTrading from "@/pages/JoinCopyTrading";
+import MastersRating from "@/pages/MastersRating";
 import Forex from "@/pages/markets/Forex";
 import CommoditiesPage from "@/pages/markets/Commodities";
 import Indices from "@/pages/markets/Indices";
@@ -76,6 +81,11 @@ function AppRouter() {
       <Route path="/risk-disclosure" component={RiskDisclosure} />
       <Route path="/careers" component={Careers} />
       <Route path="/promotion" component={Promotion} />
+      <Route path="/giveaways" component={GiveAways} />
+      <Route path="/trading-contests" component={TradingContests} />
+      <Route path="/referral-program" component={ReferralProgram} />
+      <Route path="/copytrading" component={JoinCopyTrading} />
+      <Route path="/masters-rating" component={MastersRating} />
       <Route path="/markets/forex" component={Forex} />
       <Route path="/markets/commodities" component={CommoditiesPage} />
       <Route path="/markets/indices" component={Indices} />
