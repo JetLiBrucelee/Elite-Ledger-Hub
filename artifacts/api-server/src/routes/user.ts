@@ -1,13 +1,13 @@
 import { Router, type IRouter } from "express";
 import { db, userInvestmentsTable, transactionsTable } from "@workspace/db";
 import { eq, desc } from "drizzle-orm";
-import { sql } from "drizzle-orm";
 import { requireApproved } from "../lib/auth";
+import type { AuthenticatedRequest } from "../types";
 
 const router: IRouter = Router();
 
 router.get("/user/dashboard", requireApproved, async (req, res): Promise<void> => {
-  const user = (req as any).user;
+  const user = (req as AuthenticatedRequest).user;
 
   const investments = await db
     .select()
@@ -45,7 +45,7 @@ router.get("/user/dashboard", requireApproved, async (req, res): Promise<void> =
 });
 
 router.get("/user/investments", requireApproved, async (req, res): Promise<void> => {
-  const user = (req as any).user;
+  const user = (req as AuthenticatedRequest).user;
 
   const investments = await db
     .select()
@@ -69,7 +69,7 @@ router.get("/user/investments", requireApproved, async (req, res): Promise<void>
 });
 
 router.get("/user/transactions", requireApproved, async (req, res): Promise<void> => {
-  const user = (req as any).user;
+  const user = (req as AuthenticatedRequest).user;
 
   const transactions = await db
     .select()

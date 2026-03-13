@@ -115,7 +115,7 @@ export default function Home() {
                     </div>
                     <h3 className="text-2xl font-bold text-white mb-3">{feature.title}</h3>
                     <p className="text-muted-foreground leading-relaxed mb-6">{feature.desc}</p>
-                    <Link href="/services" className="inline-flex items-center text-primary font-semibold text-sm hover:underline">
+                    <Link href="/plans" className="inline-flex items-center text-primary font-semibold text-sm hover:underline">
                       Learn more <ChevronRight className="w-4 h-4 ml-1" />
                     </Link>
                   </Card>

@@ -3,8 +3,8 @@ import { Link, useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { ArrowLeft, AlertCircle } from "lucide-react";
-import { useLogin, useGetMe, getGetMeQueryKey } from "@workspace/api-client-react";
+import { ArrowLeft, AlertCircle, Clock } from "lucide-react";
+import { useLogin, getGetMeQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,44 +16,49 @@ const loginSchema = z.object({
   password: z.string().min(1, "Password is required"),
 });
 
+type LoginForm = z.infer<typeof loginSchema>;
+
+type AlertState = { type: "error" | "pending"; message: string } | null;
+
 export default function Login() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const loginMutation = useLogin();
-  const [errorMsg, setErrorMsg] = useState("");
+  const [alert, setAlert] = useState<AlertState>(null);
 
-  const form = useForm<z.infer<typeof loginSchema>>({
+  const form = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: "", password: "" },
   });
 
-  const onSubmit = async (values: z.infer<typeof loginSchema>) => {
+  const onSubmit = async (values: LoginForm) => {
     try {
-      setErrorMsg("");
+      setAlert(null);
       const res = await loginMutation.mutateAsync({ data: values });
-      
-      // Invalidate getMe to update auth context
       await queryClient.invalidateQueries({ queryKey: getGetMeQueryKey() });
-      
-      if (res.user.status === "pending") {
-        setErrorMsg("Your account is currently pending administrator approval. Please check back later.");
+      toast({ title: "Welcome back", description: "Successfully logged in." });
+      setLocation(res.user.role === "admin" ? "/admin" : "/dashboard");
+    } catch (err: unknown) {
+      const apiErr = err as { data?: { error?: string; code?: string } };
+      const code = apiErr?.data?.code;
+      const message = apiErr?.data?.error ?? "Invalid credentials. Please try again.";
+
+      if (code === "PENDING_APPROVAL") {
+        setAlert({ type: "pending", message });
       } else {
-        toast({ title: "Welcome back", description: "Successfully logged in." });
-        setLocation(res.user.role === "admin" ? "/admin" : "/dashboard");
+        setAlert({ type: "error", message });
       }
-    } catch (error: any) {
-      setErrorMsg(error?.data?.error || "Invalid credentials");
     }
   };
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 relative overflow-hidden">
       <div className="absolute inset-0 z-0">
-        <img 
-          src={`${import.meta.env.BASE_URL}images/pattern-bg.png`} 
+        <img
+          src={`${import.meta.env.BASE_URL}images/pattern-bg.png`}
           className="w-full h-full object-cover opacity-30 mix-blend-overlay"
-          alt="Bg" 
+          alt="Background"
         />
       </div>
 
@@ -61,7 +66,7 @@ export default function Login() {
         <Link href="/" className="inline-flex items-center text-muted-foreground hover:text-white mb-8 transition-colors">
           <ArrowLeft className="w-4 h-4 mr-2" /> Back to Home
         </Link>
-        
+
         <div className="text-center mb-8">
           <img src={`${import.meta.env.BASE_URL}images/logo-mark.png`} alt="Logo" className="w-12 h-12 mx-auto mb-4" />
           <h1 className="text-3xl font-display font-bold text-white mb-2">Welcome Back</h1>
@@ -69,25 +74,33 @@ export default function Login() {
         </div>
 
         <Card className="p-8">
-          {errorMsg && (
-            <div className="mb-6 p-4 rounded-lg bg-destructive/10 border border-destructive/30 flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-destructive shrink-0 mt-0.5" />
-              <p className="text-sm text-destructive">{errorMsg}</p>
+          {alert && (
+            <div className={`mb-6 p-4 rounded-lg flex items-start gap-3 ${
+              alert.type === "pending"
+                ? "bg-amber-500/10 border border-amber-500/30"
+                : "bg-destructive/10 border border-destructive/30"
+            }`}>
+              {alert.type === "pending"
+                ? <Clock className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                : <AlertCircle className="w-5 h-5 text-destructive shrink-0 mt-0.5" />}
+              <p className={`text-sm ${alert.type === "pending" ? "text-amber-500" : "text-destructive"}`}>
+                {alert.message}
+              </p>
             </div>
           )}
 
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-white/80 mb-1.5">Email Address</label>
-              <Input {...form.register("email")} placeholder="name@example.com" />
+              <Input {...form.register("email")} placeholder="name@example.com" autoComplete="email" />
               {form.formState.errors.email && (
                 <p className="text-xs text-destructive mt-1">{form.formState.errors.email.message}</p>
               )}
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-white/80 mb-1.5">Password</label>
-              <Input type="password" {...form.register("password")} placeholder="••••••••" />
+              <Input type="password" {...form.register("password")} placeholder="••••••••" autoComplete="current-password" />
               {form.formState.errors.password && (
                 <p className="text-xs text-destructive mt-1">{form.formState.errors.password.message}</p>
               )}

@@ -15,11 +15,10 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api", router);
 
-app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
+app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   console.error("Unhandled error:", err);
-  const status = (err as any)?.status ?? 500;
-  const message = (err as any)?.message ?? "Internal server error";
-  res.status(status).json({ error: message });
+  const status = (err as NodeJS.ErrnoException & { status?: number }).status ?? 500;
+  res.status(status).json({ error: err.message ?? "Internal server error" });
 });
 
 export default app;

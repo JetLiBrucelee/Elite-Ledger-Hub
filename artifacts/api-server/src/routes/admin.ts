@@ -4,6 +4,7 @@ import { eq, desc, count, sql } from "drizzle-orm";
 import { AdminApproveUserParams, AdminRejectUserParams, AdminReplyChatBody, AdminGetSessionMessagesParams } from "@workspace/api-zod";
 import { requireAdmin } from "../lib/auth";
 import { broadcastToSession } from "../lib/sse";
+import type { AuthenticatedRequest } from "../types";
 
 const router: IRouter = Router();
 
@@ -152,7 +153,7 @@ router.post("/admin/chat/reply", requireAdmin, async (req, res): Promise<void> =
   }
 
   const { sessionId, message } = parsed.data;
-  const admin = (req as any).user;
+  const admin = (req as AuthenticatedRequest).user;
 
   const [chatMessage] = await db
     .insert(chatMessagesTable)

@@ -11,7 +11,7 @@ export function ChatWidget() {
   const [input, setInput] = useState("");
   const { user } = useAuth();
   
-  const { messages, sendMessage, isSending } = useChat(user ? `user_${user.id}` : undefined);
+  const { messages, sendMessage, isSending } = useChat();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {

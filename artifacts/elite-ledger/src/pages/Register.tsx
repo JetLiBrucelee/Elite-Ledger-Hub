@@ -1,11 +1,10 @@
 import { useState } from "react";
-import { Link, useLocation } from "wouter";
+import { Link } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { ArrowLeft, CheckCircle2 } from "lucide-react";
-import { useRegister, getGetMeQueryKey } from "@workspace/api-client-react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useRegister } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -19,25 +18,26 @@ const registerSchema = z.object({
   country: z.string().optional(),
 });
 
+type RegisterForm = z.infer<typeof registerSchema>;
+
 export default function Register() {
   const [success, setSuccess] = useState(false);
-  const queryClient = useQueryClient();
+  const [apiError, setApiError] = useState<string | null>(null);
   const registerMutation = useRegister();
 
-  const form = useForm<z.infer<typeof registerSchema>>({
+  const form = useForm<RegisterForm>({
     resolver: zodResolver(registerSchema),
-    defaultValues: { 
-      firstName: "", lastName: "", email: "", password: "", phone: "", country: "" 
-    },
+    defaultValues: { firstName: "", lastName: "", email: "", password: "", phone: "", country: "" },
   });
 
-  const onSubmit = async (values: z.infer<typeof registerSchema>) => {
+  const onSubmit = async (values: RegisterForm) => {
     try {
+      setApiError(null);
       await registerMutation.mutateAsync({ data: values });
-      await queryClient.invalidateQueries({ queryKey: getGetMeQueryKey() });
       setSuccess(true);
-    } catch (error) {
-      console.error(error);
+    } catch (err: unknown) {
+      const apiErr = err as { data?: { error?: string } };
+      setApiError(apiErr?.data?.error ?? "Registration failed. Please try again.");
     }
   };
 
@@ -65,10 +65,10 @@ export default function Register() {
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center py-12 px-4 relative overflow-hidden">
       <div className="absolute inset-0 z-0">
-        <img 
-          src={`${import.meta.env.BASE_URL}images/pattern-bg.png`} 
+        <img
+          src={`${import.meta.env.BASE_URL}images/pattern-bg.png`}
           className="w-full h-full object-cover opacity-30 mix-blend-overlay"
-          alt="Bg" 
+          alt="Background"
         />
       </div>
 
@@ -76,16 +76,16 @@ export default function Register() {
         <Link href="/" className="inline-flex items-center text-muted-foreground hover:text-white mb-8 transition-colors">
           <ArrowLeft className="w-4 h-4 mr-2" /> Back to Home
         </Link>
-        
+
         <div className="text-center mb-8">
           <h1 className="text-3xl font-display font-bold text-white mb-2">Create Account</h1>
           <p className="text-muted-foreground">Join Elite Ledger Capital</p>
         </div>
 
         <Card className="p-8">
-          {registerMutation.error && (
+          {apiError && (
             <div className="mb-6 p-4 rounded-lg bg-destructive/10 border border-destructive/30 text-sm text-destructive">
-              {(registerMutation.error as any)?.data?.error || "Registration failed. Please try again."}
+              {apiError}
             </div>
           )}
 
@@ -93,36 +93,36 @@ export default function Register() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-white/80 mb-1.5">First Name</label>
-                <Input {...form.register("firstName")} placeholder="John" />
+                <Input {...form.register("firstName")} placeholder="John" autoComplete="given-name" />
                 {form.formState.errors.firstName && <p className="text-xs text-destructive mt-1">{form.formState.errors.firstName.message}</p>}
               </div>
               <div>
                 <label className="block text-sm font-medium text-white/80 mb-1.5">Last Name</label>
-                <Input {...form.register("lastName")} placeholder="Doe" />
+                <Input {...form.register("lastName")} placeholder="Doe" autoComplete="family-name" />
                 {form.formState.errors.lastName && <p className="text-xs text-destructive mt-1">{form.formState.errors.lastName.message}</p>}
               </div>
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-white/80 mb-1.5">Email Address</label>
-              <Input type="email" {...form.register("email")} placeholder="name@example.com" />
+              <Input type="email" {...form.register("email")} placeholder="name@example.com" autoComplete="email" />
               {form.formState.errors.email && <p className="text-xs text-destructive mt-1">{form.formState.errors.email.message}</p>}
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-white/80 mb-1.5">Password</label>
-              <Input type="password" {...form.register("password")} placeholder="••••••••" />
+              <Input type="password" {...form.register("password")} placeholder="••••••••" autoComplete="new-password" />
               {form.formState.errors.password && <p className="text-xs text-destructive mt-1">{form.formState.errors.password.message}</p>}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-white/80 mb-1.5">Phone (Optional)</label>
-                <Input {...form.register("phone")} placeholder="+1 234 567 890" />
+                <Input {...form.register("phone")} placeholder="+1 234 567 890" autoComplete="tel" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-white/80 mb-1.5">Country (Optional)</label>
-                <Input {...form.register("country")} placeholder="United Kingdom" />
+                <Input {...form.register("country")} placeholder="United Kingdom" autoComplete="country-name" />
               </div>
             </div>
 
