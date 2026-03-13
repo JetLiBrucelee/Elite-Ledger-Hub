@@ -1,8 +1,11 @@
-import { Response } from "express";
+import type { Response } from "express";
+
+type SSEClientType = "visitor" | "admin";
 
 type SSEClient = {
   id: string;
   sessionId: string;
+  clientType: SSEClientType;
   res: Response;
 };
 
@@ -19,16 +22,22 @@ export function removeSSEClient(id: string) {
   }
 }
 
-export function broadcastToSession(sessionId: string, data: any) {
-  const sessionClients = clients.filter((c) => c.sessionId === sessionId);
+export function broadcastToSession(sessionId: string, data: unknown) {
+  const sessionClients = clients.filter(
+    (c) => c.clientType === "visitor" && c.sessionId === sessionId
+  );
   for (const client of sessionClients) {
     client.res.write(`data: ${JSON.stringify(data)}\n\n`);
   }
 }
 
-export function broadcastToAdmins(data: any) {
-  const adminClients = clients.filter((c) => c.sessionId === "admin");
+export function broadcastToAdmins(data: unknown) {
+  const adminClients = clients.filter((c) => c.clientType === "admin");
   for (const client of adminClients) {
     client.res.write(`data: ${JSON.stringify(data)}\n\n`);
   }
+}
+
+export function createSSEClientId(prefix: string): string {
+  return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
 }

@@ -48,12 +48,14 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
     { name: "Overview", href: "/dashboard", icon: LayoutDashboard },
     { name: "Investments", href: "/dashboard/investments", icon: TrendingUp },
     { name: "Transactions", href: "/dashboard/transactions", icon: History },
+    { name: "Settings", href: "/dashboard/settings", icon: Settings },
   ];
 
   const adminLinks = [
     { name: "Overview", href: "/admin", icon: LayoutDashboard },
     { name: "Users", href: "/admin/users", icon: Users },
     { name: "Live Chat", href: "/admin/chat", icon: MessageSquare },
+    { name: "Settings", href: "/dashboard/settings", icon: Settings },
   ];
 
   const links = isAdmin ? adminLinks : userLinks;

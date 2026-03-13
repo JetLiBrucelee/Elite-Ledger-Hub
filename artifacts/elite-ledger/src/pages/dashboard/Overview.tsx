@@ -1,25 +1,23 @@
-import { useGetUserDashboard } from "@workspace/api-client-react";
+import { useGetUserDashboard, useGetUserInvestments } from "@workspace/api-client-react";
 import { formatCurrency } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
-import { ArrowUpRight, Wallet, PieChart, Activity } from "lucide-react";
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { ArrowUpRight, Wallet, PieChart, Activity, TrendingUp } from "lucide-react";
+
+const TIER_COLORS: Record<string, string> = {
+  bronze: "bg-orange-700",
+  silver: "bg-slate-400",
+  gold: "bg-yellow-500",
+  platinum: "bg-cyan-400",
+  diamond: "bg-blue-400",
+};
 
 export default function UserOverview() {
   const { data: dashboard, isLoading } = useGetUserDashboard();
+  const { data: investments = [] } = useGetUserInvestments();
 
   if (isLoading || !dashboard) {
     return <div className="p-8 text-white">Loading dashboard data...</div>;
   }
-
-  // Mock data for the chart since the API doesn't return historical data points yet
-  const chartData = [
-    { name: "Jan", value: dashboard.totalInvested * 1.0 },
-    { name: "Feb", value: dashboard.totalInvested * 1.2 },
-    { name: "Mar", value: dashboard.totalInvested * 1.5 },
-    { name: "Apr", value: dashboard.totalInvested * 1.9 },
-    { name: "May", value: dashboard.totalInvested * 2.5 },
-    { name: "Jun", value: dashboard.accountBalance },
-  ];
 
   const stats = [
     { label: "Account Balance", value: dashboard.accountBalance, icon: Wallet, color: "text-blue-500", bg: "bg-blue-500/10" },
@@ -33,11 +31,10 @@ export default function UserOverview() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-display font-bold text-white">Portfolio Overview</h1>
-          <p className="text-muted-foreground">Monitor your compounding assets and returns.</p>
+          <p className="text-muted-foreground">Monitor your investment portfolio and returns.</p>
         </div>
       </div>
 
-      {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((stat, i) => {
           const Icon = stat.icon;
@@ -57,37 +54,45 @@ export default function UserOverview() {
         })}
       </div>
 
-      {/* Chart & Recent */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Card className="lg:col-span-2 p-6">
-          <h3 className="text-lg font-display font-bold text-white mb-6">Performance History</h3>
-          <div className="h-[300px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                <XAxis dataKey="name" stroke="rgba(255,255,255,0.3)" fontSize={12} tickLine={false} axisLine={false} />
-                <YAxis 
-                  stroke="rgba(255,255,255,0.3)" 
-                  fontSize={12} 
-                  tickLine={false} 
-                  axisLine={false}
-                  tickFormatter={(val) => `$${val/1000}k`}
-                />
-                <Tooltip 
-                  contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }}
-                  itemStyle={{ color: '#fff' }}
-                  formatter={(value: number) => [formatCurrency(value), "Balance"]}
-                />
-                <Area type="monotone" dataKey="value" stroke="hsl(var(--primary))" strokeWidth={2} fillOpacity={1} fill="url(#colorValue)" />
-              </AreaChart>
-            </ResponsiveContainer>
+          <div className="flex items-center gap-3 mb-6">
+            <TrendingUp className="w-5 h-5 text-primary" />
+            <h3 className="text-lg font-display font-bold text-white">Active Investments</h3>
           </div>
+          {investments.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              <PieChart className="w-12 h-12 text-muted-foreground/30 mb-4" />
+              <p className="text-muted-foreground">No active investments yet.</p>
+              <p className="text-sm text-muted-foreground/70 mt-1">Visit our Plans page to get started.</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {investments.map((inv) => {
+                const tier = inv.planName?.toLowerCase() ?? "";
+                const colorClass = TIER_COLORS[tier] ?? "bg-primary";
+                const roiPct = typeof inv.returnPercentage === "number" ? inv.returnPercentage : 0;
+                return (
+                  <div key={inv.id} className="flex items-center gap-4 p-4 rounded-xl bg-background/50 border border-white/5">
+                    <div className={`w-3 h-10 rounded-full ${colorClass} shrink-0`} />
+                    <div className="flex-1 min-w-0">
+                      <div className="font-semibold text-white capitalize">{inv.planName} Plan</div>
+                      <div className="text-xs text-muted-foreground">
+                        Started {new Date(inv.startDate).toLocaleDateString()} · ends {new Date(inv.endDate).toLocaleDateString()}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-bold text-white">{formatCurrency(inv.investedAmount)}</div>
+                      <div className="text-xs text-emerald-500 font-medium">{roiPct}% ROI</div>
+                    </div>
+                    <div className={`px-3 py-1 rounded-full text-xs font-semibold ${inv.status === "active" ? "bg-emerald-500/10 text-emerald-500" : "bg-muted text-muted-foreground"}`}>
+                      {inv.status}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </Card>
 
         <Card className="p-6">
@@ -100,8 +105,8 @@ export default function UserOverview() {
                     <div className="font-medium text-sm text-white capitalize">{tx.type}</div>
                     <div className="text-xs text-muted-foreground">{new Date(tx.createdAt).toLocaleDateString()}</div>
                   </div>
-                  <div className={`font-bold text-sm ${tx.type === 'deposit' || tx.type === 'profit' ? 'text-emerald-500' : 'text-white'}`}>
-                    {tx.type === 'withdrawal' ? '-' : '+'}{formatCurrency(tx.amount)}
+                  <div className={`font-bold text-sm ${tx.type === "deposit" || tx.type === "profit" ? "text-emerald-500" : "text-white"}`}>
+                    {tx.type === "withdrawal" ? "-" : "+"}{formatCurrency(tx.amount)}
                   </div>
                 </div>
               ))

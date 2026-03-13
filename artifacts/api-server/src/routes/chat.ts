@@ -1,14 +1,16 @@
 import { Router, type IRouter } from "express";
 import { db, chatMessagesTable, chatSessionsTable } from "@workspace/db";
-import { eq, desc } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { SendChatMessageBody } from "@workspace/api-zod";
-import { addSSEClient, removeSSEClient, broadcastToSession, broadcastToAdmins } from "../lib/sse";
+import { addSSEClient, removeSSEClient, broadcastToSession, broadcastToAdmins, createSSEClientId } from "../lib/sse";
+
+const RESERVED_SESSION_IDS = new Set(["admin", "system", "broadcast"]);
 
 const router: IRouter = Router();
 
 router.get("/chat/messages", async (req, res): Promise<void> => {
   const sessionId = req.query.sessionId as string;
-  if (!sessionId) {
+  if (!sessionId || RESERVED_SESSION_IDS.has(sessionId)) {
     res.json([]);
     return;
   }
@@ -39,7 +41,13 @@ router.post("/chat/messages", async (req, res): Promise<void> => {
   }
 
   const { message, senderName, sessionId: providedSessionId } = parsed.data;
-  const sessionId = providedSessionId || `visitor_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+  if (providedSessionId && RESERVED_SESSION_IDS.has(providedSessionId)) {
+    res.status(400).json({ error: "Invalid session ID" });
+    return;
+  }
+
+  const sessionId = providedSessionId || createSSEClientId("visitor");
 
   const [existingSession] = await db
     .select()
@@ -92,19 +100,23 @@ router.post("/chat/messages", async (req, res): Promise<void> => {
 });
 
 router.get("/chat/events", (req, res): void => {
-  const sessionId = (req.query.sessionId as string) || "anonymous";
+  const sessionId = req.query.sessionId as string;
+
+  if (!sessionId || RESERVED_SESSION_IDS.has(sessionId)) {
+    res.status(400).json({ error: "Invalid or missing sessionId" });
+    return;
+  }
 
   res.writeHead(200, {
     "Content-Type": "text/event-stream",
     "Cache-Control": "no-cache",
     Connection: "keep-alive",
-    "Access-Control-Allow-Origin": "*",
   });
 
-  res.write("data: {\"type\":\"connected\"}\n\n");
+  res.write(`data: ${JSON.stringify({ type: "connected" })}\n\n`);
 
-  const clientId = `${sessionId}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-  addSSEClient({ id: clientId, sessionId, res });
+  const clientId = createSSEClientId(sessionId);
+  addSSEClient({ id: clientId, sessionId, clientType: "visitor", res });
 
   req.on("close", () => {
     removeSSEClient(clientId);

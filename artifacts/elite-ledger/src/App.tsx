@@ -19,6 +19,7 @@ import RiskDisclosure from "@/pages/RiskDisclosure";
 import UserOverview from "@/pages/dashboard/Overview";
 import Investments from "@/pages/dashboard/Investments";
 import Transactions from "@/pages/dashboard/Transactions";
+import DashboardSettings from "@/pages/dashboard/Settings";
 import AdminOverview from "@/pages/admin/Overview";
 import AdminUsers from "@/pages/admin/Users";
 import AdminChat from "@/pages/admin/Chat";
@@ -78,6 +79,11 @@ function AppRouter() {
       <Route path="/dashboard/transactions">
         <ProtectedRoute>
           <DashboardLayout><Transactions /></DashboardLayout>
+        </ProtectedRoute>
+      </Route>
+      <Route path="/dashboard/settings">
+        <ProtectedRoute>
+          <DashboardLayout><DashboardSettings /></DashboardLayout>
         </ProtectedRoute>
       </Route>
 

@@ -3,7 +3,7 @@ import { db, usersTable, chatMessagesTable, chatSessionsTable, userInvestmentsTa
 import { eq, desc, count, sql } from "drizzle-orm";
 import { AdminApproveUserParams, AdminRejectUserParams, AdminReplyChatBody, AdminGetSessionMessagesParams } from "@workspace/api-zod";
 import { requireAdmin } from "../lib/auth";
-import { broadcastToSession } from "../lib/sse";
+import { broadcastToSession, addSSEClient, removeSSEClient, createSSEClientId } from "../lib/sse";
 import type { AuthenticatedRequest } from "../types";
 
 const router: IRouter = Router();
@@ -185,6 +185,23 @@ router.post("/admin/chat/reply", requireAdmin, async (req, res): Promise<void> =
   broadcastToSession(sessionId, responseMsg);
 
   res.status(201).json(responseMsg);
+});
+
+router.get("/admin/chat/events", requireAdmin, (req, res): void => {
+  res.writeHead(200, {
+    "Content-Type": "text/event-stream",
+    "Cache-Control": "no-cache",
+    Connection: "keep-alive",
+  });
+
+  res.write(`data: ${JSON.stringify({ type: "connected" })}\n\n`);
+
+  const clientId = createSSEClientId("admin");
+  addSSEClient({ id: clientId, sessionId: clientId, clientType: "admin", res });
+
+  req.on("close", () => {
+    removeSSEClient(clientId);
+  });
 });
 
 router.get("/admin/stats", requireAdmin, async (_req, res): Promise<void> => {

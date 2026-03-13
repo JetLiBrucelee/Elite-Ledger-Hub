@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useAdminGetChatSessions, useAdminGetSessionMessages, useAdminReplyChat, getAdminGetSessionMessagesQueryKey } from "@workspace/api-client-react";
+import { useAdminGetChatSessions, useAdminGetSessionMessages, useAdminReplyChat, getAdminGetChatSessionsQueryKey, getAdminGetSessionMessagesQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,13 +13,14 @@ export default function AdminChat() {
   const queryClient = useQueryClient();
 
   const { data: sessions = [], isLoading: loadingSessions } = useAdminGetChatSessions({
-    query: { refetchInterval: 5000 } // poll for new sessions
+    query: { queryKey: getAdminGetChatSessionsQueryKey(), refetchInterval: 5000 }
   });
 
   const { data: messages = [], isLoading: loadingMessages } = useAdminGetSessionMessages(activeSessionId || "", {
-    query: { 
+    query: {
+      queryKey: getAdminGetSessionMessagesQueryKey(activeSessionId || ""),
       enabled: !!activeSessionId,
-      refetchInterval: 3000 // poll for new messages in active session
+      refetchInterval: 3000,
     }
   });
 
