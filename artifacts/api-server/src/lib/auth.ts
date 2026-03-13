@@ -57,10 +57,24 @@ export async function requireAdmin(req: Request, res: Response, next: NextFuncti
 }
 
 export function generateToken(): string {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let token = "";
-  for (let i = 0; i < 64; i++) {
-    token += chars.charAt(Math.floor(Math.random() * chars.length));
+  return crypto.randomBytes(48).toString("hex");
+}
+
+export async function requireApproved(req: Request, res: Response, next: NextFunction): Promise<void> {
+  const token = req.cookies?.session_token;
+  if (!token) {
+    res.status(401).json({ error: "Not authenticated" });
+    return;
   }
-  return token;
+  const user = await getUserFromToken(token);
+  if (!user) {
+    res.status(401).json({ error: "Invalid or expired session" });
+    return;
+  }
+  if (user.status !== "approved") {
+    res.status(403).json({ error: "Account not approved" });
+    return;
+  }
+  (req as any).user = user;
+  next();
 }
