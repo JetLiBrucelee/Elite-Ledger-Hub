@@ -137,14 +137,16 @@ async function seed() {
       status: "approved",
     });
     console.log(`Admin user created: ${adminEmail}`);
-  } else if (existingAdmin.email !== adminEmail) {
+  } else {
     await db
       .update(usersTable)
       .set({ email: adminEmail, passwordHash })
       .where(eq(usersTable.id, existingAdmin.id));
-    console.log(`Admin user updated: ${existingAdmin.email} -> ${adminEmail}`);
-  } else {
-    console.log("Admin user already exists with correct email, skipping");
+    if (existingAdmin.email !== adminEmail) {
+      console.log(`Admin user updated: ${existingAdmin.email} -> ${adminEmail}`);
+    } else {
+      console.log(`Admin user credentials synchronized: ${adminEmail}`);
+    }
   }
 
   process.exit(0);
