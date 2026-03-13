@@ -366,9 +366,9 @@ export default function Home() {
             <h2 className="text-3xl md:text-5xl font-display font-bold text-white mb-6">Trusted by Thousands of Investors</h2>
             <p className="text-muted-foreground text-lg">Real results from real clients across 140+ countries.</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="flex flex-wrap justify-center gap-6">
             {testimonials.map((t, idx) => (
-              <motion.div key={t.name} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: (idx % 3) * 0.1 }}>
+              <motion.div key={t.name} className="w-full md:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)]" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: (idx % 3) * 0.1 }}>
                 <Card className="p-6 h-full flex flex-col">
                   <div className="flex items-center gap-1 mb-4">
                     {Array.from({ length: t.rating }).map((_, i) => (
