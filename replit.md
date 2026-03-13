@@ -84,6 +84,8 @@ artifacts-monorepo/
 - `/` — Homepage with hero, stats, core services, empowering finance, benefits grid, careers, strategic partnership, copy trading, testimonials, CTA
 - `/plans` — Investment plans with 5 tabbed tiers (Bronze/Silver/Gold/Platinum/Diamond)
 - `/about` — About page with mission, stats, values
+- `/careers` — Careers page with benefits, open positions, send CV CTA
+- `/promotion` — Promotions page with giveaways, contests, referral program, deposit bonus
 - `/contact` — Contact form + info
 - `/login` — Sign in form
 - `/register` — Registration form (admin approval required)

@@ -16,8 +16,8 @@ export function Footer() {
           <div className="lg:col-span-1">
             <Link href="/" className="flex items-center gap-2 mb-5">
               <img src={`${import.meta.env.BASE_URL}images/logo-mark.png`} alt="Logo" className="w-8 h-8" />
-              <span className="font-display font-bold text-xl tracking-tight text-primary">
-                eliteledger
+              <span className="font-display font-bold text-xl tracking-tight text-white">
+                ELITE LEDGER <span className="text-primary">CAPITAL</span>
               </span>
             </Link>
             <p className="text-sm text-muted-foreground leading-relaxed mb-6">
@@ -36,7 +36,7 @@ export function Footer() {
             <ul className="space-y-3">
               <li><Link href="/" className="text-sm text-muted-foreground hover:text-primary transition-colors">Home</Link></li>
               <li><Link href="/about" className="text-sm text-muted-foreground hover:text-primary transition-colors">Why Elite Ledger Capital</Link></li>
-              <li><Link href="/contact" className="text-sm text-muted-foreground hover:text-primary transition-colors">Careers</Link></li>
+              <li><Link href="/careers" className="text-sm text-muted-foreground hover:text-primary transition-colors">Careers</Link></li>
               <li><Link href="/contact" className="text-sm text-muted-foreground hover:text-primary transition-colors">Affiliate</Link></li>
               <li><Link href="/risk-disclosure" className="text-sm text-muted-foreground hover:text-primary transition-colors">Insurance</Link></li>
               <li><Link href="/plans" className="text-sm text-muted-foreground hover:text-primary transition-colors">Trading Services</Link></li>
@@ -68,9 +68,9 @@ export function Footer() {
           <div>
             <h4 className="font-bold text-white text-base mb-5">Promotion</h4>
             <ul className="space-y-3">
-              <li><Link href="/contact" className="text-sm text-muted-foreground hover:text-primary transition-colors">Give Aways</Link></li>
-              <li><Link href="/contact" className="text-sm text-muted-foreground hover:text-primary transition-colors">Trading Contests</Link></li>
-              <li><Link href="/contact" className="text-sm text-muted-foreground hover:text-primary transition-colors">Referral Program</Link></li>
+              <li><Link href="/promotion" className="text-sm text-muted-foreground hover:text-primary transition-colors">Give Aways</Link></li>
+              <li><Link href="/promotion" className="text-sm text-muted-foreground hover:text-primary transition-colors">Trading Contests</Link></li>
+              <li><Link href="/promotion" className="text-sm text-muted-foreground hover:text-primary transition-colors">Referral Program</Link></li>
             </ul>
           </div>
         </div>

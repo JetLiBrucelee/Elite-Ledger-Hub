@@ -22,7 +22,7 @@ const navGroups: NavGroup[] = [
     items: [
       { name: "About Us", href: "/about" },
       { name: "Why Elite Ledger Capital", href: "/about" },
-      { name: "Careers", href: "/contact" },
+      { name: "Careers", href: "/careers" },
       { name: "Affiliate", href: "/contact" },
       { name: "Insurance", href: "/risk-disclosure" },
       { name: "Trading Services", href: "/plans" },
@@ -48,7 +48,7 @@ const navGroups: NavGroup[] = [
       { name: "Cryptocurrencies", href: "/plans" },
     ],
   },
-  { label: "Promotion", href: "/contact" },
+  { label: "Promotion", href: "/promotion" },
   {
     label: "Account",
     items: [
@@ -135,8 +135,8 @@ export function Navbar() {
               alt="Logo"
               className="w-8 h-8 group-hover:rotate-12 transition-transform duration-500"
             />
-            <span className="font-display font-bold text-xl tracking-tight text-primary">
-              eliteledger
+            <span className="font-display font-bold text-xl tracking-tight text-white">
+              ELITE LEDGER <span className="text-primary">CAPITAL</span>
             </span>
           </Link>
 

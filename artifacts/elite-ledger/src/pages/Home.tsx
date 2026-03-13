@@ -35,7 +35,7 @@ export default function Home() {
 
   const testimonials = [
     { name: "Michael T.", country: "United Kingdom", avatar: "MT", rating: 5, text: "In 14 months I turned my £25,000 into £89,000 by following the Gold plan and copying James Whitfield. The dashboard makes it simple to track every move in real time." },
-    { name: "Amara O.", country: "Nigeria", avatar: "AO", rating: 5, text: "I was skeptical at first, but after the admin approved my account I saw my first profits within the week. The transparency of the platform is unmatched — I can see exactly what trades are being made." },
+    { name: "Amara O.", country: "South Africa", avatar: "AO", rating: 5, text: "I was skeptical at first, but after the admin approved my account I saw my first profits within the week. The transparency of the platform is unmatched — I can see exactly what trades are being made." },
     { name: "Lena Bauer", country: "Germany", avatar: "LB", rating: 5, text: "The Diamond plan was a big commitment, but the 216% annual ROI has spoken for itself. I especially appreciate the live support chat — they answer within minutes." },
     { name: "Carlos R.", country: "Mexico", avatar: "CR", rating: 4, text: "Solid platform, professional onboarding, and great customer service. The copy trading feature has removed all the stress of managing my portfolio manually." },
     { name: "Sarah K.", country: "United States", avatar: "SK", rating: 5, text: "I started with the Bronze plan to test the waters. The compounding returns are real and the ROI targets are met consistently. Upgrading to Platinum next month." },
@@ -211,7 +211,7 @@ export default function Home() {
                 We put the customer experience first in everything we do and reward those who share our commitment to make it happen. With amazing employee benefits, direct and open communication, continuous learning opportunities and amazing career growth opportunities, Elite Ledger Capital is an exciting place to work!
               </p>
               <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white px-8">
-                <Link href="/contact">Explore Jobs</Link>
+                <Link href="/careers">Explore Jobs</Link>
               </Button>
             </motion.div>
           </div>
@@ -260,7 +260,7 @@ export default function Home() {
                 We are constantly seeking talented individuals to join our dynamic team. If you are a passionate and driven professional who thrives in a fast-paced environment, we encourage you to reach out. We believe in fostering a culture of innovation and collaboration, and we are excited to connect with individuals who share our vision for the future.
               </p>
               <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white px-8">
-                <Link href="/contact">Send CV</Link>
+                <Link href="/careers">Send CV</Link>
               </Button>
             </motion.div>
           </div>
