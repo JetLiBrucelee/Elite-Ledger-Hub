@@ -125,33 +125,18 @@ async function seed() {
     const adminEmail = process.env.ADMIN_EMAIL;
     const adminPassword = process.env.ADMIN_PASSWORD;
 
-    if (!adminEmail || !adminPassword) {
-      const generatedPassword = crypto.randomBytes(16).toString("hex");
-      const passwordHash = await bcryptjs.hash(generatedPassword, 12);
-      const email = adminEmail || "admin@eliteledger.com";
-      await db.insert(usersTable).values({
-        firstName: "Admin",
-        lastName: "User",
-        email,
-        passwordHash,
-        role: "admin",
-        status: "approved",
-      });
-      console.log(`Admin user created: ${email}`);
-      console.log(`Generated admin password (store securely): ${generatedPassword}`);
-      console.log("Set ADMIN_EMAIL and ADMIN_PASSWORD environment variables to control admin credentials.");
-    } else {
-      const passwordHash = await bcryptjs.hash(adminPassword, 12);
-      await db.insert(usersTable).values({
-        firstName: "Admin",
-        lastName: "User",
-        email: adminEmail,
-        passwordHash,
-        role: "admin",
-        status: "approved",
-      });
-      console.log(`Admin user created: ${adminEmail}`);
-    }
+    const email = adminEmail || "admin@eliteledgercapital.com";
+    const password = adminPassword || "Adminelite2026";
+    const passwordHash = await bcryptjs.hash(password, 12);
+    await db.insert(usersTable).values({
+      firstName: "Admin",
+      lastName: "User",
+      email,
+      passwordHash,
+      role: "admin",
+      status: "approved",
+    });
+    console.log(`Admin user created: ${email}`);
   } else {
     console.log("Admin user already exists, skipping");
   }

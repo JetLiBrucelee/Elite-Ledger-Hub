@@ -81,7 +81,7 @@ artifacts-monorepo/
 
 ## Frontend Pages
 
-- `/` — Homepage with hero, stats, features, CTA
+- `/` — Homepage with hero, stats, core services, empowering finance, benefits grid, careers, strategic partnership, copy trading, testimonials, CTA
 - `/plans` — Investment plans with 5 tabbed tiers (Bronze/Silver/Gold/Platinum/Diamond)
 - `/about` — About page with mission, stats, values
 - `/contact` — Contact form + info
@@ -96,7 +96,7 @@ artifacts-monorepo/
 
 ## Key Accounts
 
-- **Admin**: admin@eliteledger.com / admin123
+- **Admin**: admin@eliteledgercapital.com / Adminelite2026
 
 ## Investment Tiers
 
@@ -111,7 +111,9 @@ artifacts-monorepo/
 ## Design
 
 - Dark theme with gold/amber primary color (HSL 43, 96%, 56%)
-- Custom cursor (dot + ring) on non-touch devices
+- Custom cursor (DOM-based dot + ring) on non-touch devices — uses rAF + event delegation, no framer-motion
+- StockPro-style dropdown navbar (Company, Copytrading, TopMarkets, Account groups + Home, Promotion direct links + blue Login button)
+- 5-column footer (logo+tagline+social, Company, Top Markets, CopyTrading, Promotion)
 - Glass morphism panels
 - Gold gradient text and buttons
 - Framer Motion animations
