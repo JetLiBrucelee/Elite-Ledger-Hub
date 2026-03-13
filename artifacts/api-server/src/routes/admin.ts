@@ -10,18 +10,9 @@ const router: IRouter = Router();
 
 router.get("/admin/users", requireAdmin, async (req, res): Promise<void> => {
   const statusFilter = req.query.status as string | undefined;
-  let query = db.select().from(usersTable).orderBy(desc(usersTable.createdAt));
-
-  let users;
-  if (statusFilter) {
-    users = await db
-      .select()
-      .from(usersTable)
-      .where(eq(usersTable.status, statusFilter))
-      .orderBy(desc(usersTable.createdAt));
-  } else {
-    users = await db.select().from(usersTable).orderBy(desc(usersTable.createdAt));
-  }
+  const users = statusFilter
+    ? await db.select().from(usersTable).where(eq(usersTable.status, statusFilter)).orderBy(desc(usersTable.createdAt))
+    : await db.select().from(usersTable).orderBy(desc(usersTable.createdAt));
 
   res.json(
     users.map((u) => ({
@@ -119,8 +110,7 @@ router.get("/admin/chat/sessions", requireAdmin, async (_req, res): Promise<void
 });
 
 router.get("/admin/chat/messages/:sessionId", requireAdmin, async (req, res): Promise<void> => {
-  const raw = Array.isArray(req.params.sessionId) ? req.params.sessionId[0] : req.params.sessionId;
-  const sessionId = raw;
+  const sessionId = String(req.params.sessionId);
 
   const messages = await db
     .select()
