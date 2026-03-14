@@ -2713,6 +2713,87 @@ export function useAdminGetStats<
 }
 
 /**
+ * @summary Send a heartbeat to update presence status
+ */
+export const getUserHeartbeatUrl = () => {
+  return `/api/user/heartbeat`;
+};
+
+export const userHeartbeat = async (
+  options?: RequestInit,
+): Promise<MessageResponse> => {
+  return customFetch<MessageResponse>(getUserHeartbeatUrl(), {
+    ...options,
+    method: "POST",
+  });
+};
+
+export const getUserHeartbeatMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof userHeartbeat>>,
+    TError,
+    void,
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof userHeartbeat>>,
+  TError,
+  void,
+  TContext
+> => {
+  const mutationKey = ["userHeartbeat"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof userHeartbeat>>,
+    void
+  > = () => {
+    return userHeartbeat(requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type UserHeartbeatMutationResult = NonNullable<
+  Awaited<ReturnType<typeof userHeartbeat>>
+>;
+
+export type UserHeartbeatMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Send a heartbeat to update presence status
+ */
+export const useUserHeartbeat = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof userHeartbeat>>,
+    TError,
+    void,
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof userHeartbeat>>,
+  TError,
+  void,
+  TContext
+> => {
+  return useMutation(getUserHeartbeatMutationOptions(options));
+};
+
+/**
  * @summary Update current user profile
  */
 export const getUpdateUserProfileUrl = () => {

@@ -1,4 +1,5 @@
 import { pgTable, text, serial, timestamp, varchar, numeric } from "drizzle-orm/pg-core";
+
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -18,6 +19,8 @@ export const usersTable = pgTable("users", {
   status: varchar("status", { length: 20 }).notNull().default("pending"),
   balance: numeric("balance", { precision: 20, scale: 2 }).notNull().default("0"),
   plan: varchar("plan", { length: 50 }),
+  lastSeen: timestamp("last_seen", { withTimezone: true }),
+  presenceStatus: varchar("presence_status", { length: 20 }).notNull().default("offline"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
 });

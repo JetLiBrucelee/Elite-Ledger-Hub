@@ -31,6 +31,8 @@ function userToDTO(user: {
   status: string;
   balance: string;
   plan: string | null;
+  lastSeen: Date | null;
+  presenceStatus: string;
   createdAt: Date;
 }) {
   return {
@@ -48,6 +50,8 @@ function userToDTO(user: {
     status: user.status,
     balance: Number(user.balance),
     plan: user.plan,
+    lastSeen: user.lastSeen ? user.lastSeen.toISOString() : null,
+    presenceStatus: user.presenceStatus,
     createdAt: user.createdAt.toISOString(),
   };
 }
@@ -158,7 +162,14 @@ router.get("/auth/me", requireAuth, async (req, res): Promise<void> => {
 router.post("/auth/logout", async (req, res): Promise<void> => {
   const token = req.cookies?.session_token as string | undefined;
   if (token) {
-    await db.delete(sessionsTable).where(eq(sessionsTable.token, token));
+    const [session] = await db.select().from(sessionsTable).where(eq(sessionsTable.token, token));
+    if (session) {
+      await db
+        .update(usersTable)
+        .set({ presenceStatus: "offline", lastSeen: new Date() })
+        .where(eq(usersTable.id, session.userId));
+      await db.delete(sessionsTable).where(eq(sessionsTable.token, token));
+    }
   }
   res.clearCookie("session_token", { path: "/" });
   res.json({ message: "Logged out successfully" });

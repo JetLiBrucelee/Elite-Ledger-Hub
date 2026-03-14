@@ -24,6 +24,8 @@ function userToDTO(u: {
   status: string;
   balance: string;
   plan: string | null;
+  lastSeen: Date | null;
+  presenceStatus: string;
   createdAt: Date;
 }) {
   return {
@@ -41,6 +43,8 @@ function userToDTO(u: {
     status: u.status,
     balance: Number(u.balance),
     plan: u.plan,
+    lastSeen: u.lastSeen ? u.lastSeen.toISOString() : null,
+    presenceStatus: u.presenceStatus,
     createdAt: u.createdAt.toISOString(),
   };
 }

@@ -49,6 +49,7 @@ export * from "./user";
 export * from "./userDashboard";
 export * from "./userInvestment";
 export * from "./userInvestmentStatus";
+export * from "./userPresenceStatus";
 export * from "./userRole";
 export * from "./userStatus";
 export * from "./withdrawalRequest";

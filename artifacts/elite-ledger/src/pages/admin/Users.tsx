@@ -535,7 +535,7 @@ export default function AdminUsers() {
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [adjustingUser, setAdjustingUser] = useState<User | null>(null);
   const [deletingUser, setDeletingUser] = useState<User | null>(null);
-  const { data: allUsers = [], isLoading } = useAdminGetUsers({});
+  const { data: allUsers = [], isLoading } = useAdminGetUsers({}, { query: { refetchInterval: 30_000 } });
   const approveMutation = useAdminApproveUser();
   const rejectMutation = useAdminRejectUser();
   const blockMutation = useAdminBlockUser();
@@ -570,6 +570,28 @@ export default function AdminUsers() {
     } catch {
       toast({ title: "Action failed", variant: "destructive" });
     }
+  };
+
+  const getPresenceDot = (u: User) => {
+    if (u.presenceStatus === "offline") {
+      return "bg-red-500";
+    }
+    if (!u.lastSeen) {
+      return "bg-amber-500";
+    }
+    const lastSeenMs = new Date(u.lastSeen).getTime();
+    const minutesAgo = (Date.now() - lastSeenMs) / 60_000;
+    if (minutesAgo <= 20) return "bg-emerald-500";
+    return "bg-amber-500";
+  };
+
+  const getPresenceLabel = (u: User) => {
+    if (u.presenceStatus === "offline") return "Offline";
+    if (!u.lastSeen) return "Never seen";
+    const lastSeenMs = new Date(u.lastSeen).getTime();
+    const minutesAgo = (Date.now() - lastSeenMs) / 60_000;
+    if (minutesAgo <= 20) return "Online";
+    return "Idle";
   };
 
   const statusBadgeVariant = (status: string) => {
@@ -614,8 +636,13 @@ export default function AdminUsers() {
               {users.map((u) => (
                 <tr key={u.id} className="hover:bg-white/[0.02] transition-colors">
                   <td className="px-6 py-4">
-                    <div className="font-bold text-white">{u.firstName} {u.lastName}</div>
-                    <div className="text-xs text-muted-foreground mt-1">Joined {formatDate(u.createdAt)}</div>
+                    <div className="flex items-center gap-2">
+                      <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${getPresenceDot(u)}`} title={getPresenceLabel(u)} />
+                      <div>
+                        <div className="font-bold text-white">{u.firstName} {u.lastName}</div>
+                        <div className="text-xs text-muted-foreground mt-0.5">Joined {formatDate(u.createdAt)}</div>
+                      </div>
+                    </div>
                   </td>
                   <td className="px-6 py-4">
                     <div className="text-white">{u.email}</div>

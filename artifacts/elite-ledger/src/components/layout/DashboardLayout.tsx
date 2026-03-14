@@ -1,7 +1,7 @@
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
-import { useLogout } from "@workspace/api-client-react";
+import { useLogout, useUserHeartbeat } from "@workspace/api-client-react";
 import { 
   LayoutDashboard, 
   TrendingUp, 
@@ -16,10 +16,35 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
+const TIER_ACCENT_COLORS: Record<string, string> = {
+  bronze: "border-orange-500",
+  silver: "border-slate-400",
+  gold: "border-yellow-500",
+  platinum: "border-cyan-400",
+  diamond: "border-blue-400",
+};
+
+const TIER_ACCENT_BG: Record<string, string> = {
+  bronze: "bg-orange-500",
+  silver: "bg-slate-400",
+  gold: "bg-yellow-500",
+  platinum: "bg-cyan-400",
+  diamond: "bg-blue-400",
+};
+
 export function DashboardLayout({ children }: { children: ReactNode }) {
   const [location] = useLocation();
   const { user, isAdmin, isPendingApproval } = useAuth();
   const logoutMutation = useLogout();
+  const heartbeatMutation = useUserHeartbeat();
+
+  useEffect(() => {
+    heartbeatMutation.mutate();
+    const interval = setInterval(() => {
+      heartbeatMutation.mutate();
+    }, 60_000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleLogout = async () => {
     await logoutMutation.mutateAsync();
@@ -63,11 +88,14 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
   ];
 
   const links = isAdmin ? adminLinks : userLinks;
+  const planTier = user?.plan?.toLowerCase() ?? "";
+  const sidebarAccent = !isAdmin && planTier ? TIER_ACCENT_COLORS[planTier] : "";
+  const sidebarAccentBg = !isAdmin && planTier ? TIER_ACCENT_BG[planTier] : "";
 
   return (
     <div className="min-h-screen bg-background flex">
       {/* Sidebar */}
-      <aside className="w-64 border-r border-border bg-card hidden md:flex flex-col">
+      <aside className={`w-64 border-r border-border bg-card hidden md:flex flex-col ${sidebarAccent ? `border-t-2 ${sidebarAccent}` : ""}`}>
         <div className="h-16 flex items-center px-6 border-b border-border">
           <Link href="/" className="flex items-center gap-2">
             <img src={`${import.meta.env.BASE_URL}images/logo-mark.png`} alt="Logo" className="w-6 h-6" />
@@ -99,6 +127,12 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
         </div>
 
         <div className="p-4 border-t border-border">
+          {!isAdmin && planTier && (
+            <div className={`flex items-center gap-2 px-4 py-2.5 rounded-xl mb-3 bg-white/[0.03] border border-white/5`}>
+              <div className={`w-2.5 h-2.5 rounded-full ${sidebarAccentBg}`} />
+              <span className="text-xs font-semibold text-white/70 uppercase tracking-wider">{user?.plan} Plan</span>
+            </div>
+          )}
           <div className="px-4 py-3 rounded-xl bg-background border border-border flex items-center gap-3 mb-4">
             <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
               <span className="text-primary font-bold text-xs">

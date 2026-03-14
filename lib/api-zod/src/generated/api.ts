@@ -56,6 +56,8 @@ export const LoginResponse = zod.object({
     status: zod.enum(["pending", "approved", "rejected", "blocked"]),
     balance: zod.number(),
     plan: zod.string().nullish(),
+    lastSeen: zod.date().nullish(),
+    presenceStatus: zod.enum(["online", "offline"]),
     createdAt: zod.date(),
   }),
   message: zod.string(),
@@ -79,6 +81,8 @@ export const GetMeResponse = zod.object({
   status: zod.enum(["pending", "approved", "rejected", "blocked"]),
   balance: zod.number(),
   plan: zod.string().nullish(),
+  lastSeen: zod.date().nullish(),
+  presenceStatus: zod.enum(["online", "offline"]),
   createdAt: zod.date(),
 });
 
@@ -193,6 +197,8 @@ export const AdminGetUsersResponseItem = zod.object({
   status: zod.enum(["pending", "approved", "rejected", "blocked"]),
   balance: zod.number(),
   plan: zod.string().nullish(),
+  lastSeen: zod.date().nullish(),
+  presenceStatus: zod.enum(["online", "offline"]),
   createdAt: zod.date(),
 });
 export const AdminGetUsersResponse = zod.array(AdminGetUsersResponseItem);
@@ -237,6 +243,8 @@ export const AdminApproveUserResponse = zod.object({
   status: zod.enum(["pending", "approved", "rejected", "blocked"]),
   balance: zod.number(),
   plan: zod.string().nullish(),
+  lastSeen: zod.date().nullish(),
+  presenceStatus: zod.enum(["online", "offline"]),
   createdAt: zod.date(),
 });
 
@@ -262,6 +270,8 @@ export const AdminRejectUserResponse = zod.object({
   status: zod.enum(["pending", "approved", "rejected", "blocked"]),
   balance: zod.number(),
   plan: zod.string().nullish(),
+  lastSeen: zod.date().nullish(),
+  presenceStatus: zod.enum(["online", "offline"]),
   createdAt: zod.date(),
 });
 
@@ -287,6 +297,8 @@ export const AdminBlockUserResponse = zod.object({
   status: zod.enum(["pending", "approved", "rejected", "blocked"]),
   balance: zod.number(),
   plan: zod.string().nullish(),
+  lastSeen: zod.date().nullish(),
+  presenceStatus: zod.enum(["online", "offline"]),
   createdAt: zod.date(),
 });
 
@@ -312,6 +324,8 @@ export const AdminUnblockUserResponse = zod.object({
   status: zod.enum(["pending", "approved", "rejected", "blocked"]),
   balance: zod.number(),
   plan: zod.string().nullish(),
+  lastSeen: zod.date().nullish(),
+  presenceStatus: zod.enum(["online", "offline"]),
   createdAt: zod.date(),
 });
 
@@ -337,6 +351,8 @@ export const AdminSuspendUserResponse = zod.object({
   status: zod.enum(["pending", "approved", "rejected", "blocked"]),
   balance: zod.number(),
   plan: zod.string().nullish(),
+  lastSeen: zod.date().nullish(),
+  presenceStatus: zod.enum(["online", "offline"]),
   createdAt: zod.date(),
 });
 
@@ -366,6 +382,8 @@ export const AdminCreditUserResponse = zod.object({
   status: zod.enum(["pending", "approved", "rejected", "blocked"]),
   balance: zod.number(),
   plan: zod.string().nullish(),
+  lastSeen: zod.date().nullish(),
+  presenceStatus: zod.enum(["online", "offline"]),
   createdAt: zod.date(),
 });
 
@@ -395,6 +413,8 @@ export const AdminDebitUserResponse = zod.object({
   status: zod.enum(["pending", "approved", "rejected", "blocked"]),
   balance: zod.number(),
   plan: zod.string().nullish(),
+  lastSeen: zod.date().nullish(),
+  presenceStatus: zod.enum(["online", "offline"]),
   createdAt: zod.date(),
 });
 
@@ -432,6 +452,8 @@ export const AdminEditUserResponse = zod.object({
   status: zod.enum(["pending", "approved", "rejected", "blocked"]),
   balance: zod.number(),
   plan: zod.string().nullish(),
+  lastSeen: zod.date().nullish(),
+  presenceStatus: zod.enum(["online", "offline"]),
   createdAt: zod.date(),
 });
 
@@ -603,6 +625,13 @@ export const AdminGetStatsResponse = zod.object({
 });
 
 /**
+ * @summary Send a heartbeat to update presence status
+ */
+export const UserHeartbeatResponse = zod.object({
+  message: zod.string(),
+});
+
+/**
  * @summary Update current user profile
  */
 export const UpdateUserProfileBody = zod.object({
@@ -631,6 +660,8 @@ export const UpdateUserProfileResponse = zod.object({
   status: zod.enum(["pending", "approved", "rejected", "blocked"]),
   balance: zod.number(),
   plan: zod.string().nullish(),
+  lastSeen: zod.date().nullish(),
+  presenceStatus: zod.enum(["online", "offline"]),
   createdAt: zod.date(),
 });
 

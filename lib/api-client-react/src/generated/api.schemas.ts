@@ -52,6 +52,14 @@ export const UserStatus = {
   blocked: "blocked",
 } as const;
 
+export type UserPresenceStatus =
+  (typeof UserPresenceStatus)[keyof typeof UserPresenceStatus];
+
+export const UserPresenceStatus = {
+  online: "online",
+  offline: "offline",
+} as const;
+
 export interface User {
   id: number;
   firstName: string;
@@ -74,6 +82,9 @@ export interface User {
   balance: number;
   /** @nullable */
   plan?: string | null;
+  /** @nullable */
+  lastSeen?: string | null;
+  presenceStatus: UserPresenceStatus;
   createdAt: string;
 }
 

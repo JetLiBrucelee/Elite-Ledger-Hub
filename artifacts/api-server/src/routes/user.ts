@@ -6,6 +6,15 @@ import type { AuthenticatedRequest } from "../types";
 
 const router: IRouter = Router();
 
+router.post("/user/heartbeat", requireAuth, async (req, res): Promise<void> => {
+  const user = (req as AuthenticatedRequest).user;
+  await db
+    .update(usersTable)
+    .set({ lastSeen: new Date(), presenceStatus: "online" })
+    .where(eq(usersTable.id, user.id));
+  res.json({ message: "ok" });
+});
+
 router.get("/user/dashboard", requireApproved, async (req, res): Promise<void> => {
   const user = (req as AuthenticatedRequest).user;
 

@@ -684,6 +684,19 @@ paths:
               schema:
                 $ref: "#/components/schemas/AdminStats"
 
+  /user/heartbeat:
+    post:
+      operationId: userHeartbeat
+      tags: [users]
+      summary: Send a heartbeat to update presence status
+      responses:
+        "200":
+          description: Heartbeat acknowledged
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
   /user/profile:
     patch:
       operationId: updateUserProfile
@@ -905,6 +918,12 @@ components:
           type: number
         plan:
           type: ["string", "null"]
+        lastSeen:
+          type: ["string", "null"]
+          format: date-time
+        presenceStatus:
+          type: string
+          enum: [online, offline]
         createdAt:
           type: string
           format: date-time
@@ -916,6 +935,7 @@ components:
         - role
         - status
         - balance
+        - presenceStatus
         - createdAt
 
     AdminCreateUserRequest:

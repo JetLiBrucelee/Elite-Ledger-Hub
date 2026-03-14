@@ -5,6 +5,7 @@
  * Elite Ledger Capital API
  * OpenAPI spec version: 0.1.0
  */
+import type { UserPresenceStatus } from "./userPresenceStatus";
 import type { UserRole } from "./userRole";
 import type { UserStatus } from "./userStatus";
 
@@ -30,5 +31,8 @@ export interface User {
   balance: number;
   /** @nullable */
   plan?: string | null;
+  /** @nullable */
+  lastSeen?: Date | null;
+  presenceStatus: UserPresenceStatus;
   createdAt: Date;
 }

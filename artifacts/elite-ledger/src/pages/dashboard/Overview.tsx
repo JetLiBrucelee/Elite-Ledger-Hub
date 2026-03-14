@@ -28,6 +28,14 @@ const TIER_BG_COLORS: Record<string, string> = {
   diamond: "bg-blue-400/10 border-blue-400/20",
 };
 
+const TIER_GRADIENT: Record<string, string> = {
+  bronze: "from-orange-900/40 via-orange-800/20 to-transparent border-orange-600/30",
+  silver: "from-slate-600/40 via-slate-500/20 to-transparent border-slate-400/30",
+  gold: "from-yellow-900/40 via-yellow-700/20 to-transparent border-yellow-500/30",
+  platinum: "from-cyan-900/40 via-cyan-700/20 to-transparent border-cyan-400/30",
+  diamond: "from-blue-900/40 via-indigo-700/20 to-transparent border-blue-400/30",
+};
+
 export default function UserOverview() {
   const { user } = useAuth();
   const { data: dashboard, isLoading } = useGetUserDashboard();
@@ -51,18 +59,38 @@ export default function UserOverview() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-        <div>
-          <h1 className="text-3xl font-display font-bold text-white">Portfolio Overview</h1>
-          <p className="text-muted-foreground">Monitor your investment portfolio and returns.</p>
+      {hasPlan ? (
+        <div className={`rounded-2xl border p-6 bg-gradient-to-r ${TIER_GRADIENT[planTier] || "from-primary/20 to-transparent border-primary/20"}`}>
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div className="flex items-center gap-4">
+              <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${TIER_BG_COLORS[planTier] || "bg-primary/10"} border`}>
+                <Crown className={`w-7 h-7 ${TIER_TEXT_COLORS[planTier] || "text-primary"}`} />
+              </div>
+              <div>
+                <p className="text-sm text-white/60 font-medium">Your Investment Plan</p>
+                <h2 className={`text-2xl font-display font-bold capitalize ${TIER_TEXT_COLORS[planTier] || "text-primary"}`}>
+                  {user?.plan} Plan
+                </h2>
+              </div>
+            </div>
+            <div className="text-right">
+              <p className="text-sm text-white/60">Account Balance</p>
+              <p className="text-2xl font-bold text-white">{formatCurrency(displayBalance)}</p>
+            </div>
+          </div>
         </div>
-        <div className={`flex items-center gap-2 px-4 py-2 rounded-full border ${hasPlan ? (TIER_BG_COLORS[planTier] || "bg-primary/10 border-primary/20") : "bg-white/5 border-white/10"}`}>
-          <Crown className={`w-4 h-4 ${hasPlan ? (TIER_TEXT_COLORS[planTier] || "text-primary") : "text-muted-foreground"}`} />
-          <span className={`text-sm font-bold capitalize ${hasPlan ? (TIER_TEXT_COLORS[planTier] || "text-primary") : "text-muted-foreground"}`}>
-            {hasPlan ? `${user?.plan} Plan` : "No Plan Assigned"}
-          </span>
+      ) : (
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-2">
+          <div>
+            <h1 className="text-3xl font-display font-bold text-white">Portfolio Overview</h1>
+            <p className="text-muted-foreground">Monitor your investment portfolio and returns.</p>
+          </div>
+          <div className="flex items-center gap-2 px-4 py-2 rounded-full border bg-white/5 border-white/10">
+            <Crown className="w-4 h-4 text-muted-foreground" />
+            <span className="text-sm font-bold text-muted-foreground">No Plan Assigned</span>
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((stat, i) => {
