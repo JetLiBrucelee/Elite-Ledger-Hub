@@ -663,7 +663,7 @@ paths:
     patch:
       operationId: updateUserProfile
       tags: [users]
-      summary: Update current user profile (name)
+      summary: Update current user profile
       requestBody:
         required: true
         content:

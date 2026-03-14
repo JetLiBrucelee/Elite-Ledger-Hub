@@ -3,6 +3,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { formatCurrency } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 import { Users, Clock, DollarSign, MessageSquare, Wallet, CreditCard } from "lucide-react";
+import { Link } from "wouter";
 
 export default function AdminOverview() {
   const { data: stats, isLoading } = useAdminGetStats();
@@ -57,13 +58,13 @@ export default function AdminOverview() {
                 <div className="text-3xl font-bold text-primary">{formatCurrency(user.balance ?? 0)}</div>
               </div>
             </div>
-            <a
+            <Link
               href="/admin/users"
               className="flex items-center gap-2 px-5 py-3 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-semibold transition-colors"
             >
               <CreditCard className="w-4 h-4" />
               Credit a User
-            </a>
+            </Link>
           </div>
         </Card>
       )}
@@ -71,18 +72,18 @@ export default function AdminOverview() {
       <Card className="p-6 mt-8">
         <h3 className="text-lg font-display font-bold text-white mb-4">Quick Actions</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <a href="/admin/users" className="p-4 rounded-xl bg-background border border-white/10 hover:border-primary/50 transition-colors group">
+          <Link href="/admin/users" className="p-4 rounded-xl bg-background border border-white/10 hover:border-primary/50 transition-colors group">
             <h4 className="font-bold text-white group-hover:text-primary mb-1">Review Pending Users</h4>
             <p className="text-xs text-muted-foreground">Approve or reject new registrations</p>
-          </a>
-          <a href="/admin/chat" className="p-4 rounded-xl bg-background border border-white/10 hover:border-primary/50 transition-colors group">
+          </Link>
+          <Link href="/admin/chat" className="p-4 rounded-xl bg-background border border-white/10 hover:border-primary/50 transition-colors group">
             <h4 className="font-bold text-white group-hover:text-primary mb-1">Live Chat Inbox</h4>
             <p className="text-xs text-muted-foreground">Respond to incoming inquiries</p>
-          </a>
-          <a href="/admin/users" className="p-4 rounded-xl bg-background border border-primary/20 hover:border-primary/50 transition-colors group">
+          </Link>
+          <Link href="/admin/users" className="p-4 rounded-xl bg-background border border-primary/20 hover:border-primary/50 transition-colors group">
             <h4 className="font-bold text-white group-hover:text-primary mb-1">Credit User Balance</h4>
             <p className="text-xs text-muted-foreground">Adjust user balances from the Users page</p>
-          </a>
+          </Link>
         </div>
       </Card>
     </div>
