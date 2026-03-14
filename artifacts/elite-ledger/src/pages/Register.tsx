@@ -51,6 +51,8 @@ export default function Register() {
   const addressRef = useRef<HTMLDivElement>(null);
   const debouncedAddressQuery = useDebounce(addressQuery, 400);
 
+  const [zipQuery, setZipQuery] = useState("");
+  const debouncedZip = useDebounce(zipQuery, 350);
   const [zipLooking, setZipLooking] = useState(false);
 
   const form = useForm<RegisterForm>({
@@ -82,6 +84,33 @@ export default function Register() {
     return () => { cancelled = true; };
   }, [debouncedAddressQuery]);
 
+  useEffect(() => {
+    const trimmed = debouncedZip.trim();
+    if (!trimmed || trimmed.length < 3) return;
+    let cancelled = false;
+
+    if (isUSZip(trimmed)) {
+      const result = lookupUSZip(trimmed);
+      if (result && !cancelled) {
+        form.setValue("city", result.city);
+        form.setValue("stateProvince", result.state);
+        if (!form.getValues("country")) form.setValue("country", "United States");
+      }
+    } else {
+      setZipLooking(true);
+      const country = form.getValues("country");
+      lookupPostalCode(trimmed, country || undefined).then((result) => {
+        if (result && !cancelled) {
+          if (result.city) form.setValue("city", result.city);
+          if (result.state) form.setValue("stateProvince", result.state);
+        }
+        if (!cancelled) setZipLooking(false);
+      });
+    }
+
+    return () => { cancelled = true; };
+  }, [debouncedZip, form]);
+
   const handleAddressSelect = useCallback((suggestion: typeof addressSuggestions[0]) => {
     form.setValue("address", suggestion.address);
     setAddressQuery(suggestion.address);
@@ -93,36 +122,6 @@ export default function Register() {
       if (match) form.setValue("country", match);
     }
     setShowAddressSuggestions(false);
-  }, [form]);
-
-  const handleZipChange = useCallback(async (zip: string) => {
-    form.setValue("zipCode", zip);
-    const trimmed = zip.trim();
-    if (!trimmed || trimmed.length < 3) return;
-
-    if (isUSZip(trimmed)) {
-      const localResult = lookupUSZip(trimmed);
-      if (localResult) {
-        form.setValue("stateProvince", localResult.state);
-        if (!form.getValues("country")) form.setValue("country", "United States");
-      }
-      setZipLooking(true);
-      const nominatimResult = await lookupPostalCode(trimmed, "US");
-      if (nominatimResult) {
-        if (nominatimResult.city) form.setValue("city", nominatimResult.city);
-        if (nominatimResult.state) form.setValue("stateProvince", nominatimResult.state);
-      }
-      setZipLooking(false);
-    } else if (trimmed.length >= 3) {
-      setZipLooking(true);
-      const country = form.getValues("country");
-      const result = await lookupPostalCode(trimmed, country || undefined);
-      if (result) {
-        if (result.city) form.setValue("city", result.city);
-        if (result.state) form.setValue("stateProvince", result.state);
-      }
-      setZipLooking(false);
-    }
   }, [form]);
 
   const filteredCountries = COUNTRIES.filter(c =>
@@ -232,7 +231,7 @@ export default function Register() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-white/80 mb-1.5">Phone</label>
-                <Input {...form.register("phone")} placeholder="" autoComplete="tel" />
+                <Input {...form.register("phone")} placeholder="----" autoComplete="tel" />
               </div>
               <div ref={countryRef} className="relative">
                 <label className="block text-sm font-medium text-white/80 mb-1.5">Country (Optional)</label>
@@ -337,7 +336,10 @@ export default function Register() {
                 <div className="relative">
                   <Input
                     {...form.register("zipCode")}
-                    onChange={(e) => handleZipChange(e.target.value)}
+                    onChange={(e) => {
+                      form.setValue("zipCode", e.target.value);
+                      setZipQuery(e.target.value);
+                    }}
                     placeholder="ZIP / Postal code"
                     autoComplete="postal-code"
                   />
