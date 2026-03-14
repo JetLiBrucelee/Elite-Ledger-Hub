@@ -114,6 +114,7 @@ router.post("/chat/messages", rateLimitChatMiddleware, async (req, res): Promise
   if (!existingSession) {
     await db.insert(chatSessionsTable).values({
       sessionId,
+      userId: loggedInUser ? loggedInUser.id : null,
       visitorName: senderName,
       lastMessage: message,
       lastMessageAt: new Date(),

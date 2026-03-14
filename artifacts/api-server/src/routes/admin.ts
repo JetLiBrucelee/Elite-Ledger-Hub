@@ -292,18 +292,16 @@ router.delete("/admin/users/:id", requireAdmin, async (req, res): Promise<void> 
     return;
   }
 
-  const visitorName = `${user.firstName} ${user.lastName}`;
-
   await db.transaction(async (tx) => {
-    const userSessions = await tx
+    const userChatSessions = await tx
       .select({ sessionId: chatSessionsTable.sessionId })
       .from(chatSessionsTable)
-      .where(eq(chatSessionsTable.visitorName, visitorName));
-    if (userSessions.length > 0) {
-      for (const s of userSessions) {
-        await tx.delete(chatMessagesTable).where(eq(chatMessagesTable.sessionId, s.sessionId));
-      }
-      await tx.delete(chatSessionsTable).where(eq(chatSessionsTable.visitorName, visitorName));
+      .where(eq(chatSessionsTable.userId, id));
+    for (const s of userChatSessions) {
+      await tx.delete(chatMessagesTable).where(eq(chatMessagesTable.sessionId, s.sessionId));
+    }
+    if (userChatSessions.length > 0) {
+      await tx.delete(chatSessionsTable).where(eq(chatSessionsTable.userId, id));
     }
 
     await tx.delete(sessionsTable).where(eq(sessionsTable.userId, id));
