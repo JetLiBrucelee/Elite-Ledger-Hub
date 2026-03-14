@@ -572,26 +572,18 @@ export default function AdminUsers() {
     }
   };
 
-  const getPresenceDot = (u: User) => {
-    if (u.presenceStatus === "offline") {
-      return "bg-red-500";
-    }
+  const getPresenceInfo = (u: User): { dot: string; label: string } => {
     if (!u.lastSeen) {
-      return "bg-amber-500";
+      return { dot: "bg-amber-500", label: "Never seen" };
     }
-    const lastSeenMs = new Date(u.lastSeen).getTime();
-    const minutesAgo = (Date.now() - lastSeenMs) / 60_000;
-    if (minutesAgo <= 20) return "bg-emerald-500";
-    return "bg-amber-500";
-  };
-
-  const getPresenceLabel = (u: User) => {
-    if (u.presenceStatus === "offline") return "Offline";
-    if (!u.lastSeen) return "Never seen";
-    const lastSeenMs = new Date(u.lastSeen).getTime();
-    const minutesAgo = (Date.now() - lastSeenMs) / 60_000;
-    if (minutesAgo <= 20) return "Online";
-    return "Idle";
+    if (u.presenceStatus === "offline") {
+      return { dot: "bg-red-500", label: "Offline" };
+    }
+    const minutesAgo = (Date.now() - new Date(u.lastSeen).getTime()) / 60_000;
+    if (minutesAgo <= 20) {
+      return { dot: "bg-emerald-500", label: "Online" };
+    }
+    return { dot: "bg-amber-500", label: "Idle" };
   };
 
   const statusBadgeVariant = (status: string) => {
@@ -637,7 +629,7 @@ export default function AdminUsers() {
                 <tr key={u.id} className="hover:bg-white/[0.02] transition-colors">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
-                      <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${getPresenceDot(u)}`} title={getPresenceLabel(u)} />
+                      <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${getPresenceInfo(u).dot}`} title={getPresenceInfo(u).label} />
                       <div>
                         <div className="font-bold text-white">{u.firstName} {u.lastName}</div>
                         <div className="text-xs text-muted-foreground mt-0.5">Joined {formatDate(u.createdAt)}</div>

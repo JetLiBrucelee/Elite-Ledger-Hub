@@ -28,6 +28,14 @@ const TIER_BG_COLORS: Record<string, string> = {
   diamond: "bg-blue-400/10 border-blue-400/20",
 };
 
+const TIER_BORDER_ACCENT: Record<string, string> = {
+  bronze: "border-l-orange-500",
+  silver: "border-l-slate-400",
+  gold: "border-l-yellow-500",
+  platinum: "border-l-cyan-400",
+  diamond: "border-l-blue-400",
+};
+
 const TIER_GRADIENT: Record<string, string> = {
   bronze: "from-orange-900/40 via-orange-800/20 to-transparent border-orange-600/30",
   silver: "from-slate-600/40 via-slate-500/20 to-transparent border-slate-400/30",
@@ -96,7 +104,7 @@ export default function UserOverview() {
         {stats.map((stat, i) => {
           const Icon = stat.icon;
           return (
-            <Card key={i} className="p-6 border-white/5">
+            <Card key={i} className={`p-6 border-white/5 ${hasPlan ? `border-l-2 ${TIER_BORDER_ACCENT[planTier] || ""}` : ""}`}>
               <div className="flex items-center gap-4 mb-4">
                 <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${stat.bg}`}>
                   <Icon className={`w-6 h-6 ${stat.color}`} />
