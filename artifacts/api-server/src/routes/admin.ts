@@ -292,12 +292,27 @@ router.delete("/admin/users/:id", requireAdmin, async (req, res): Promise<void> 
     return;
   }
 
-  await db.delete(sessionsTable).where(eq(sessionsTable.userId, id));
-  await db.delete(transactionsTable).where(eq(transactionsTable.userId, id));
-  await db.delete(withdrawalRequestsTable).where(eq(withdrawalRequestsTable.userId, id));
-  await db.delete(userInvestmentsTable).where(eq(userInvestmentsTable.userId, id));
-  await db.delete(jobApplicationsTable).where(eq(jobApplicationsTable.email, user.email));
-  await db.delete(usersTable).where(eq(usersTable.id, id));
+  const visitorName = `${user.firstName} ${user.lastName}`;
+
+  await db.transaction(async (tx) => {
+    const userSessions = await tx
+      .select({ sessionId: chatSessionsTable.sessionId })
+      .from(chatSessionsTable)
+      .where(eq(chatSessionsTable.visitorName, visitorName));
+    if (userSessions.length > 0) {
+      for (const s of userSessions) {
+        await tx.delete(chatMessagesTable).where(eq(chatMessagesTable.sessionId, s.sessionId));
+      }
+      await tx.delete(chatSessionsTable).where(eq(chatSessionsTable.visitorName, visitorName));
+    }
+
+    await tx.delete(sessionsTable).where(eq(sessionsTable.userId, id));
+    await tx.delete(transactionsTable).where(eq(transactionsTable.userId, id));
+    await tx.delete(withdrawalRequestsTable).where(eq(withdrawalRequestsTable.userId, id));
+    await tx.delete(userInvestmentsTable).where(eq(userInvestmentsTable.userId, id));
+    await tx.delete(jobApplicationsTable).where(eq(jobApplicationsTable.email, user.email));
+    await tx.delete(usersTable).where(eq(usersTable.id, id));
+  });
 
   res.status(204).end();
 });
