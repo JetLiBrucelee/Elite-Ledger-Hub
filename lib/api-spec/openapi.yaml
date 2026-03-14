@@ -1257,6 +1257,8 @@ components:
           type: string
         bankDetails:
           type: string
+        note:
+          type: string
       required:
         - amount
 
@@ -1274,6 +1276,8 @@ components:
         walletAddress:
           type: ["string", "null"]
         bankDetails:
+          type: ["string", "null"]
+        note:
           type: ["string", "null"]
         status:
           type: string
@@ -1305,6 +1309,8 @@ components:
         walletAddress:
           type: ["string", "null"]
         bankDetails:
+          type: ["string", "null"]
+        note:
           type: ["string", "null"]
         status:
           type: string

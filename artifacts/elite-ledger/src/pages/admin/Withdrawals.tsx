@@ -118,8 +118,9 @@ export default function AdminWithdrawals() {
                     <td className="px-6 py-4 text-muted-foreground capitalize">
                       {w.method?.replace(/_/g, " ")}
                     </td>
-                    <td className="px-6 py-4 text-muted-foreground text-xs max-w-[200px] truncate">
-                      {w.walletAddress || w.bankDetails || "—"}
+                    <td className="px-6 py-4 text-muted-foreground text-xs max-w-[200px]">
+                      <div className="truncate">{w.walletAddress || w.bankDetails || "—"}</div>
+                      {w.note && <div className="truncate text-white/40 mt-0.5 italic">{w.note}</div>}
                     </td>
                     <td className="px-6 py-4">
                       <Badge variant={

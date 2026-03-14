@@ -482,6 +482,7 @@ export const AdminGetWithdrawalsResponseItem = zod.object({
   method: zod.string(),
   walletAddress: zod.string().nullish(),
   bankDetails: zod.string().nullish(),
+  note: zod.string().nullish(),
   status: zod.enum(["pending", "approved", "rejected"]),
   adminNote: zod.string().nullish(),
   createdAt: zod.date(),
@@ -510,6 +511,7 @@ export const AdminApproveWithdrawalResponse = zod.object({
   method: zod.string(),
   walletAddress: zod.string().nullish(),
   bankDetails: zod.string().nullish(),
+  note: zod.string().nullish(),
   status: zod.enum(["pending", "approved", "rejected"]),
   adminNote: zod.string().nullish(),
   createdAt: zod.date(),
@@ -533,6 +535,7 @@ export const AdminRejectWithdrawalResponse = zod.object({
   method: zod.string(),
   walletAddress: zod.string().nullish(),
   bankDetails: zod.string().nullish(),
+  note: zod.string().nullish(),
   status: zod.enum(["pending", "approved", "rejected"]),
   adminNote: zod.string().nullish(),
   createdAt: zod.date(),
@@ -626,6 +629,7 @@ export const CreateWithdrawalRequestBody = zod.object({
   method: zod.string().optional(),
   walletAddress: zod.string().optional(),
   bankDetails: zod.string().optional(),
+  note: zod.string().optional(),
 });
 
 /**
@@ -638,6 +642,7 @@ export const GetUserWithdrawalRequestsResponseItem = zod.object({
   method: zod.string(),
   walletAddress: zod.string().nullish(),
   bankDetails: zod.string().nullish(),
+  note: zod.string().nullish(),
   status: zod.enum(["pending", "approved", "rejected"]),
   adminNote: zod.string().nullish(),
   createdAt: zod.date(),

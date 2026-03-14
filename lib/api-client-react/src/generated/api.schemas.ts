@@ -334,6 +334,7 @@ export interface CreateWithdrawalRequest {
   method?: string;
   walletAddress?: string;
   bankDetails?: string;
+  note?: string;
 }
 
 export type WithdrawalRequestStatus =
@@ -354,6 +355,8 @@ export interface WithdrawalRequest {
   walletAddress?: string | null;
   /** @nullable */
   bankDetails?: string | null;
+  /** @nullable */
+  note?: string | null;
   status: WithdrawalRequestStatus;
   /** @nullable */
   adminNote?: string | null;
@@ -378,6 +381,8 @@ export interface AdminWithdrawalRequest {
   walletAddress?: string | null;
   /** @nullable */
   bankDetails?: string | null;
+  /** @nullable */
+  note?: string | null;
   status: AdminWithdrawalRequestStatus;
   /** @nullable */
   adminNote?: string | null;

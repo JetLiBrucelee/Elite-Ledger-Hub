@@ -37,8 +37,10 @@ export default function UserOverview() {
     return <div className="p-8 text-white">Loading dashboard data...</div>;
   }
 
+  const displayBalance = user?.balance ?? dashboard.accountBalance;
+
   const stats = [
-    { label: "Account Balance", value: dashboard.accountBalance, icon: Wallet, color: "text-blue-500", bg: "bg-blue-500/10" },
+    { label: "Account Balance", value: displayBalance, icon: Wallet, color: "text-blue-500", bg: "bg-blue-500/10" },
     { label: "Total Invested", value: dashboard.totalInvested, icon: PieChart, color: "text-primary", bg: "bg-primary/10" },
     { label: "Total Returns", value: dashboard.totalReturns, icon: ArrowUpRight, color: "text-emerald-500", bg: "bg-emerald-500/10" },
     { label: "Active Plans", value: dashboard.activeInvestments, icon: Activity, color: "text-purple-500", bg: "bg-purple-500/10", isCount: true },
@@ -54,14 +56,12 @@ export default function UserOverview() {
           <h1 className="text-3xl font-display font-bold text-white">Portfolio Overview</h1>
           <p className="text-muted-foreground">Monitor your investment portfolio and returns.</p>
         </div>
-        {hasPlan && (
-          <div className={`flex items-center gap-2 px-4 py-2 rounded-full border ${TIER_BG_COLORS[planTier] || "bg-primary/10 border-primary/20"}`}>
-            <Crown className={`w-4 h-4 ${TIER_TEXT_COLORS[planTier] || "text-primary"}`} />
-            <span className={`text-sm font-bold capitalize ${TIER_TEXT_COLORS[planTier] || "text-primary"}`}>
-              {user?.plan} Plan
-            </span>
-          </div>
-        )}
+        <div className={`flex items-center gap-2 px-4 py-2 rounded-full border ${hasPlan ? (TIER_BG_COLORS[planTier] || "bg-primary/10 border-primary/20") : "bg-white/5 border-white/10"}`}>
+          <Crown className={`w-4 h-4 ${hasPlan ? (TIER_TEXT_COLORS[planTier] || "text-primary") : "text-muted-foreground"}`} />
+          <span className={`text-sm font-bold capitalize ${hasPlan ? (TIER_TEXT_COLORS[planTier] || "text-primary") : "text-muted-foreground"}`}>
+            {hasPlan ? `${user?.plan} Plan` : "No Plan Assigned"}
+          </span>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

@@ -44,7 +44,7 @@ router.get("/user/dashboard", requireApproved, async (req, res): Promise<void> =
   });
 });
 
-router.patch("/user/profile", requireAuth, async (req, res): Promise<void> => {
+router.patch("/user/profile", requireApproved, async (req, res): Promise<void> => {
   const user = (req as AuthenticatedRequest).user;
   const { firstName, lastName } = req.body || {};
 
@@ -134,9 +134,9 @@ router.get("/user/transactions", requireApproved, async (req, res): Promise<void
 
 router.post("/user/withdrawal-request", requireApproved, async (req, res): Promise<void> => {
   const user = (req as AuthenticatedRequest).user;
-  const { amount, method, walletAddress, bankDetails } = req.body || {};
+  const { amount, method, walletAddress, bankDetails, note } = req.body || {};
 
-  if (typeof amount !== "number" || amount <= 0) {
+  if (typeof amount !== "number" || !Number.isFinite(amount) || amount <= 0) {
     res.status(400).json({ error: "Amount must be a positive number" });
     return;
   }
@@ -154,6 +154,7 @@ router.post("/user/withdrawal-request", requireApproved, async (req, res): Promi
       method: method || "bank_transfer",
       walletAddress: walletAddress || null,
       bankDetails: bankDetails || null,
+      note: note || null,
       status: "pending",
     })
     .returning();
@@ -165,6 +166,7 @@ router.post("/user/withdrawal-request", requireApproved, async (req, res): Promi
     method: request.method,
     walletAddress: request.walletAddress,
     bankDetails: request.bankDetails,
+    note: request.note,
     status: request.status,
     adminNote: request.adminNote,
     createdAt: request.createdAt.toISOString(),
@@ -188,6 +190,7 @@ router.get("/user/withdrawal-requests", requireApproved, async (req, res): Promi
       method: r.method,
       walletAddress: r.walletAddress,
       bankDetails: r.bankDetails,
+      note: r.note,
       status: r.status,
       adminNote: r.adminNote,
       createdAt: r.createdAt.toISOString(),

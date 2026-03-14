@@ -14,6 +14,7 @@ function WithdrawalModal({ onClose, userBalance }: { onClose: () => void; userBa
   const [method, setMethod] = useState("bank_transfer");
   const [walletAddress, setWalletAddress] = useState("");
   const [bankDetails, setBankDetails] = useState("");
+  const [note, setNote] = useState("");
   const createMutation = useCreateWithdrawalRequest();
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -36,6 +37,7 @@ function WithdrawalModal({ onClose, userBalance }: { onClose: () => void; userBa
           method,
           walletAddress: walletAddress || undefined,
           bankDetails: bankDetails || undefined,
+          note: note || undefined,
         },
       });
       toast({ title: "Withdrawal request submitted successfully" });
@@ -119,6 +121,17 @@ function WithdrawalModal({ onClose, userBalance }: { onClose: () => void; userBa
               />
             </div>
           )}
+
+          <div>
+            <label className="block text-sm font-medium text-white mb-1.5">Note (optional)</label>
+            <textarea
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              placeholder="Any additional details for your withdrawal request..."
+              rows={3}
+              className="w-full px-4 py-3 bg-background border border-white/10 rounded-lg text-white placeholder-white/30 focus:outline-none focus:border-primary/50 transition-colors resize-none"
+            />
+          </div>
 
           <Button
             type="submit"

@@ -11,4 +11,5 @@ export interface CreateWithdrawalRequest {
   method?: string;
   walletAddress?: string;
   bankDetails?: string;
+  note?: string;
 }

@@ -16,6 +16,8 @@ export interface WithdrawalRequest {
   walletAddress?: string | null;
   /** @nullable */
   bankDetails?: string | null;
+  /** @nullable */
+  note?: string | null;
   status: WithdrawalRequestStatus;
   /** @nullable */
   adminNote?: string | null;

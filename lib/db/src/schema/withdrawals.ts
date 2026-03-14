@@ -8,6 +8,7 @@ export const withdrawalRequestsTable = pgTable("withdrawal_requests", {
   method: varchar("method", { length: 50 }).notNull().default("bank_transfer"),
   walletAddress: text("wallet_address"),
   bankDetails: text("bank_details"),
+  note: text("note"),
   status: varchar("status", { length: 20 }).notNull().default("pending"),
   adminNote: text("admin_note"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
