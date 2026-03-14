@@ -622,10 +622,6 @@ router.post("/admin/withdrawals/:id/approve", requireAdmin, async (req, res): Pr
     res.json(result.data);
   } catch (err) {
     if (err instanceof Error && err.message === "INSUFFICIENT_BALANCE") {
-      await db
-        .update(withdrawalRequestsTable)
-        .set({ status: "pending", adminNote: null })
-        .where(eq(withdrawalRequestsTable.id, id));
       res.status(400).json({ error: "Insufficient user balance" });
       return;
     }

@@ -666,7 +666,7 @@ export const GetUserDashboardResponse = zod.object({
       type: zod.enum(["deposit", "withdrawal", "profit", "bonus"]),
       amount: zod.number(),
       description: zod.string(),
-      status: zod.enum(["completed", "pending", "failed"]),
+      status: zod.enum(["completed", "pending", "failed", "rejected"]),
       createdAt: zod.date(),
     }),
   ),
@@ -698,7 +698,7 @@ export const GetUserTransactionsResponseItem = zod.object({
   type: zod.enum(["deposit", "withdrawal", "profit", "bonus"]),
   amount: zod.number(),
   description: zod.string(),
-  status: zod.enum(["completed", "pending", "failed"]),
+  status: zod.enum(["completed", "pending", "failed", "rejected"]),
   createdAt: zod.date(),
 });
 export const GetUserTransactionsResponse = zod.array(

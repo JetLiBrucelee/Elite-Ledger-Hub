@@ -1226,7 +1226,7 @@ components:
           type: string
         status:
           type: string
-          enum: [completed, pending, failed]
+          enum: [completed, pending, failed, rejected]
         createdAt:
           type: string
           format: date-time
