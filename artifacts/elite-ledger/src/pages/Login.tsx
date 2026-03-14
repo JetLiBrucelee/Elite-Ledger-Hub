@@ -3,7 +3,7 @@ import { Link, useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { ArrowLeft, AlertCircle, Clock } from "lucide-react";
+import { ArrowLeft, AlertCircle, Clock, Eye, EyeOff } from "lucide-react";
 import { useLogin, getGetMeQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -26,6 +26,7 @@ export default function Login() {
   const queryClient = useQueryClient();
   const loginMutation = useLogin();
   const [alert, setAlert] = useState<AlertState>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
@@ -100,7 +101,22 @@ export default function Login() {
 
             <div>
               <label className="block text-sm font-medium text-white/80 mb-1.5">Password</label>
-              <Input type="password" {...form.register("password")} placeholder="••••••••" autoComplete="current-password" />
+              <div className="relative">
+                <Input
+                  type={showPassword ? "text" : "password"}
+                  {...form.register("password")}
+                  placeholder="••••••••"
+                  autoComplete="current-password"
+                  className="pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/80 transition-colors"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
               {form.formState.errors.password && (
                 <p className="text-xs text-destructive mt-1">{form.formState.errors.password.message}</p>
               )}
