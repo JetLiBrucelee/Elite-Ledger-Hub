@@ -140,7 +140,7 @@ export function Navbar() {
             <img
               src={`${import.meta.env.BASE_URL}images/logo-mark.png`}
               alt="Elite Ledger Capital"
-              className="h-16 w-auto object-contain group-hover:brightness-110 transition-all duration-300"
+              className="h-24 w-auto object-contain group-hover:brightness-110 transition-all duration-300"
             />
           </Link>
 
