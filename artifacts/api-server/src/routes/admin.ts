@@ -204,25 +204,19 @@ router.post("/admin/users/:id/debit", requireAdmin, async (req, res): Promise<vo
     return;
   }
 
-  const [current] = await db.select({ balance: usersTable.balance }).from(usersTable).where(eq(usersTable.id, id));
-  if (!current) {
-    res.status(404).json({ error: "User not found" });
-    return;
-  }
-
-  if (Number(current.balance) < amount) {
-    res.status(400).json({ error: "Insufficient balance" });
-    return;
-  }
-
   const [user] = await db
     .update(usersTable)
     .set({ balance: sql`(balance::numeric - ${String(amount)})::numeric` })
-    .where(eq(usersTable.id, id))
+    .where(sql`${usersTable.id} = ${id} AND balance::numeric >= ${String(amount)}`)
     .returning();
 
   if (!user) {
-    res.status(404).json({ error: "User not found" });
+    const [exists] = await db.select({ id: usersTable.id }).from(usersTable).where(eq(usersTable.id, id));
+    if (!exists) {
+      res.status(404).json({ error: "User not found" });
+    } else {
+      res.status(400).json({ error: "Insufficient balance" });
+    }
     return;
   }
 

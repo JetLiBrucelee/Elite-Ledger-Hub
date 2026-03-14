@@ -565,7 +565,7 @@ export default function AdminUsers() {
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2 flex-wrap">
-                      {u.status === "pending" && (
+                      {u.status === "pending" && u.role !== "admin" && (
                         <>
                           <Button size="sm" variant="outline" className="h-8 border-emerald-500/30 text-emerald-500 hover:bg-emerald-500/10"
                                   onClick={() => handleAction(u.id, "approve")}
@@ -577,23 +577,28 @@ export default function AdminUsers() {
                                   disabled={rejectMutation.isPending}>
                             <X className="w-4 h-4 mr-1" /> Reject
                           </Button>
+                          <Button size="sm" variant="outline" className="h-8 border-emerald-500/30 text-emerald-500 hover:bg-emerald-500/10"
+                                  onClick={() => handleAction(u.id, "approve")}
+                                  disabled={approveMutation.isPending}>
+                            <Unlock className="w-4 h-4 mr-1" /> Unsuspend
+                          </Button>
                         </>
                       )}
                       {u.status === "approved" && u.role !== "admin" && (
                         <>
-                          <Button size="sm" variant="outline" className="h-8 border-orange-500/30 text-orange-500 hover:bg-orange-500/10"
-                                  onClick={() => handleAction(u.id, "block")}
-                                  disabled={blockMutation.isPending}>
-                            <Ban className="w-4 h-4 mr-1" /> Block
-                          </Button>
                           <Button size="sm" variant="outline" className="h-8 border-yellow-500/30 text-yellow-500 hover:bg-yellow-500/10"
                                   onClick={() => handleAction(u.id, "suspend")}
                                   disabled={suspendMutation.isPending}>
                             <Pause className="w-4 h-4 mr-1" /> Suspend
                           </Button>
+                          <Button size="sm" variant="outline" className="h-8 border-orange-500/30 text-orange-500 hover:bg-orange-500/10"
+                                  onClick={() => handleAction(u.id, "block")}
+                                  disabled={blockMutation.isPending}>
+                            <Ban className="w-4 h-4 mr-1" /> Block
+                          </Button>
                         </>
                       )}
-                      {u.status === "blocked" && (
+                      {u.status === "blocked" && u.role !== "admin" && (
                         <Button size="sm" variant="outline" className="h-8 border-emerald-500/30 text-emerald-500 hover:bg-emerald-500/10"
                                 onClick={() => handleAction(u.id, "unblock")}
                                 disabled={unblockMutation.isPending}>

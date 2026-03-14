@@ -49,10 +49,10 @@ function PendingWall() {
           alt="Elite Ledger Capital"
           className="w-24 h-24 mx-auto mb-6 object-contain"
         />
-        <h1 className="text-2xl font-bold text-primary mb-4">Account Pending Approval</h1>
+        <h1 className="text-2xl font-bold text-primary mb-4">Account Under Review</h1>
         <p className="text-muted-foreground mb-6">
-          Thank you for registering with Elite Ledger Capital. Your account is currently under review.
-          You will receive access once an administrator approves your application.
+          Your account is currently under review or has been suspended.
+          An administrator will review your account shortly. You will gain access once approved.
         </p>
         <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
           <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
