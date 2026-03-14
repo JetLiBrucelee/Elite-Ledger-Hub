@@ -7,8 +7,14 @@ export interface AuthenticatedUser {
   email: string;
   phone: string | null;
   country: string | null;
+  address: string | null;
+  city: string | null;
+  stateProvince: string | null;
+  zipCode: string | null;
   role: string;
   status: string;
+  plan: string | null;
+  balance: string;
   createdAt: Date;
   passwordHash: string;
 }

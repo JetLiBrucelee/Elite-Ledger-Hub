@@ -568,7 +568,7 @@ router.post("/admin/withdrawals/:id/approve", requireAdmin, async (req, res): Pr
   const adminNote = req.body?.adminNote || null;
 
   try {
-    const result = await db.transaction(async (tx) => {
+    const result = await db.transaction(async (tx): Promise<{ success: false; error: string; statusCode: number } | { success: true; data: Record<string, unknown> }> => {
       const [request] = await tx
         .update(withdrawalRequestsTable)
         .set({ status: "approved", adminNote })
@@ -576,7 +576,7 @@ router.post("/admin/withdrawals/:id/approve", requireAdmin, async (req, res): Pr
         .returning();
 
       if (!request) {
-        return { error: "Withdrawal request not found or already processed", status: 400 };
+        return { success: false, error: "Withdrawal request not found or already processed", statusCode: 400 };
       }
 
       const [user] = await tx
@@ -598,24 +598,28 @@ router.post("/admin/withdrawals/:id/approve", requireAdmin, async (req, res): Pr
       });
 
       return {
-        id: request.id,
-        userId: request.userId,
-        amount: Number(request.amount),
-        method: request.method,
-        walletAddress: request.walletAddress,
-        bankDetails: request.bankDetails,
-        status: request.status,
-        adminNote: request.adminNote,
-        createdAt: request.createdAt.toISOString(),
+        success: true,
+        data: {
+          id: request.id,
+          userId: request.userId,
+          amount: Number(request.amount),
+          method: request.method,
+          walletAddress: request.walletAddress,
+          bankDetails: request.bankDetails,
+          note: request.note,
+          status: request.status,
+          adminNote: request.adminNote,
+          createdAt: request.createdAt.toISOString(),
+        },
       };
     });
 
-    if ("error" in result) {
-      res.status(result.status).json({ error: result.error });
+    if (!result.success) {
+      res.status(result.statusCode).json({ error: result.error });
       return;
     }
 
-    res.json(result);
+    res.json(result.data);
   } catch (err) {
     if (err instanceof Error && err.message === "INSUFFICIENT_BALANCE") {
       await db
