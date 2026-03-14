@@ -274,6 +274,34 @@ router.patch("/admin/users/:id", requireAdmin, async (req, res): Promise<void> =
   res.json(userToDTO(user));
 });
 
+router.delete("/admin/users/:id", requireAdmin, async (req, res): Promise<void> => {
+  const id = Number(req.params.id);
+  if (!id || isNaN(id)) {
+    res.status(400).json({ error: "Invalid user ID" });
+    return;
+  }
+
+  const [user] = await db.select().from(usersTable).where(eq(usersTable.id, id));
+  if (!user) {
+    res.status(404).json({ error: "User not found" });
+    return;
+  }
+
+  if (user.role === "admin") {
+    res.status(403).json({ error: "Cannot delete admin accounts" });
+    return;
+  }
+
+  await db.delete(sessionsTable).where(eq(sessionsTable.userId, id));
+  await db.delete(transactionsTable).where(eq(transactionsTable.userId, id));
+  await db.delete(withdrawalRequestsTable).where(eq(withdrawalRequestsTable.userId, id));
+  await db.delete(userInvestmentsTable).where(eq(userInvestmentsTable.userId, id));
+  await db.delete(jobApplicationsTable).where(eq(jobApplicationsTable.email, user.email));
+  await db.delete(usersTable).where(eq(usersTable.id, id));
+
+  res.status(204).end();
+});
+
 router.post("/admin/users", requireAdmin, async (req, res): Promise<void> => {
   const { firstName, lastName, email, password, phone, country, role, status, balance, plan } = req.body || {};
 

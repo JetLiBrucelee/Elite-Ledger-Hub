@@ -436,6 +436,13 @@ export const AdminEditUserResponse = zod.object({
 });
 
 /**
+ * @summary Permanently delete a user and all their data
+ */
+export const AdminDeleteUserParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+/**
  * @summary Get all job applications
  */
 export const AdminGetApplicationsResponseItem = zod.object({
@@ -596,7 +603,7 @@ export const AdminGetStatsResponse = zod.object({
 });
 
 /**
- * @summary Update current user profile (name)
+ * @summary Update current user profile
  */
 export const UpdateUserProfileBody = zod.object({
   firstName: zod.string().optional(),

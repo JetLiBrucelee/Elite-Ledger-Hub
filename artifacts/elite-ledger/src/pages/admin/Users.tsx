@@ -10,6 +10,7 @@ import {
   useAdminSuspendUser,
   useAdminCreditUser,
   useAdminDebitUser,
+  useAdminDeleteUser,
   getAdminGetUsersQueryKey,
 } from "@workspace/api-client-react";
 import type { User, AdminCreateUserRequest, AdminEditUserRequest } from "@workspace/api-client-react";
@@ -18,7 +19,7 @@ import { formatDate } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Check, X, Ban, Unlock, Pencil, Plus, DollarSign, Pause } from "lucide-react";
+import { Check, X, Ban, Unlock, Pencil, Plus, DollarSign, Pause, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 function CreateUserDialog({ onClose }: { onClose: () => void }) {
@@ -460,11 +461,81 @@ function AdjustBalanceDialog({ user, onClose }: { user: User; onClose: () => voi
   );
 }
 
+function DeleteUserDialog({ user, onClose }: { user: User; onClose: () => void }) {
+  const deleteMutation = useAdminDeleteUser();
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  const handleDelete = async () => {
+    try {
+      await deleteMutation.mutateAsync({ id: user.id });
+      toast({ title: `${user.firstName} ${user.lastName} has been permanently deleted` });
+      queryClient.invalidateQueries({ queryKey: getAdminGetUsersQueryKey({}) });
+      onClose();
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Failed to delete user";
+      toast({ title: msg, variant: "destructive" });
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={onClose}>
+      <div
+        className="bg-[#14161c] border border-red-500/20 rounded-2xl p-8 w-full max-w-md relative"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button onClick={onClose} className="absolute top-4 right-4 text-white/50 hover:text-white transition-colors">
+          <X className="w-5 h-5" />
+        </button>
+
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center">
+            <Trash2 className="w-6 h-6 text-red-500" />
+          </div>
+          <div>
+            <h3 className="text-xl font-bold text-white">Delete User</h3>
+            <p className="text-sm text-muted-foreground">{user.firstName} {user.lastName}</p>
+          </div>
+        </div>
+
+        <p className="text-white/70 text-sm mb-2">
+          Are you sure you want to permanently delete this user? This action will remove:
+        </p>
+        <ul className="text-sm text-white/50 mb-6 space-y-1 ml-4 list-disc">
+          <li>Account and login credentials</li>
+          <li>All transactions and investments</li>
+          <li>Withdrawal requests</li>
+          <li>Session data</li>
+        </ul>
+        <p className="text-red-400 text-sm font-semibold mb-6">This action cannot be undone.</p>
+
+        <div className="flex gap-3">
+          <Button
+            variant="outline"
+            onClick={onClose}
+            className="flex-1 border-white/10"
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleDelete}
+            disabled={deleteMutation.isPending}
+            className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+          >
+            {deleteMutation.isPending ? "Deleting..." : "Delete Permanently"}
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function AdminUsers() {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [adjustingUser, setAdjustingUser] = useState<User | null>(null);
-  const { data: users = [], isLoading } = useAdminGetUsers({});
+  const [deletingUser, setDeletingUser] = useState<User | null>(null);
+  const { data: allUsers = [], isLoading } = useAdminGetUsers({});
   const approveMutation = useAdminApproveUser();
   const rejectMutation = useAdminRejectUser();
   const blockMutation = useAdminBlockUser();
@@ -472,6 +543,8 @@ export default function AdminUsers() {
   const suspendMutation = useAdminSuspendUser();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+
+  const users = allUsers.filter((u) => u.role !== "admin");
 
   if (isLoading) return <div className="text-white p-8">Loading users...</div>;
 
@@ -610,6 +683,10 @@ export default function AdminUsers() {
                               onClick={() => setEditingUser(u)}>
                         <Pencil className="w-4 h-4 mr-1" /> Edit
                       </Button>
+                      <Button size="sm" variant="outline" className="h-8 border-red-500/30 text-red-500 hover:bg-red-500/10"
+                              onClick={() => setDeletingUser(u)}>
+                        <Trash2 className="w-4 h-4 mr-1" /> Delete
+                      </Button>
                     </div>
                   </td>
                 </tr>
@@ -622,6 +699,7 @@ export default function AdminUsers() {
       {showCreateDialog && <CreateUserDialog onClose={() => setShowCreateDialog(false)} />}
       {editingUser && <EditUserDialog user={editingUser} onClose={() => setEditingUser(null)} />}
       {adjustingUser && <AdjustBalanceDialog user={adjustingUser} onClose={() => setAdjustingUser(null)} />}
+      {deletingUser && <DeleteUserDialog user={deletingUser} onClose={() => setDeletingUser(null)} />}
     </div>
   );
 }
