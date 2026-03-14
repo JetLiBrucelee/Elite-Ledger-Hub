@@ -3,6 +3,7 @@ import { Link, useLocation } from "wouter";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
+import { CryptoTicker } from "@/components/layout/CryptoTicker";
 
 interface DropdownItem {
   name: string;
@@ -222,6 +223,8 @@ export function Navbar() {
           </div>
         </div>
       )}
+
+      <CryptoTicker />
     </header>
   );
 }

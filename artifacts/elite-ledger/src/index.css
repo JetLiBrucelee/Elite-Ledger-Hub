@@ -244,3 +244,17 @@
     inset: -1px;
   }
 }
+
+@keyframes crypto-ticker {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-33.333%); }
+}
+
+.crypto-ticker-track {
+  animation: crypto-ticker 40s linear infinite;
+  width: max-content;
+}
+
+.crypto-ticker-track:hover {
+  animation-play-state: paused;
+}
