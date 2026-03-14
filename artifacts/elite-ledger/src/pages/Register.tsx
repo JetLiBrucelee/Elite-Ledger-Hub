@@ -234,7 +234,7 @@ export default function Register() {
                 <Input {...form.register("phone")} placeholder="----" autoComplete="tel" />
               </div>
               <div ref={countryRef} className="relative">
-                <label className="block text-sm font-medium text-white/80 mb-1.5">Country (Optional)</label>
+                <label className="block text-sm font-medium text-white/80 mb-1.5">Country</label>
                 <button
                   type="button"
                   onClick={() => setCountryOpen(!countryOpen)}
@@ -288,7 +288,7 @@ export default function Register() {
             </div>
 
             <div ref={addressRef} className="relative">
-              <label className="block text-sm font-medium text-white/80 mb-1.5">Address (Optional)</label>
+              <label className="block text-sm font-medium text-white/80 mb-1.5">Address</label>
               <div className="relative">
                 <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" />
                 <Input
@@ -321,18 +321,18 @@ export default function Register() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-white/80 mb-1.5">City (Optional)</label>
+                <label className="block text-sm font-medium text-white/80 mb-1.5">City</label>
                 <Input {...form.register("city")} placeholder="City" autoComplete="address-level2" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-white/80 mb-1.5">State / Province (Optional)</label>
+                <label className="block text-sm font-medium text-white/80 mb-1.5">State / Province</label>
                 <Input {...form.register("stateProvince")} placeholder="State / Province" autoComplete="address-level1" />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-white/80 mb-1.5">ZIP / Postal Code (Optional)</label>
+                <label className="block text-sm font-medium text-white/80 mb-1.5">ZIP / Postal Code</label>
                 <div className="relative">
                   <Input
                     {...form.register("zipCode")}

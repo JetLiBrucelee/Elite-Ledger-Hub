@@ -122,12 +122,12 @@ async function seed() {
 
   const adminEmail = process.env.ADMIN_EMAIL || "admin@eliteledgercapital.com";
   const adminPassword = process.env.ADMIN_PASSWORD || "Adminelite2026";
-  const passwordHash = await bcryptjs.hash(adminPassword, 12);
 
   const existingUsers = await db.select().from(usersTable);
   const existingAdmin = existingUsers.find((u) => u.role === "admin");
 
   if (!existingAdmin) {
+    const passwordHash = await bcryptjs.hash(adminPassword, 12);
     await db.insert(usersTable).values({
       firstName: "Admin",
       lastName: "User",
@@ -138,14 +138,16 @@ async function seed() {
     });
     console.log(`Admin user created: ${adminEmail}`);
   } else {
-    await db
-      .update(usersTable)
-      .set({ email: adminEmail, passwordHash })
-      .where(eq(usersTable.id, existingAdmin.id));
-    if (existingAdmin.email !== adminEmail) {
-      console.log(`Admin user updated: ${existingAdmin.email} -> ${adminEmail}`);
+    const passwordMatches = await bcryptjs.compare(adminPassword, existingAdmin.passwordHash);
+    if (!passwordMatches || existingAdmin.email !== adminEmail) {
+      const passwordHash = await bcryptjs.hash(adminPassword, 12);
+      await db
+        .update(usersTable)
+        .set({ email: adminEmail, passwordHash })
+        .where(eq(usersTable.id, existingAdmin.id));
+      console.log(`Admin user updated: ${adminEmail}`);
     } else {
-      console.log(`Admin user credentials synchronized: ${adminEmail}`);
+      console.log(`Admin user already up to date: ${adminEmail}`);
     }
   }
 
