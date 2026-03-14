@@ -22,7 +22,7 @@ contactRouter.post("/contact", async (req, res) => {
     const resend = new Resend(resendApiKey);
 
     await resend.emails.send({
-      from: "Elite Ledger Capital <onboarding@resend.dev>",
+      from: "Elite Ledger Capital <support@eliteledgercapital.com>",
       to: "support@eliteledgercapital.com",
       subject: `Contact Form: ${subject}`,
       html: `
