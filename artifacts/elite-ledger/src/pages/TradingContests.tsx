@@ -42,8 +42,8 @@ const contests = [
 ];
 
 const leaderboard = [
-  { rank: 1, name: "Alexander V.", roi: "+187.4%", prize: "$15,000", country: "US" },
-  { rank: 2, name: "Sarah K.", roi: "+154.2%", prize: "$10,000", country: "US" },
+  { rank: 1, name: "Alexander V.", roi: "+187.4%", prize: "$15,000", country: "USA" },
+  { rank: 2, name: "Sarah K.", roi: "+154.2%", prize: "$10,000", country: "USA" },
   { rank: 3, name: "Takeshi M.", roi: "+132.8%", prize: "$7,500", country: "JP" },
   { rank: 4, name: "Maria L.", roi: "+118.5%", prize: "$5,000", country: "DE" },
   { rank: 5, name: "Omar B.", roi: "+105.1%", prize: "$3,000", country: "AE" },
