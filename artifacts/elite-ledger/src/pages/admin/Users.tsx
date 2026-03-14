@@ -570,17 +570,12 @@ export default function AdminUsers() {
                           <Button size="sm" variant="outline" className="h-8 border-emerald-500/30 text-emerald-500 hover:bg-emerald-500/10"
                                   onClick={() => handleAction(u.id, "approve")}
                                   disabled={approveMutation.isPending}>
-                            <Check className="w-4 h-4 mr-1" /> Approve
+                            <Unlock className="w-4 h-4 mr-1" /> Unsuspend
                           </Button>
                           <Button size="sm" variant="outline" className="h-8 border-destructive/30 text-destructive hover:bg-destructive/10"
                                   onClick={() => handleAction(u.id, "reject")}
                                   disabled={rejectMutation.isPending}>
                             <X className="w-4 h-4 mr-1" /> Reject
-                          </Button>
-                          <Button size="sm" variant="outline" className="h-8 border-emerald-500/30 text-emerald-500 hover:bg-emerald-500/10"
-                                  onClick={() => handleAction(u.id, "approve")}
-                                  disabled={approveMutation.isPending}>
-                            <Unlock className="w-4 h-4 mr-1" /> Unsuspend
                           </Button>
                         </>
                       )}
@@ -608,7 +603,7 @@ export default function AdminUsers() {
                       {u.role !== "admin" && (
                         <Button size="sm" variant="outline" className="h-8 border-primary/30 text-primary hover:bg-primary/10"
                                 onClick={() => setAdjustingUser(u)}>
-                          <DollarSign className="w-4 h-4 mr-1" /> Balance
+                          <DollarSign className="w-4 h-4 mr-1" /> Adjust Balance
                         </Button>
                       )}
                       <Button size="sm" variant="outline" className="h-8 border-blue-500/30 text-blue-500 hover:bg-blue-500/10"
