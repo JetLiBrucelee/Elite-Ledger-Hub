@@ -932,17 +932,34 @@ export function isUSZip(zip: string): boolean {
   return /^\d{5}(-\d{4})?$/.test(zip.trim());
 }
 
+interface NominatimAddress {
+  house_number?: string;
+  road?: string;
+  city?: string;
+  town?: string;
+  village?: string;
+  municipality?: string;
+  county?: string;
+  state?: string;
+  region?: string;
+  province?: string;
+  postcode?: string;
+  country?: string;
+}
+
+interface NominatimResult {
+  display_name: string;
+  address?: NominatimAddress;
+}
+
 export async function lookupPostalCode(postalCode: string, country?: string): Promise<{ city?: string; state?: string } | null> {
   try {
-    const query = country
-      ? `${postalCode}, ${country}`
-      : postalCode;
     const res = await fetch(
       `https://nominatim.openstreetmap.org/search?postalcode=${encodeURIComponent(postalCode)}${country ? `&country=${encodeURIComponent(country)}` : ""}&format=json&limit=1&addressdetails=1`,
       { headers: { "User-Agent": "EliteLedgerCapital/1.0" } }
     );
     if (!res.ok) return null;
-    const data = await res.json();
+    const data: NominatimResult[] = await res.json();
     if (!data || data.length === 0) return null;
     const addr = data[0]?.address;
     if (!addr) return null;
@@ -955,25 +972,27 @@ export async function lookupPostalCode(postalCode: string, country?: string): Pr
   }
 }
 
-export async function searchAddress(query: string): Promise<Array<{
+export interface AddressSuggestion {
   display: string;
   address: string;
   city: string;
   state: string;
   zipCode: string;
   country: string;
-}>> {
+}
+
+export async function searchAddress(query: string): Promise<AddressSuggestion[]> {
   try {
     const res = await fetch(
       `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=5&addressdetails=1`,
       { headers: { "User-Agent": "EliteLedgerCapital/1.0" } }
     );
     if (!res.ok) return [];
-    const data = await res.json();
+    const data: NominatimResult[] = await res.json();
     return data
-      .filter((item: any) => item.address)
-      .map((item: any) => {
-        const a = item.address;
+      .filter((item: NominatimResult) => item.address)
+      .map((item: NominatimResult): AddressSuggestion => {
+        const a = item.address as NominatimAddress;
         const road = [a.house_number, a.road].filter(Boolean).join(" ");
         return {
           display: item.display_name,

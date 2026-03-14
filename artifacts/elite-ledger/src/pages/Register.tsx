@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { COUNTRIES } from "@/lib/countries";
-import { lookupUSZip, isUSZip, lookupPostalCode, searchAddress } from "@/lib/zip-lookup";
+import { lookupUSZip, isUSZip, lookupPostalCode, searchAddress, type AddressSuggestion } from "@/lib/zip-lookup";
 
 const registerSchema = z.object({
   firstName: z.string().min(2, "First name is required"),
@@ -46,9 +46,7 @@ export default function Register() {
   const countryRef = useRef<HTMLDivElement>(null);
 
   const [addressQuery, setAddressQuery] = useState("");
-  const [addressSuggestions, setAddressSuggestions] = useState<Array<{
-    display: string; address: string; city: string; state: string; zipCode: string; country: string;
-  }>>([]);
+  const [addressSuggestions, setAddressSuggestions] = useState<AddressSuggestion[]>([]);
   const [showAddressSuggestions, setShowAddressSuggestions] = useState(false);
   const addressRef = useRef<HTMLDivElement>(null);
   const debouncedAddressQuery = useDebounce(addressQuery, 400);
@@ -103,11 +101,18 @@ export default function Register() {
     if (!trimmed || trimmed.length < 3) return;
 
     if (isUSZip(trimmed)) {
-      const result = lookupUSZip(trimmed);
-      if (result) {
-        form.setValue("stateProvince", result.state);
+      const localResult = lookupUSZip(trimmed);
+      if (localResult) {
+        form.setValue("stateProvince", localResult.state);
         if (!form.getValues("country")) form.setValue("country", "United States");
       }
+      setZipLooking(true);
+      const nominatimResult = await lookupPostalCode(trimmed, "US");
+      if (nominatimResult) {
+        if (nominatimResult.city) form.setValue("city", nominatimResult.city);
+        if (nominatimResult.state) form.setValue("stateProvince", nominatimResult.state);
+      }
+      setZipLooking(false);
     } else if (trimmed.length >= 3) {
       setZipLooking(true);
       const country = form.getValues("country");
