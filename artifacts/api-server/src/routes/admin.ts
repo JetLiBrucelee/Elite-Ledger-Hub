@@ -589,13 +589,13 @@ router.post("/admin/withdrawals/:id/approve", requireAdmin, async (req, res): Pr
         throw new Error("INSUFFICIENT_BALANCE");
       }
 
-      await tx.insert(transactionsTable).values({
-        userId: request.userId,
-        type: "withdrawal",
-        amount: request.amount,
-        description: `Withdrawal approved via ${request.method}`,
-        status: "completed",
-      });
+      await tx
+        .update(transactionsTable)
+        .set({
+          status: "completed",
+          description: `Withdrawal approved via ${request.method}`,
+        })
+        .where(sql`${transactionsTable.userId} = ${request.userId} AND ${transactionsTable.type} = 'withdrawal' AND ${transactionsTable.status} = 'pending' AND ${transactionsTable.amount} = ${request.amount}`);
 
       return {
         success: true,
@@ -642,27 +642,44 @@ router.post("/admin/withdrawals/:id/reject", requireAdmin, async (req, res): Pro
 
   const adminNote = req.body?.adminNote || null;
 
-  const [updated] = await db
-    .update(withdrawalRequestsTable)
-    .set({ status: "rejected", adminNote })
-    .where(sql`${withdrawalRequestsTable.id} = ${id} AND ${withdrawalRequestsTable.status} = 'pending'`)
-    .returning();
+  const result = await db.transaction(async (tx) => {
+    const [updated] = await tx
+      .update(withdrawalRequestsTable)
+      .set({ status: "rejected", adminNote })
+      .where(sql`${withdrawalRequestsTable.id} = ${id} AND ${withdrawalRequestsTable.status} = 'pending'`)
+      .returning();
 
-  if (!updated) {
+    if (!updated) {
+      return null;
+    }
+
+    await tx
+      .update(transactionsTable)
+      .set({
+        status: "rejected",
+        description: `Withdrawal rejected via ${updated.method}`,
+      })
+      .where(sql`${transactionsTable.userId} = ${updated.userId} AND ${transactionsTable.type} = 'withdrawal' AND ${transactionsTable.status} = 'pending' AND ${transactionsTable.amount} = ${updated.amount}`);
+
+    return updated;
+  });
+
+  if (!result) {
     res.status(400).json({ error: "Withdrawal request not found or already processed" });
     return;
   }
 
   res.json({
-    id: updated.id,
-    userId: updated.userId,
-    amount: Number(updated.amount),
-    method: updated.method,
-    walletAddress: updated.walletAddress,
-    bankDetails: updated.bankDetails,
-    status: updated.status,
-    adminNote: updated.adminNote,
-    createdAt: updated.createdAt.toISOString(),
+    id: result.id,
+    userId: result.userId,
+    amount: Number(result.amount),
+    method: result.method,
+    walletAddress: result.walletAddress,
+    bankDetails: result.bankDetails,
+    note: result.note,
+    status: result.status,
+    adminNote: result.adminNote,
+    createdAt: result.createdAt.toISOString(),
   });
 });
 

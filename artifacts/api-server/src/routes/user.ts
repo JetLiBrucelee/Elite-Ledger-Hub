@@ -146,30 +146,42 @@ router.post("/user/withdrawal-request", requireApproved, async (req, res): Promi
     return;
   }
 
-  const [request] = await db
-    .insert(withdrawalRequestsTable)
-    .values({
+  const result = await db.transaction(async (tx) => {
+    const [request] = await tx
+      .insert(withdrawalRequestsTable)
+      .values({
+        userId: user.id,
+        amount: String(amount),
+        method: method || "bank_transfer",
+        walletAddress: walletAddress || null,
+        bankDetails: bankDetails || null,
+        note: note || null,
+        status: "pending",
+      })
+      .returning();
+
+    await tx.insert(transactionsTable).values({
       userId: user.id,
+      type: "withdrawal",
       amount: String(amount),
-      method: method || "bank_transfer",
-      walletAddress: walletAddress || null,
-      bankDetails: bankDetails || null,
-      note: note || null,
+      description: `Withdrawal request via ${request.method} (pending approval)`,
       status: "pending",
-    })
-    .returning();
+    });
+
+    return request;
+  });
 
   res.status(201).json({
-    id: request.id,
-    userId: request.userId,
-    amount: Number(request.amount),
-    method: request.method,
-    walletAddress: request.walletAddress,
-    bankDetails: request.bankDetails,
-    note: request.note,
-    status: request.status,
-    adminNote: request.adminNote,
-    createdAt: request.createdAt.toISOString(),
+    id: result.id,
+    userId: result.userId,
+    amount: Number(result.amount),
+    method: result.method,
+    walletAddress: result.walletAddress,
+    bankDetails: result.bankDetails,
+    note: result.note,
+    status: result.status,
+    adminNote: result.adminNote,
+    createdAt: result.createdAt.toISOString(),
   });
 });
 
