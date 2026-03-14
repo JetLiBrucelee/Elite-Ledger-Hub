@@ -595,6 +595,14 @@ components:
           type: string
         country:
           type: string
+        address:
+          type: string
+        city:
+          type: string
+        stateProvince:
+          type: string
+        zipCode:
+          type: string
       required:
         - firstName
         - lastName
@@ -638,6 +646,14 @@ components:
         phone:
           type: ["string", "null"]
         country:
+          type: ["string", "null"]
+        address:
+          type: ["string", "null"]
+        city:
+          type: ["string", "null"]
+        stateProvince:
+          type: ["string", "null"]
+        zipCode:
           type: ["string", "null"]
         role:
           type: string

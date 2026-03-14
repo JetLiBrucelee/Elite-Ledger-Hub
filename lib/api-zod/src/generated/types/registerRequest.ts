@@ -14,4 +14,8 @@ export interface RegisterRequest {
   password: string;
   phone?: string;
   country?: string;
+  address?: string;
+  city?: string;
+  stateProvince?: string;
+  zipCode?: string;
 }

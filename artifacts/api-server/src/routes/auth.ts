@@ -23,6 +23,10 @@ function userToDTO(user: {
   email: string;
   phone: string | null;
   country: string | null;
+  address: string | null;
+  city: string | null;
+  stateProvince: string | null;
+  zipCode: string | null;
   role: string;
   status: string;
   balance: string;
@@ -36,6 +40,10 @@ function userToDTO(user: {
     email: user.email,
     phone: user.phone,
     country: user.country,
+    address: user.address,
+    city: user.city,
+    stateProvince: user.stateProvince,
+    zipCode: user.zipCode,
     role: user.role,
     status: user.status,
     balance: Number(user.balance),
@@ -51,7 +59,7 @@ router.post("/auth/register", async (req, res): Promise<void> => {
     return;
   }
 
-  const { firstName, lastName, email, password, phone, country } = parsed.data;
+  const { firstName, lastName, email, password, phone, country, address, city, stateProvince, zipCode } = parsed.data;
 
   const [existing] = await db
     .select()
@@ -72,6 +80,10 @@ router.post("/auth/register", async (req, res): Promise<void> => {
       passwordHash,
       phone: phone || null,
       country: country || null,
+      address: address || null,
+      city: city || null,
+      stateProvince: stateProvince || null,
+      zipCode: zipCode || null,
       role: "user",
       status: "pending",
     })

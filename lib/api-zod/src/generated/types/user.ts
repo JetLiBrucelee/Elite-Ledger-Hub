@@ -17,6 +17,14 @@ export interface User {
   phone?: string | null;
   /** @nullable */
   country?: string | null;
+  /** @nullable */
+  address?: string | null;
+  /** @nullable */
+  city?: string | null;
+  /** @nullable */
+  stateProvince?: string | null;
+  /** @nullable */
+  zipCode?: string | null;
   role: UserRole;
   status: UserStatus;
   balance: number;

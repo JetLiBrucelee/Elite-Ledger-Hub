@@ -16,6 +16,10 @@ function userToDTO(u: {
   email: string;
   phone: string | null;
   country: string | null;
+  address: string | null;
+  city: string | null;
+  stateProvince: string | null;
+  zipCode: string | null;
   role: string;
   status: string;
   balance: string;
@@ -29,6 +33,10 @@ function userToDTO(u: {
     email: u.email,
     phone: u.phone,
     country: u.country,
+    address: u.address,
+    city: u.city,
+    stateProvince: u.stateProvince,
+    zipCode: u.zipCode,
     role: u.role,
     status: u.status,
     balance: Number(u.balance),
