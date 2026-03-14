@@ -46,11 +46,17 @@ router.get("/user/dashboard", requireApproved, async (req, res): Promise<void> =
 
 router.patch("/user/profile", requireApproved, async (req, res): Promise<void> => {
   const user = (req as AuthenticatedRequest).user;
-  const { firstName, lastName } = req.body || {};
+  const { firstName, lastName, phone, country, address, city, stateProvince, zipCode } = req.body || {};
 
-  const updateData: Record<string, string> = {};
+  const updateData: Record<string, string | null> = {};
   if (typeof firstName === "string" && firstName.trim()) updateData.firstName = firstName.trim();
   if (typeof lastName === "string" && lastName.trim()) updateData.lastName = lastName.trim();
+  if (typeof phone === "string") updateData.phone = phone.trim() || null;
+  if (typeof country === "string") updateData.country = country.trim() || null;
+  if (typeof address === "string") updateData.address = address.trim() || null;
+  if (typeof city === "string") updateData.city = city.trim() || null;
+  if (typeof stateProvince === "string") updateData.stateProvince = stateProvince.trim() || null;
+  if (typeof zipCode === "string") updateData.zipCode = zipCode.trim() || null;
 
   if (Object.keys(updateData).length === 0) {
     res.status(400).json({ error: "No valid fields to update" });

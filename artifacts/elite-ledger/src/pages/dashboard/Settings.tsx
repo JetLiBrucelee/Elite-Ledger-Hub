@@ -15,13 +15,25 @@ export default function Settings() {
   const updateProfileMutation = useUpdateUserProfile();
   const [firstName, setFirstName] = useState(user?.firstName || "");
   const [lastName, setLastName] = useState(user?.lastName || "");
+  const [phone, setPhone] = useState(user?.phone ?? "");
+  const [country, setCountry] = useState(user?.country ?? "");
+  const [address, setAddress] = useState(user?.address ?? "");
+  const [city, setCity] = useState(user?.city ?? "");
+  const [stateProvince, setStateProvince] = useState(user?.stateProvince ?? "");
+  const [zipCode, setZipCode] = useState(user?.zipCode ?? "");
 
   useEffect(() => {
     if (user) {
       setFirstName(user.firstName);
       setLastName(user.lastName);
+      setPhone(user.phone ?? "");
+      setCountry(user.country ?? "");
+      setAddress(user.address ?? "");
+      setCity(user.city ?? "");
+      setStateProvince(user.stateProvince ?? "");
+      setZipCode(user.zipCode ?? "");
     }
-  }, [user?.firstName, user?.lastName]);
+  }, [user?.firstName, user?.lastName, user?.phone, user?.country, user?.address, user?.city, user?.stateProvince, user?.zipCode]);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,7 +43,16 @@ export default function Settings() {
     }
     try {
       await updateProfileMutation.mutateAsync({
-        data: { firstName: firstName.trim(), lastName: lastName.trim() },
+        data: {
+          firstName: firstName.trim(),
+          lastName: lastName.trim(),
+          phone: phone.trim(),
+          country: country.trim(),
+          address: address.trim(),
+          city: city.trim(),
+          stateProvince: stateProvince.trim(),
+          zipCode: zipCode.trim(),
+        },
       });
       queryClient.invalidateQueries({ queryKey: getGetMeQueryKey() });
       toast({ title: "Profile updated successfully" });
@@ -95,21 +116,48 @@ export default function Settings() {
             <label className="block text-sm font-medium text-white/80 mb-1.5 flex items-center gap-2">
               <Phone className="w-4 h-4 text-muted-foreground" /> Phone Number
             </label>
-            <Input defaultValue={user.phone ?? ""} placeholder="Not provided" readOnly className="bg-background/50" />
+            {isAdmin ? (
+              <Input
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="Enter phone number"
+                className="bg-background/50"
+              />
+            ) : (
+              <Input defaultValue={user.phone ?? ""} placeholder="Not provided" readOnly className="bg-background/50" />
+            )}
           </div>
 
           <div>
             <label className="block text-sm font-medium text-white/80 mb-1.5 flex items-center gap-2">
               <Globe className="w-4 h-4 text-muted-foreground" /> Country
             </label>
-            <Input defaultValue={user.country ?? ""} placeholder="Not provided" readOnly className="bg-background/50" />
+            {isAdmin ? (
+              <Input
+                value={country}
+                onChange={(e) => setCountry(e.target.value)}
+                placeholder="Enter country"
+                className="bg-background/50"
+              />
+            ) : (
+              <Input defaultValue={user.country ?? ""} placeholder="Not provided" readOnly className="bg-background/50" />
+            )}
           </div>
 
           <div>
             <label className="block text-sm font-medium text-white/80 mb-1.5 flex items-center gap-2">
               <MapPin className="w-4 h-4 text-muted-foreground" /> Address
             </label>
-            <Input defaultValue={user.address ?? ""} placeholder="Not provided" readOnly className="bg-background/50" />
+            {isAdmin ? (
+              <Input
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                placeholder="Enter address"
+                className="bg-background/50"
+              />
+            ) : (
+              <Input defaultValue={user.address ?? ""} placeholder="Not provided" readOnly className="bg-background/50" />
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -117,13 +165,31 @@ export default function Settings() {
               <label className="block text-sm font-medium text-white/80 mb-1.5 flex items-center gap-2">
                 <Building className="w-4 h-4 text-muted-foreground" /> City
               </label>
-              <Input defaultValue={user.city ?? ""} placeholder="Not provided" readOnly className="bg-background/50" />
+              {isAdmin ? (
+                <Input
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  placeholder="Enter city"
+                  className="bg-background/50"
+                />
+              ) : (
+                <Input defaultValue={user.city ?? ""} placeholder="Not provided" readOnly className="bg-background/50" />
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-white/80 mb-1.5 flex items-center gap-2">
                 State / Province
               </label>
-              <Input defaultValue={user.stateProvince ?? ""} placeholder="Not provided" readOnly className="bg-background/50" />
+              {isAdmin ? (
+                <Input
+                  value={stateProvince}
+                  onChange={(e) => setStateProvince(e.target.value)}
+                  placeholder="Enter state/province"
+                  className="bg-background/50"
+                />
+              ) : (
+                <Input defaultValue={user.stateProvince ?? ""} placeholder="Not provided" readOnly className="bg-background/50" />
+              )}
             </div>
           </div>
 
@@ -131,7 +197,16 @@ export default function Settings() {
             <label className="block text-sm font-medium text-white/80 mb-1.5 flex items-center gap-2">
               <Hash className="w-4 h-4 text-muted-foreground" /> Zip Code
             </label>
-            <Input defaultValue={user.zipCode ?? ""} placeholder="Not provided" readOnly className="bg-background/50" />
+            {isAdmin ? (
+              <Input
+                value={zipCode}
+                onChange={(e) => setZipCode(e.target.value)}
+                placeholder="Enter zip code"
+                className="bg-background/50"
+              />
+            ) : (
+              <Input defaultValue={user.zipCode ?? ""} placeholder="Not provided" readOnly className="bg-background/50" />
+            )}
           </div>
 
           {isAdmin && (
@@ -140,7 +215,7 @@ export default function Settings() {
               disabled={updateProfileMutation.isPending}
               className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-5 text-base mt-2"
             >
-              {updateProfileMutation.isPending ? "Saving..." : "Update Name"}
+              {updateProfileMutation.isPending ? "Saving..." : "Save Profile"}
             </Button>
           )}
         </form>

@@ -1245,6 +1245,18 @@ components:
           type: string
         lastName:
           type: string
+        phone:
+          type: string
+        country:
+          type: string
+        address:
+          type: string
+        city:
+          type: string
+        stateProvince:
+          type: string
+        zipCode:
+          type: string
 
     CreateWithdrawalRequest:
       type: object

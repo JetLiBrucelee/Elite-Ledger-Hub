@@ -1,10 +1,12 @@
 import { useAdminGetStats } from "@workspace/api-client-react";
+import { useAuth } from "@/hooks/use-auth";
 import { formatCurrency } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
-import { Users, Clock, DollarSign, MessageSquare } from "lucide-react";
+import { Users, Clock, DollarSign, MessageSquare, Wallet, CreditCard } from "lucide-react";
 
 export default function AdminOverview() {
   const { data: stats, isLoading } = useAdminGetStats();
+  const { user } = useAuth();
 
   if (isLoading || !stats) {
     return <div className="p-8 text-white">Loading system statistics...</div>;
@@ -42,6 +44,29 @@ export default function AdminOverview() {
           );
         })}
       </div>
+
+      {user && (
+        <Card className="p-6 border-primary/20 bg-gradient-to-r from-primary/5 to-transparent">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-xl flex items-center justify-center bg-primary/10">
+                <Wallet className="w-7 h-7 text-primary" />
+              </div>
+              <div>
+                <div className="text-sm font-medium text-muted-foreground mb-1">Admin Account Balance</div>
+                <div className="text-3xl font-bold text-primary">{formatCurrency(user.balance ?? 0)}</div>
+              </div>
+            </div>
+            <a
+              href="/admin/users"
+              className="flex items-center gap-2 px-5 py-3 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-semibold transition-colors"
+            >
+              <CreditCard className="w-4 h-4" />
+              Credit a User
+            </a>
+          </div>
+        </Card>
+      )}
       
       <Card className="p-6 mt-8">
         <h3 className="text-lg font-display font-bold text-white mb-4">Quick Actions</h3>
@@ -53,6 +78,10 @@ export default function AdminOverview() {
           <a href="/admin/chat" className="p-4 rounded-xl bg-background border border-white/10 hover:border-primary/50 transition-colors group">
             <h4 className="font-bold text-white group-hover:text-primary mb-1">Live Chat Inbox</h4>
             <p className="text-xs text-muted-foreground">Respond to incoming inquiries</p>
+          </a>
+          <a href="/admin/users" className="p-4 rounded-xl bg-background border border-primary/20 hover:border-primary/50 transition-colors group">
+            <h4 className="font-bold text-white group-hover:text-primary mb-1">Credit User Balance</h4>
+            <p className="text-xs text-muted-foreground">Adjust user balances from the Users page</p>
           </a>
         </div>
       </Card>

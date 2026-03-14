@@ -601,6 +601,12 @@ export const AdminGetStatsResponse = zod.object({
 export const UpdateUserProfileBody = zod.object({
   firstName: zod.string().optional(),
   lastName: zod.string().optional(),
+  phone: zod.string().optional(),
+  country: zod.string().optional(),
+  address: zod.string().optional(),
+  city: zod.string().optional(),
+  stateProvince: zod.string().optional(),
+  zipCode: zod.string().optional(),
 });
 
 export const UpdateUserProfileResponse = zod.object({

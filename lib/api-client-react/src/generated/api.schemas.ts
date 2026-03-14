@@ -328,6 +328,12 @@ export interface UserInvestment {
 export interface UpdateProfileRequest {
   firstName?: string;
   lastName?: string;
+  phone?: string;
+  country?: string;
+  address?: string;
+  city?: string;
+  stateProvince?: string;
+  zipCode?: string;
 }
 
 export interface CreateWithdrawalRequest {
