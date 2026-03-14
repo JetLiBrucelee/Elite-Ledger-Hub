@@ -1,4 +1,9 @@
 import zipcodes from "zipcodes";
+import { countries as countryData } from "countries-list";
+
+const COUNTRY_NAME_TO_ISO: Record<string, string> = Object.fromEntries(
+  Object.entries(countryData).map(([code, data]) => [data.name.toLowerCase(), code.toLowerCase()])
+);
 
 export function isUSZip(zip: string): boolean {
   return /^\d{5}(-\d{4})?$/.test(zip.trim());
@@ -58,8 +63,10 @@ interface NominatimResult {
 
 export async function lookupPostalCode(postalCode: string, country?: string): Promise<{ city?: string; state?: string } | null> {
   try {
+    const isoCode = country ? (COUNTRY_NAME_TO_ISO[country.toLowerCase()] ?? "") : "";
+    const countryParam = isoCode ? `&countrycodes=${encodeURIComponent(isoCode)}` : "";
     const res = await fetch(
-      `https://nominatim.openstreetmap.org/search?postalcode=${encodeURIComponent(postalCode)}${country ? `&country=${encodeURIComponent(country)}` : ""}&format=json&limit=1&addressdetails=1`,
+      `https://nominatim.openstreetmap.org/search?postalcode=${encodeURIComponent(postalCode)}${countryParam}&format=json&limit=1&addressdetails=1`,
       { headers: { "User-Agent": "EliteLedgerCapital/1.0" } }
     );
     if (!res.ok) return null;
