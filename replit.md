@@ -40,7 +40,7 @@ artifacts-monorepo/
 
 ## Database Schema
 
-- **users** — id, firstName, lastName, email, passwordHash, phone, country, role (user/admin), status (pending/approved/rejected/blocked), balance (numeric 15,2 default 0), plan (varchar 50), createdAt, updatedAt
+- **users** — id, firstName, lastName, email, passwordHash, phone, country, role (user/admin), status (pending/approved/rejected/blocked), balance (numeric 20,2 default 0), plan (varchar 50), createdAt, updatedAt
 - **sessions** — id, userId, token, expiresAt, createdAt
 - **investment_plans** — id, name, tier (bronze/silver/gold/platinum/diamond), minInvestment, returnPercentage, durationMonths, description, features (json), schedule (json)
 - **user_investments** — id, userId, planId, planName, planTier, investedAmount, currentValue, returnPercentage, status, startDate, endDate
@@ -73,6 +73,9 @@ artifacts-monorepo/
 - `POST /api/admin/users/:id/reject` — Reject user
 - `POST /api/admin/users/:id/block` — Block user (revokes sessions)
 - `POST /api/admin/users/:id/unblock` — Unblock user (restores to approved)
+- `POST /api/admin/users/:id/suspend` — Suspend user (sets status to pending)
+- `POST /api/admin/users/:id/credit` — Credit user balance (body: `{amount: number}`)
+- `POST /api/admin/users/:id/debit` — Debit user balance (body: `{amount: number}`, fails if insufficient)
 - `GET /api/admin/applications` — List all job applications
 - `PATCH /api/admin/applications/:id/status` — Update application status (reviewed/rejected)
 - `GET /api/admin/chat/sessions` — List chat sessions

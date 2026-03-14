@@ -363,6 +363,81 @@ paths:
               schema:
                 $ref: "#/components/schemas/User"
 
+  /admin/users/{id}/suspend:
+    post:
+      operationId: adminSuspendUser
+      tags: [admin]
+      summary: Suspend a user (set status to pending)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: User suspended
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  /admin/users/{id}/credit:
+    post:
+      operationId: adminCreditUser
+      tags: [admin]
+      summary: Credit a user's balance
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BalanceAdjustRequest"
+      responses:
+        "200":
+          description: Balance credited
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  /admin/users/{id}/debit:
+    post:
+      operationId: adminDebitUser
+      tags: [admin]
+      summary: Debit a user's balance
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BalanceAdjustRequest"
+      responses:
+        "200":
+          description: Balance debited
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          description: Insufficient balance or invalid amount
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /admin/users/{id}:
     patch:
       operationId: adminEditUser
@@ -735,6 +810,14 @@ components:
           type: number
         plan:
           type: string
+
+    BalanceAdjustRequest:
+      type: object
+      properties:
+        amount:
+          type: number
+      required:
+        - amount
 
     SubmitApplicationRequest:
       type: object

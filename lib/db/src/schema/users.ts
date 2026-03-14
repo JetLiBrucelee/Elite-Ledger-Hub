@@ -16,7 +16,7 @@ export const usersTable = pgTable("users", {
   zipCode: varchar("zip_code", { length: 20 }),
   role: varchar("role", { length: 20 }).notNull().default("user"),
   status: varchar("status", { length: 20 }).notNull().default("pending"),
-  balance: numeric("balance", { precision: 15, scale: 2 }).notNull().default("0"),
+  balance: numeric("balance", { precision: 20, scale: 2 }).notNull().default("0"),
   plan: varchar("plan", { length: 50 }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),

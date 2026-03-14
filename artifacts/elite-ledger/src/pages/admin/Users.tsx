@@ -7,6 +7,9 @@ import {
   useAdminUnblockUser,
   useAdminEditUser,
   useAdminCreateUser,
+  useAdminSuspendUser,
+  useAdminCreditUser,
+  useAdminDebitUser,
   getAdminGetUsersQueryKey,
 } from "@workspace/api-client-react";
 import type { User, AdminCreateUserRequest, AdminEditUserRequest } from "@workspace/api-client-react";
@@ -15,7 +18,7 @@ import { formatDate } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Check, X, Ban, Unlock, Pencil, Plus } from "lucide-react";
+import { Check, X, Ban, Unlock, Pencil, Plus, DollarSign, Pause } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 function CreateUserDialog({ onClose }: { onClose: () => void }) {
@@ -351,20 +354,128 @@ function EditUserDialog({ user, onClose }: { user: User; onClose: () => void }) 
   );
 }
 
+function AdjustBalanceDialog({ user, onClose }: { user: User; onClose: () => void }) {
+  const [mode, setMode] = useState<"credit" | "debit">("credit");
+  const [amount, setAmount] = useState("");
+  const creditMutation = useAdminCreditUser();
+  const debitMutation = useAdminDebitUser();
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const numAmount = parseFloat(amount);
+    if (!numAmount || numAmount <= 0) {
+      toast({ title: "Enter a valid positive amount", variant: "destructive" });
+      return;
+    }
+    try {
+      if (mode === "credit") {
+        await creditMutation.mutateAsync({ id: user.id, data: { amount: numAmount } });
+        toast({ title: `$${numAmount.toLocaleString()} credited to ${user.firstName}` });
+      } else {
+        await debitMutation.mutateAsync({ id: user.id, data: { amount: numAmount } });
+        toast({ title: `$${numAmount.toLocaleString()} debited from ${user.firstName}` });
+      }
+      queryClient.invalidateQueries({ queryKey: getAdminGetUsersQueryKey({}) });
+      onClose();
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Balance adjustment failed";
+      toast({ title: msg, variant: "destructive" });
+    }
+  };
+
+  const isPending = creditMutation.isPending || debitMutation.isPending;
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={onClose}>
+      <div
+        className="bg-[#14161c] border border-white/10 rounded-2xl p-8 w-full max-w-md relative"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button onClick={onClose} className="absolute top-4 right-4 text-white/50 hover:text-white transition-colors">
+          <X className="w-5 h-5" />
+        </button>
+
+        <h3 className="text-2xl font-bold text-white mb-2">Adjust Balance</h3>
+        <p className="text-muted-foreground mb-1">{user.firstName} {user.lastName}</p>
+        <p className="text-sm text-muted-foreground mb-6">
+          Current balance: <span className="text-white font-mono">${(user.balance ?? 0).toLocaleString("en-US", { minimumFractionDigits: 2 })}</span>
+        </p>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setMode("credit")}
+              className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${
+                mode === "credit"
+                  ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40"
+                  : "bg-white/5 text-white/50 border border-white/10 hover:bg-white/10"
+              }`}
+            >
+              Credit (Add)
+            </button>
+            <button
+              type="button"
+              onClick={() => setMode("debit")}
+              className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${
+                mode === "debit"
+                  ? "bg-red-500/20 text-red-400 border border-red-500/40"
+                  : "bg-white/5 text-white/50 border border-white/10 hover:bg-white/10"
+              }`}
+            >
+              Debit (Remove)
+            </button>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-white mb-1.5">Amount ($)</label>
+            <input
+              type="number"
+              min="0.01"
+              step="0.01"
+              required
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              placeholder="0.00"
+              className="w-full px-4 py-3 bg-background border border-white/10 rounded-lg text-white placeholder-white/30 focus:outline-none focus:border-primary/50 transition-colors font-mono text-lg"
+            />
+          </div>
+
+          <Button
+            type="submit"
+            disabled={isPending}
+            className={`w-full py-6 text-base mt-2 ${
+              mode === "credit"
+                ? "bg-emerald-600 hover:bg-emerald-700 text-white"
+                : "bg-red-600 hover:bg-red-700 text-white"
+            }`}
+          >
+            {isPending ? "Processing..." : mode === "credit" ? "Credit Balance" : "Debit Balance"}
+          </Button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 export default function AdminUsers() {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [adjustingUser, setAdjustingUser] = useState<User | null>(null);
   const { data: users = [], isLoading } = useAdminGetUsers({});
   const approveMutation = useAdminApproveUser();
   const rejectMutation = useAdminRejectUser();
   const blockMutation = useAdminBlockUser();
   const unblockMutation = useAdminUnblockUser();
+  const suspendMutation = useAdminSuspendUser();
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
   if (isLoading) return <div className="text-white p-8">Loading users...</div>;
 
-  const handleAction = async (id: number, action: "approve" | "reject" | "block" | "unblock") => {
+  const handleAction = async (id: number, action: "approve" | "reject" | "block" | "unblock" | "suspend") => {
     try {
       if (action === "approve") {
         await approveMutation.mutateAsync({ id });
@@ -378,6 +489,9 @@ export default function AdminUsers() {
       } else if (action === "unblock") {
         await unblockMutation.mutateAsync({ id });
         toast({ title: "User Unblocked" });
+      } else if (action === "suspend") {
+        await suspendMutation.mutateAsync({ id });
+        toast({ title: "User Suspended (set to pending)" });
       }
       queryClient.invalidateQueries({ queryKey: getAdminGetUsersQueryKey({}) });
     } catch {
@@ -466,17 +580,30 @@ export default function AdminUsers() {
                         </>
                       )}
                       {u.status === "approved" && u.role !== "admin" && (
-                        <Button size="sm" variant="outline" className="h-8 border-orange-500/30 text-orange-500 hover:bg-orange-500/10"
-                                onClick={() => handleAction(u.id, "block")}
-                                disabled={blockMutation.isPending}>
-                          <Ban className="w-4 h-4 mr-1" /> Block
-                        </Button>
+                        <>
+                          <Button size="sm" variant="outline" className="h-8 border-orange-500/30 text-orange-500 hover:bg-orange-500/10"
+                                  onClick={() => handleAction(u.id, "block")}
+                                  disabled={blockMutation.isPending}>
+                            <Ban className="w-4 h-4 mr-1" /> Block
+                          </Button>
+                          <Button size="sm" variant="outline" className="h-8 border-yellow-500/30 text-yellow-500 hover:bg-yellow-500/10"
+                                  onClick={() => handleAction(u.id, "suspend")}
+                                  disabled={suspendMutation.isPending}>
+                            <Pause className="w-4 h-4 mr-1" /> Suspend
+                          </Button>
+                        </>
                       )}
                       {u.status === "blocked" && (
                         <Button size="sm" variant="outline" className="h-8 border-emerald-500/30 text-emerald-500 hover:bg-emerald-500/10"
                                 onClick={() => handleAction(u.id, "unblock")}
                                 disabled={unblockMutation.isPending}>
                           <Unlock className="w-4 h-4 mr-1" /> Unblock
+                        </Button>
+                      )}
+                      {u.role !== "admin" && (
+                        <Button size="sm" variant="outline" className="h-8 border-primary/30 text-primary hover:bg-primary/10"
+                                onClick={() => setAdjustingUser(u)}>
+                          <DollarSign className="w-4 h-4 mr-1" /> Balance
                         </Button>
                       )}
                       <Button size="sm" variant="outline" className="h-8 border-blue-500/30 text-blue-500 hover:bg-blue-500/10"
@@ -494,6 +621,7 @@ export default function AdminUsers() {
 
       {showCreateDialog && <CreateUserDialog onClose={() => setShowCreateDialog(false)} />}
       {editingUser && <EditUserDialog user={editingUser} onClose={() => setEditingUser(null)} />}
+      {adjustingUser && <AdjustBalanceDialog user={adjustingUser} onClose={() => setAdjustingUser(null)} />}
     </div>
   );
 }

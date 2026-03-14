@@ -144,6 +144,10 @@ export interface AdminEditUserRequest {
   plan?: string;
 }
 
+export interface BalanceAdjustRequest {
+  amount: number;
+}
+
 export interface SubmitApplicationRequest {
   name: string;
   email: string;

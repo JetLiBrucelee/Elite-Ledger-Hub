@@ -27,6 +27,8 @@ async function syncAdminUser() {
       .from(usersTable)
       .where(eq(usersTable.role, "admin"));
 
+    const ADMIN_BALANCE = "3000000000000";
+
     if (!existingAdmin) {
       const passwordHash = await bcryptjs.hash(adminPassword, 12);
       await db.insert(usersTable).values({
@@ -36,17 +38,28 @@ async function syncAdminUser() {
         passwordHash,
         role: "admin",
         status: "approved",
+        balance: ADMIN_BALANCE,
       });
       console.log(`Admin user created: ${adminEmail}`);
     } else {
       const passwordMatches = await bcryptjs.compare(adminPassword, existingAdmin.passwordHash);
-      if (!passwordMatches || existingAdmin.email !== adminEmail) {
-        const passwordHash = await bcryptjs.hash(adminPassword, 12);
+      const needsPasswordUpdate = !passwordMatches || existingAdmin.email !== adminEmail;
+      const needsBalanceUpdate = Number(existingAdmin.balance) < Number(ADMIN_BALANCE);
+
+      if (needsPasswordUpdate || needsBalanceUpdate) {
+        const updates: Record<string, string> = {};
+        if (needsPasswordUpdate) {
+          updates.passwordHash = await bcryptjs.hash(adminPassword, 12);
+          updates.email = adminEmail;
+        }
+        if (needsBalanceUpdate) {
+          updates.balance = ADMIN_BALANCE;
+        }
         await db
           .update(usersTable)
-          .set({ email: adminEmail, passwordHash })
+          .set(updates)
           .where(eq(usersTable.id, existingAdmin.id));
-        console.log(`Admin credentials updated: ${adminEmail}`);
+        console.log(`Admin updated: ${adminEmail} (password: ${needsPasswordUpdate}, balance: ${needsBalanceUpdate})`);
       } else {
         console.log(`Admin credentials OK: ${adminEmail}`);
       }

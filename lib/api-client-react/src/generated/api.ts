@@ -23,6 +23,7 @@ import type {
   AdminReplyRequest,
   AdminStats,
   AuthResponse,
+  BalanceAdjustRequest,
   ChatEventsParams,
   ChatMessage,
   ChatSession,
@@ -1461,6 +1462,264 @@ export const useAdminUnblockUser = <
   TContext
 > => {
   return useMutation(getAdminUnblockUserMutationOptions(options));
+};
+
+/**
+ * @summary Suspend a user (set status to pending)
+ */
+export const getAdminSuspendUserUrl = (id: number) => {
+  return `/api/admin/users/${id}/suspend`;
+};
+
+export const adminSuspendUser = async (
+  id: number,
+  options?: RequestInit,
+): Promise<User> => {
+  return customFetch<User>(getAdminSuspendUserUrl(id), {
+    ...options,
+    method: "POST",
+  });
+};
+
+export const getAdminSuspendUserMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adminSuspendUser>>,
+    TError,
+    { id: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof adminSuspendUser>>,
+  TError,
+  { id: number },
+  TContext
+> => {
+  const mutationKey = ["adminSuspendUser"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof adminSuspendUser>>,
+    { id: number }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return adminSuspendUser(id, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type AdminSuspendUserMutationResult = NonNullable<
+  Awaited<ReturnType<typeof adminSuspendUser>>
+>;
+
+export type AdminSuspendUserMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Suspend a user (set status to pending)
+ */
+export const useAdminSuspendUser = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adminSuspendUser>>,
+    TError,
+    { id: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof adminSuspendUser>>,
+  TError,
+  { id: number },
+  TContext
+> => {
+  return useMutation(getAdminSuspendUserMutationOptions(options));
+};
+
+/**
+ * @summary Credit a user's balance
+ */
+export const getAdminCreditUserUrl = (id: number) => {
+  return `/api/admin/users/${id}/credit`;
+};
+
+export const adminCreditUser = async (
+  id: number,
+  balanceAdjustRequest: BalanceAdjustRequest,
+  options?: RequestInit,
+): Promise<User> => {
+  return customFetch<User>(getAdminCreditUserUrl(id), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(balanceAdjustRequest),
+  });
+};
+
+export const getAdminCreditUserMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adminCreditUser>>,
+    TError,
+    { id: number; data: BodyType<BalanceAdjustRequest> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof adminCreditUser>>,
+  TError,
+  { id: number; data: BodyType<BalanceAdjustRequest> },
+  TContext
+> => {
+  const mutationKey = ["adminCreditUser"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof adminCreditUser>>,
+    { id: number; data: BodyType<BalanceAdjustRequest> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return adminCreditUser(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type AdminCreditUserMutationResult = NonNullable<
+  Awaited<ReturnType<typeof adminCreditUser>>
+>;
+export type AdminCreditUserMutationBody = BodyType<BalanceAdjustRequest>;
+export type AdminCreditUserMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Credit a user's balance
+ */
+export const useAdminCreditUser = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adminCreditUser>>,
+    TError,
+    { id: number; data: BodyType<BalanceAdjustRequest> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof adminCreditUser>>,
+  TError,
+  { id: number; data: BodyType<BalanceAdjustRequest> },
+  TContext
+> => {
+  return useMutation(getAdminCreditUserMutationOptions(options));
+};
+
+/**
+ * @summary Debit a user's balance
+ */
+export const getAdminDebitUserUrl = (id: number) => {
+  return `/api/admin/users/${id}/debit`;
+};
+
+export const adminDebitUser = async (
+  id: number,
+  balanceAdjustRequest: BalanceAdjustRequest,
+  options?: RequestInit,
+): Promise<User> => {
+  return customFetch<User>(getAdminDebitUserUrl(id), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(balanceAdjustRequest),
+  });
+};
+
+export const getAdminDebitUserMutationOptions = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adminDebitUser>>,
+    TError,
+    { id: number; data: BodyType<BalanceAdjustRequest> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof adminDebitUser>>,
+  TError,
+  { id: number; data: BodyType<BalanceAdjustRequest> },
+  TContext
+> => {
+  const mutationKey = ["adminDebitUser"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof adminDebitUser>>,
+    { id: number; data: BodyType<BalanceAdjustRequest> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return adminDebitUser(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type AdminDebitUserMutationResult = NonNullable<
+  Awaited<ReturnType<typeof adminDebitUser>>
+>;
+export type AdminDebitUserMutationBody = BodyType<BalanceAdjustRequest>;
+export type AdminDebitUserMutationError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Debit a user's balance
+ */
+export const useAdminDebitUser = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adminDebitUser>>,
+    TError,
+    { id: number; data: BodyType<BalanceAdjustRequest> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof adminDebitUser>>,
+  TError,
+  { id: number; data: BodyType<BalanceAdjustRequest> },
+  TContext
+> => {
+  return useMutation(getAdminDebitUserMutationOptions(options));
 };
 
 /**

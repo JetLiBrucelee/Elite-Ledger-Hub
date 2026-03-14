@@ -40,8 +40,31 @@ import AdminApplications from "@/pages/admin/Applications";
 
 const queryClient = new QueryClient();
 
+function PendingWall() {
+  return (
+    <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="max-w-md w-full mx-auto p-8 text-center">
+        <img
+          src={`${import.meta.env.BASE_URL}images/logo-mark.png`}
+          alt="Elite Ledger Capital"
+          className="w-24 h-24 mx-auto mb-6 object-contain"
+        />
+        <h1 className="text-2xl font-bold text-primary mb-4">Account Pending Approval</h1>
+        <p className="text-muted-foreground mb-6">
+          Thank you for registering with Elite Ledger Capital. Your account is currently under review.
+          You will receive access once an administrator approves your application.
+        </p>
+        <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+          <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+          <span>Checking status automatically...</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, isPendingApproval } = useAuth();
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -50,6 +73,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
     );
   }
   if (!isAuthenticated) return <Redirect to="/login" />;
+  if (isPendingApproval) return <PendingWall />;
   return <>{children}</>;
 }
 

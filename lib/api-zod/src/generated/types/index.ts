@@ -17,6 +17,7 @@ export * from "./adminGetUsersStatus";
 export * from "./adminReplyRequest";
 export * from "./adminStats";
 export * from "./authResponse";
+export * from "./balanceAdjustRequest";
 export * from "./chatEventsParams";
 export * from "./chatMessage";
 export * from "./chatMessageSenderType";

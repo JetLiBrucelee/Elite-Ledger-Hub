@@ -143,6 +143,92 @@ router.post("/admin/users/:id/unblock", requireAdmin, async (req, res): Promise<
   res.json(userToDTO(user));
 });
 
+router.post("/admin/users/:id/suspend", requireAdmin, async (req, res): Promise<void> => {
+  const id = Number(req.params.id);
+  if (!id || isNaN(id)) {
+    res.status(400).json({ error: "Invalid user ID" });
+    return;
+  }
+
+  const [user] = await db
+    .update(usersTable)
+    .set({ status: "pending" })
+    .where(eq(usersTable.id, id))
+    .returning();
+
+  if (!user) {
+    res.status(404).json({ error: "User not found" });
+    return;
+  }
+
+  res.json(userToDTO(user));
+});
+
+router.post("/admin/users/:id/credit", requireAdmin, async (req, res): Promise<void> => {
+  const id = Number(req.params.id);
+  if (!id || isNaN(id)) {
+    res.status(400).json({ error: "Invalid user ID" });
+    return;
+  }
+
+  const { amount } = req.body || {};
+  if (typeof amount !== "number" || amount <= 0) {
+    res.status(400).json({ error: "Amount must be a positive number" });
+    return;
+  }
+
+  const [user] = await db
+    .update(usersTable)
+    .set({ balance: sql`(balance::numeric + ${String(amount)})::numeric` })
+    .where(eq(usersTable.id, id))
+    .returning();
+
+  if (!user) {
+    res.status(404).json({ error: "User not found" });
+    return;
+  }
+
+  res.json(userToDTO(user));
+});
+
+router.post("/admin/users/:id/debit", requireAdmin, async (req, res): Promise<void> => {
+  const id = Number(req.params.id);
+  if (!id || isNaN(id)) {
+    res.status(400).json({ error: "Invalid user ID" });
+    return;
+  }
+
+  const { amount } = req.body || {};
+  if (typeof amount !== "number" || amount <= 0) {
+    res.status(400).json({ error: "Amount must be a positive number" });
+    return;
+  }
+
+  const [current] = await db.select({ balance: usersTable.balance }).from(usersTable).where(eq(usersTable.id, id));
+  if (!current) {
+    res.status(404).json({ error: "User not found" });
+    return;
+  }
+
+  if (Number(current.balance) < amount) {
+    res.status(400).json({ error: "Insufficient balance" });
+    return;
+  }
+
+  const [user] = await db
+    .update(usersTable)
+    .set({ balance: sql`(balance::numeric - ${String(amount)})::numeric` })
+    .where(eq(usersTable.id, id))
+    .returning();
+
+  if (!user) {
+    res.status(404).json({ error: "User not found" });
+    return;
+  }
+
+  res.json(userToDTO(user));
+});
+
 router.patch("/admin/users/:id", requireAdmin, async (req, res): Promise<void> => {
   const id = Number(req.params.id);
   if (!id || isNaN(id)) {

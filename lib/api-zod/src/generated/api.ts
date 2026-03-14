@@ -316,6 +316,89 @@ export const AdminUnblockUserResponse = zod.object({
 });
 
 /**
+ * @summary Suspend a user (set status to pending)
+ */
+export const AdminSuspendUserParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const AdminSuspendUserResponse = zod.object({
+  id: zod.number(),
+  firstName: zod.string(),
+  lastName: zod.string(),
+  email: zod.string(),
+  phone: zod.string().nullish(),
+  country: zod.string().nullish(),
+  address: zod.string().nullish(),
+  city: zod.string().nullish(),
+  stateProvince: zod.string().nullish(),
+  zipCode: zod.string().nullish(),
+  role: zod.enum(["user", "admin"]),
+  status: zod.enum(["pending", "approved", "rejected", "blocked"]),
+  balance: zod.number(),
+  plan: zod.string().nullish(),
+  createdAt: zod.date(),
+});
+
+/**
+ * @summary Credit a user's balance
+ */
+export const AdminCreditUserParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const AdminCreditUserBody = zod.object({
+  amount: zod.number(),
+});
+
+export const AdminCreditUserResponse = zod.object({
+  id: zod.number(),
+  firstName: zod.string(),
+  lastName: zod.string(),
+  email: zod.string(),
+  phone: zod.string().nullish(),
+  country: zod.string().nullish(),
+  address: zod.string().nullish(),
+  city: zod.string().nullish(),
+  stateProvince: zod.string().nullish(),
+  zipCode: zod.string().nullish(),
+  role: zod.enum(["user", "admin"]),
+  status: zod.enum(["pending", "approved", "rejected", "blocked"]),
+  balance: zod.number(),
+  plan: zod.string().nullish(),
+  createdAt: zod.date(),
+});
+
+/**
+ * @summary Debit a user's balance
+ */
+export const AdminDebitUserParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const AdminDebitUserBody = zod.object({
+  amount: zod.number(),
+});
+
+export const AdminDebitUserResponse = zod.object({
+  id: zod.number(),
+  firstName: zod.string(),
+  lastName: zod.string(),
+  email: zod.string(),
+  phone: zod.string().nullish(),
+  country: zod.string().nullish(),
+  address: zod.string().nullish(),
+  city: zod.string().nullish(),
+  stateProvince: zod.string().nullish(),
+  zipCode: zod.string().nullish(),
+  role: zod.enum(["user", "admin"]),
+  status: zod.enum(["pending", "approved", "rejected", "blocked"]),
+  balance: zod.number(),
+  plan: zod.string().nullish(),
+  createdAt: zod.date(),
+});
+
+/**
  * @summary Edit a user's details
  */
 export const AdminEditUserParams = zod.object({
