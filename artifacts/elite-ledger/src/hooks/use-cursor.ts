@@ -31,8 +31,8 @@ export function useCursor() {
   }, []);
 
   useEffect(() => {
-    const isTouchDevice = "ontouchstart" in window || navigator.maxTouchPoints > 0;
-    if (isTouchDevice) return;
+    const hasFinePointer = window.matchMedia("(pointer: fine)").matches;
+    if (!hasFinePointer) return;
 
     document.documentElement.style.cursor = "none";
 

@@ -136,15 +136,12 @@ export function Navbar() {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 group">
+          <Link href="/" className="flex items-center group">
             <img
               src={`${import.meta.env.BASE_URL}images/logo-mark.png`}
-              alt="Logo"
-              className="w-8 h-8 group-hover:rotate-12 transition-transform duration-500"
+              alt="Elite Ledger Capital"
+              className="h-12 w-auto object-contain group-hover:brightness-110 transition-all duration-300"
             />
-            <span className="font-display font-bold text-xl tracking-tight text-white">
-              ELITE LEDGER <span className="text-primary">CAPITAL</span>
-            </span>
           </Link>
 
           <nav className="hidden lg:flex items-center gap-7">

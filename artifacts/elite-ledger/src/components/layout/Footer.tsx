@@ -14,11 +14,8 @@ export function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 mb-12">
           <div className="lg:col-span-1">
-            <Link href="/" className="flex items-center gap-2 mb-5">
-              <img src={`${import.meta.env.BASE_URL}images/logo-mark.png`} alt="Logo" className="w-8 h-8" />
-              <span className="font-display font-bold text-xl tracking-tight text-white">
-                ELITE LEDGER <span className="text-primary">CAPITAL</span>
-              </span>
+            <Link href="/" className="flex items-center mb-5">
+              <img src={`${import.meta.env.BASE_URL}images/logo-mark.png`} alt="Elite Ledger Capital" className="h-12 w-auto object-contain" />
             </Link>
             <p className="text-sm text-muted-foreground leading-relaxed mb-6">
               Elite Ledger Capital delivers an exceptional trading experience with top-tier spreads, execution, and service, empowering both retail and institutional clients to focus on their strategies. Built by traders, for traders.
@@ -59,18 +56,18 @@ export function Footer() {
           <div>
             <h4 className="font-bold text-white text-base mb-5">CopyTrading</h4>
             <ul className="space-y-3">
-              <li><Link href="/plans" className="text-sm text-muted-foreground hover:text-primary transition-colors">Join CopyTrading</Link></li>
+              <li><Link href="/copytrading" className="text-sm text-muted-foreground hover:text-primary transition-colors">Join CopyTrading</Link></li>
               <li><Link href="/register" className="text-sm text-muted-foreground hover:text-primary transition-colors">Become A Master</Link></li>
-              <li><Link href="/plans" className="text-sm text-muted-foreground hover:text-primary transition-colors">Master's Rating</Link></li>
+              <li><Link href="/masters-rating" className="text-sm text-muted-foreground hover:text-primary transition-colors">Master's Rating</Link></li>
             </ul>
           </div>
 
           <div>
             <h4 className="font-bold text-white text-base mb-5">Promotion</h4>
             <ul className="space-y-3">
-              <li><Link href="/promotion" className="text-sm text-muted-foreground hover:text-primary transition-colors">Give Aways</Link></li>
-              <li><Link href="/promotion" className="text-sm text-muted-foreground hover:text-primary transition-colors">Trading Contests</Link></li>
-              <li><Link href="/promotion" className="text-sm text-muted-foreground hover:text-primary transition-colors">Referral Program</Link></li>
+              <li><Link href="/giveaways" className="text-sm text-muted-foreground hover:text-primary transition-colors">Give Aways</Link></li>
+              <li><Link href="/trading-contests" className="text-sm text-muted-foreground hover:text-primary transition-colors">Trading Contests</Link></li>
+              <li><Link href="/referral-program" className="text-sm text-muted-foreground hover:text-primary transition-colors">Referral Program</Link></li>
             </ul>
           </div>
         </div>

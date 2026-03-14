@@ -6,6 +6,7 @@ import chatRouter from "./chat";
 import adminRouter from "./admin";
 import userRouter from "./user";
 import applicationsRouter from "./applications";
+import contactRouter from "./contact";
 
 const router: IRouter = Router();
 
@@ -16,5 +17,6 @@ router.use(chatRouter);
 router.use(adminRouter);
 router.use(userRouter);
 router.use(applicationsRouter);
+router.use(contactRouter);
 
 export default router;

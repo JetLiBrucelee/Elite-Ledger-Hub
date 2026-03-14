@@ -15,7 +15,8 @@
     "cookie-parser": "^1.4.7",
     "cors": "^2",
     "drizzle-orm": "catalog:",
-    "express": "^5"
+    "express": "^5",
+    "resend": "^6.9.3"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",

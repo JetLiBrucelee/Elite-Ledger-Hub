@@ -11,17 +11,34 @@ import { useToast } from "@/hooks/use-toast";
 export default function Contact() {
   const { toast } = useToast();
   const [formData, setFormData] = useState({ name: "", email: "", subject: "", message: "" });
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({ title: "Message Sent", description: "We'll get back to you within 24 hours." });
-    setFormData({ name: "", email: "", subject: "", message: "" });
+    setSubmitting(true);
+    try {
+      const res = await fetch(`${import.meta.env.BASE_URL}api/contact`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to send message");
+      }
+      toast({ title: "Message Sent", description: "We'll get back to you within 24 hours." });
+      setFormData({ name: "", email: "", subject: "", message: "" });
+    } catch (err) {
+      toast({ title: "Error", description: err instanceof Error ? err.message : "Something went wrong. Please try again.", variant: "destructive" });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const contactInfo = [
     { icon: Mail, label: "Email", value: "support@eliteledgercapital.com" },
-    { icon: Phone, label: "Phone", value: "+1 (888) 555-0199" },
-    { icon: MapPin, label: "Headquarters", value: "One Canary Wharf, London, E14 5AB" },
+    { icon: Phone, label: "Phone", value: "(407) 813-5384" },
+    { icon: MapPin, label: "Headquarters", value: "Pinecrest, Miami-Dade County 33156" },
   ];
 
   return (
@@ -105,8 +122,12 @@ export default function Contact() {
                     className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   />
                 </div>
-                <Button type="submit" variant="premium" className="w-full sm:w-auto px-8">
-                  <Send className="w-4 h-4 mr-2" /> Send Message
+                <Button type="submit" variant="premium" className="w-full sm:w-auto px-8" disabled={submitting}>
+                  {submitting ? (
+                    <div className="w-5 h-5 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <><Send className="w-4 h-4 mr-2" /> Send Message</>
+                  )}
                 </Button>
               </form>
             </Card>

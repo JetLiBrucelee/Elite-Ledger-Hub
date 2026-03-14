@@ -127,12 +127,12 @@ export default function Careers() {
   ];
 
   const openings = [
-    { title: "Senior Quantitative Analyst", department: "Trading", location: "London, UK", type: "Full-time" },
+    { title: "Senior Quantitative Analyst", department: "Trading", location: "New York, USA", type: "Full-time" },
     { title: "Full Stack Developer", department: "Engineering", location: "Remote", type: "Full-time" },
     { title: "Risk Management Specialist", department: "Compliance", location: "Dubai, UAE", type: "Full-time" },
-    { title: "Client Relations Manager", department: "Support", location: "London, UK", type: "Full-time" },
+    { title: "Client Relations Manager", department: "Support", location: "Miami, USA", type: "Full-time" },
     { title: "UI/UX Designer", department: "Product", location: "Remote", type: "Contract" },
-    { title: "Content Marketing Manager", department: "Marketing", location: "London, UK", type: "Full-time" },
+    { title: "Content Marketing Manager", department: "Marketing", location: "Paris, France", type: "Full-time" },
   ];
 
   return (
