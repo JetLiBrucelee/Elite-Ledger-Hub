@@ -231,8 +231,8 @@ export default function Register() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-white/80 mb-1.5">Phone (Optional)</label>
-                <Input {...form.register("phone")} placeholder="----" autoComplete="tel" />
+                <label className="block text-sm font-medium text-white/80 mb-1.5">Phone</label>
+                <Input {...form.register("phone")} placeholder="" autoComplete="tel" />
               </div>
               <div ref={countryRef} className="relative">
                 <label className="block text-sm font-medium text-white/80 mb-1.5">Country (Optional)</label>
