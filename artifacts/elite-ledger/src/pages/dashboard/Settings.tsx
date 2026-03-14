@@ -1,18 +1,44 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
+import { useUpdateUserProfile, getGetMeQueryKey } from "@workspace/api-client-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { User, Mail, Phone, Globe, Shield, CheckCircle2 } from "lucide-react";
+import { User, Mail, Phone, Globe, Shield, MapPin, Building, Hash } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Settings() {
-  const { user } = useAuth();
-  const [saved, setSaved] = useState(false);
+  const { user, isAdmin } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const updateProfileMutation = useUpdateUserProfile();
+  const [firstName, setFirstName] = useState(user?.firstName || "");
+  const [lastName, setLastName] = useState(user?.lastName || "");
 
-  const handleSave = (e: React.FormEvent) => {
+  useEffect(() => {
+    if (user) {
+      setFirstName(user.firstName);
+      setLastName(user.lastName);
+    }
+  }, [user?.firstName, user?.lastName]);
+
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+    if (!firstName.trim() || !lastName.trim()) {
+      toast({ title: "First and last name are required", variant: "destructive" });
+      return;
+    }
+    try {
+      await updateProfileMutation.mutateAsync({
+        data: { firstName: firstName.trim(), lastName: lastName.trim() },
+      });
+      queryClient.invalidateQueries({ queryKey: getGetMeQueryKey() });
+      toast({ title: "Profile updated successfully" });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Failed to update profile";
+      toast({ title: msg, variant: "destructive" });
+    }
   };
 
   if (!user) return null;
@@ -34,11 +60,27 @@ export default function Settings() {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-white/80 mb-1.5">First Name</label>
-              <Input defaultValue={user.firstName} readOnly className="bg-background/50" />
+              {isAdmin ? (
+                <Input
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  className="bg-background/50"
+                />
+              ) : (
+                <Input defaultValue={user.firstName} readOnly className="bg-background/50" />
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-white/80 mb-1.5">Last Name</label>
-              <Input defaultValue={user.lastName} readOnly className="bg-background/50" />
+              {isAdmin ? (
+                <Input
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  className="bg-background/50"
+                />
+              ) : (
+                <Input defaultValue={user.lastName} readOnly className="bg-background/50" />
+              )}
             </div>
           </div>
 
@@ -63,10 +105,43 @@ export default function Settings() {
             <Input defaultValue={user.country ?? ""} placeholder="Not provided" readOnly className="bg-background/50" />
           </div>
 
-          {saved && (
-            <div className="flex items-center gap-2 text-emerald-500 text-sm">
-              <CheckCircle2 className="w-4 h-4" /> Profile information noted.
+          <div>
+            <label className="block text-sm font-medium text-white/80 mb-1.5 flex items-center gap-2">
+              <MapPin className="w-4 h-4 text-muted-foreground" /> Address
+            </label>
+            <Input defaultValue={user.address ?? ""} placeholder="Not provided" readOnly className="bg-background/50" />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-white/80 mb-1.5 flex items-center gap-2">
+                <Building className="w-4 h-4 text-muted-foreground" /> City
+              </label>
+              <Input defaultValue={user.city ?? ""} placeholder="Not provided" readOnly className="bg-background/50" />
             </div>
+            <div>
+              <label className="block text-sm font-medium text-white/80 mb-1.5 flex items-center gap-2">
+                State / Province
+              </label>
+              <Input defaultValue={user.stateProvince ?? ""} placeholder="Not provided" readOnly className="bg-background/50" />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-white/80 mb-1.5 flex items-center gap-2">
+              <Hash className="w-4 h-4 text-muted-foreground" /> Zip Code
+            </label>
+            <Input defaultValue={user.zipCode ?? ""} placeholder="Not provided" readOnly className="bg-background/50" />
+          </div>
+
+          {isAdmin && (
+            <Button
+              type="submit"
+              disabled={updateProfileMutation.isPending}
+              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-5 text-base mt-2"
+            >
+              {updateProfileMutation.isPending ? "Saving..." : "Update Name"}
+            </Button>
           )}
         </form>
       </Card>
@@ -102,6 +177,18 @@ export default function Settings() {
             </span>
           </div>
 
+          {user.plan && (
+            <div className="flex items-center justify-between py-3 border-b border-white/5">
+              <div>
+                <div className="font-medium text-white">Current Plan</div>
+                <div className="text-sm text-muted-foreground">Your active investment tier</div>
+              </div>
+              <span className="px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-semibold capitalize">
+                {user.plan}
+              </span>
+            </div>
+          )}
+
           <div className="flex items-center justify-between py-3">
             <div>
               <div className="font-medium text-white">Member Since</div>
@@ -114,11 +201,13 @@ export default function Settings() {
         </div>
       </Card>
 
-      <Card className="p-6 border-white/5 border-amber-500/10 bg-amber-500/5">
-        <p className="text-sm text-amber-500/80">
-          To update your personal information or change your password, please contact our support team via live chat or email at support@eliteledgercapital.com.
-        </p>
-      </Card>
+      {!isAdmin && (
+        <Card className="p-6 border-white/5 border-amber-500/10 bg-amber-500/5">
+          <p className="text-sm text-amber-500/80">
+            To update your personal information or change your password, please contact our support team via live chat or email at support@eliteledgercapital.com.
+          </p>
+        </Card>
+      )}
     </div>
   );
 }

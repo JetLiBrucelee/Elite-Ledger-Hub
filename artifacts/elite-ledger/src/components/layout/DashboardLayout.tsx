@@ -11,7 +11,8 @@ import {
   Users, 
   MessageSquare,
   AlertCircle,
-  FileText
+  FileText,
+  ArrowDownToLine
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -55,6 +56,7 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
   const adminLinks = [
     { name: "Overview", href: "/admin", icon: LayoutDashboard },
     { name: "Users", href: "/admin/users", icon: Users },
+    { name: "Withdrawals", href: "/admin/withdrawals", icon: ArrowDownToLine },
     { name: "Applications", href: "/admin/applications", icon: FileText },
     { name: "Live Chat", href: "/admin/chat", icon: MessageSquare },
     { name: "Settings", href: "/dashboard/settings", icon: Settings },

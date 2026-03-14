@@ -45,6 +45,7 @@ artifacts-monorepo/
 - **investment_plans** — id, name, tier (bronze/silver/gold/platinum/diamond), minInvestment, returnPercentage, durationMonths, description, features (json), schedule (json)
 - **user_investments** — id, userId, planId, planName, planTier, investedAmount, currentValue, returnPercentage, status, startDate, endDate
 - **transactions** — id, userId, type (deposit/withdrawal/profit/fee), amount, description, status, createdAt
+- **withdrawal_requests** — id, userId, amount (numeric 20,2), method, walletAddress, bankDetails, status (pending/approved/rejected), adminNote, createdAt, updatedAt
 - **chat_sessions** — id, sessionId, visitorName, status, lastMessage, unreadCount, createdAt, updatedAt
 - **chat_messages** — id, sessionId, message, senderName, senderType (visitor/user/admin), createdAt
 
@@ -82,14 +83,20 @@ artifacts-monorepo/
 - `GET /api/admin/chat/sessions/:sessionId/messages` — Get session messages
 - `POST /api/admin/chat/reply` — Reply to chat
 - `GET /api/admin/stats` — Dashboard statistics
+- `GET /api/admin/withdrawals` — List all withdrawal requests (with user info)
+- `POST /api/admin/withdrawals/:id/approve` — Approve withdrawal (atomic: deducts balance + creates transaction in DB transaction)
+- `POST /api/admin/withdrawals/:id/reject` — Reject withdrawal request
 
 ### Job Applications (public)
 - `POST /api/applications` — Submit a job application (from Careers page)
 
 ### User Dashboard (requires auth)
-- `GET /api/user/dashboard` — Dashboard overview (balance, investments, transactions)
+- `GET /api/user/dashboard` — Dashboard overview (accountBalance = user.balance, investments, transactions)
 - `GET /api/user/investments` — User's investments
 - `GET /api/user/transactions` — User's transactions
+- `PATCH /api/user/profile` — Update user's own name (firstName, lastName)
+- `POST /api/user/withdrawal-request` — Submit a withdrawal request (amount, method, walletAddress, bankDetails)
+- `GET /api/user/withdrawal-requests` — List user's withdrawal requests
 
 ## Frontend Pages
 
@@ -118,6 +125,7 @@ artifacts-monorepo/
 - `/admin` — Admin system overview (admin only)
 - `/admin/users` — User management with approve/reject/block/unblock/create/edit (admin only)
 - `/admin/applications` — Job applications management with review/reject (admin only)
+- `/admin/withdrawals` — Withdrawal requests management with approve/reject (admin only)
 - `/admin/chat` — Live chat inbox (admin only)
 
 ## Key Accounts

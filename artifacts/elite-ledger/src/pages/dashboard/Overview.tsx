@@ -1,7 +1,8 @@
 import { useGetUserDashboard, useGetUserInvestments } from "@workspace/api-client-react";
+import { useAuth } from "@/hooks/use-auth";
 import { formatCurrency } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
-import { ArrowUpRight, Wallet, PieChart, Activity, TrendingUp } from "lucide-react";
+import { ArrowUpRight, Wallet, PieChart, Activity, TrendingUp, Crown } from "lucide-react";
 
 const TIER_COLORS: Record<string, string> = {
   bronze: "bg-orange-700",
@@ -11,7 +12,24 @@ const TIER_COLORS: Record<string, string> = {
   diamond: "bg-blue-400",
 };
 
+const TIER_TEXT_COLORS: Record<string, string> = {
+  bronze: "text-orange-500",
+  silver: "text-slate-300",
+  gold: "text-yellow-400",
+  platinum: "text-cyan-300",
+  diamond: "text-blue-300",
+};
+
+const TIER_BG_COLORS: Record<string, string> = {
+  bronze: "bg-orange-500/10 border-orange-500/20",
+  silver: "bg-slate-400/10 border-slate-400/20",
+  gold: "bg-yellow-500/10 border-yellow-500/20",
+  platinum: "bg-cyan-400/10 border-cyan-400/20",
+  diamond: "bg-blue-400/10 border-blue-400/20",
+};
+
 export default function UserOverview() {
+  const { user } = useAuth();
   const { data: dashboard, isLoading } = useGetUserDashboard();
   const { data: investments = [] } = useGetUserInvestments();
 
@@ -26,6 +44,9 @@ export default function UserOverview() {
     { label: "Active Plans", value: dashboard.activeInvestments, icon: Activity, color: "text-purple-500", bg: "bg-purple-500/10", isCount: true },
   ];
 
+  const planTier = user?.plan?.toLowerCase() ?? "";
+  const hasPlan = !!user?.plan;
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
@@ -33,6 +54,14 @@ export default function UserOverview() {
           <h1 className="text-3xl font-display font-bold text-white">Portfolio Overview</h1>
           <p className="text-muted-foreground">Monitor your investment portfolio and returns.</p>
         </div>
+        {hasPlan && (
+          <div className={`flex items-center gap-2 px-4 py-2 rounded-full border ${TIER_BG_COLORS[planTier] || "bg-primary/10 border-primary/20"}`}>
+            <Crown className={`w-4 h-4 ${TIER_TEXT_COLORS[planTier] || "text-primary"}`} />
+            <span className={`text-sm font-bold capitalize ${TIER_TEXT_COLORS[planTier] || "text-primary"}`}>
+              {user?.plan} Plan
+            </span>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

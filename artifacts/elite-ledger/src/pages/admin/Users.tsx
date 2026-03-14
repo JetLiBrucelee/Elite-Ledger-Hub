@@ -173,7 +173,7 @@ function CreateUserDialog({ onClose }: { onClose: () => void }) {
                 className="w-full px-4 py-3 bg-background border border-white/10 rounded-lg text-white focus:outline-none focus:border-primary/50 transition-colors"
               >
                 <option value="">None</option>
-                <option value="Starter">Starter</option>
+                <option value="Bronze">Bronze</option>
                 <option value="Silver">Silver</option>
                 <option value="Gold">Gold</option>
                 <option value="Platinum">Platinum</option>
@@ -332,7 +332,7 @@ function EditUserDialog({ user, onClose }: { user: User; onClose: () => void }) 
                 className="w-full px-4 py-3 bg-background border border-white/10 rounded-lg text-white focus:outline-none focus:border-primary/50 transition-colors"
               >
                 <option value="">None</option>
-                <option value="Starter">Starter</option>
+                <option value="Bronze">Bronze</option>
                 <option value="Silver">Silver</option>
                 <option value="Gold">Gold</option>
                 <option value="Platinum">Platinum</option>

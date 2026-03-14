@@ -324,6 +324,72 @@ export interface UserInvestment {
   status: UserInvestmentStatus;
 }
 
+export interface UpdateProfileRequest {
+  firstName?: string;
+  lastName?: string;
+}
+
+export interface CreateWithdrawalRequest {
+  amount: number;
+  method?: string;
+  walletAddress?: string;
+  bankDetails?: string;
+}
+
+export type WithdrawalRequestStatus =
+  (typeof WithdrawalRequestStatus)[keyof typeof WithdrawalRequestStatus];
+
+export const WithdrawalRequestStatus = {
+  pending: "pending",
+  approved: "approved",
+  rejected: "rejected",
+} as const;
+
+export interface WithdrawalRequest {
+  id: number;
+  userId: number;
+  amount: number;
+  method: string;
+  /** @nullable */
+  walletAddress?: string | null;
+  /** @nullable */
+  bankDetails?: string | null;
+  status: WithdrawalRequestStatus;
+  /** @nullable */
+  adminNote?: string | null;
+  createdAt: string;
+}
+
+export type AdminWithdrawalRequestStatus =
+  (typeof AdminWithdrawalRequestStatus)[keyof typeof AdminWithdrawalRequestStatus];
+
+export const AdminWithdrawalRequestStatus = {
+  pending: "pending",
+  approved: "approved",
+  rejected: "rejected",
+} as const;
+
+export interface AdminWithdrawalRequest {
+  id: number;
+  userId: number;
+  amount: number;
+  method: string;
+  /** @nullable */
+  walletAddress?: string | null;
+  /** @nullable */
+  bankDetails?: string | null;
+  status: AdminWithdrawalRequestStatus;
+  /** @nullable */
+  adminNote?: string | null;
+  createdAt: string;
+  userName: string;
+  userEmail: string;
+}
+
+export interface AdminWithdrawalAction {
+  adminNote?: string;
+}
+
 export type GetChatMessagesParams = {
   sessionId: string;
 };

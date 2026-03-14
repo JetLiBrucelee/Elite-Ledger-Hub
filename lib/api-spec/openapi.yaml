@@ -503,6 +503,81 @@ paths:
               schema:
                 $ref: "#/components/schemas/JobApplication"
 
+  /admin/withdrawals:
+    get:
+      operationId: adminGetWithdrawals
+      tags: [admin]
+      summary: Get all withdrawal requests (admin)
+      responses:
+        "200":
+          description: List of withdrawal requests
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AdminWithdrawalRequest"
+
+  /admin/withdrawals/{id}/approve:
+    post:
+      operationId: adminApproveWithdrawal
+      tags: [admin]
+      summary: Approve a withdrawal request (deducts from user balance)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminWithdrawalAction"
+      responses:
+        "200":
+          description: Withdrawal approved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WithdrawalRequest"
+        "400":
+          description: Insufficient balance or already processed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /admin/withdrawals/{id}/reject:
+    post:
+      operationId: adminRejectWithdrawal
+      tags: [admin]
+      summary: Reject a withdrawal request
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminWithdrawalAction"
+      responses:
+        "200":
+          description: Withdrawal rejected
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WithdrawalRequest"
+        "400":
+          description: Already processed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /admin/chat/sessions:
     get:
       operationId: adminGetChatSessions
@@ -583,6 +658,71 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/AdminStats"
+
+  /user/profile:
+    patch:
+      operationId: updateUserProfile
+      tags: [users]
+      summary: Update current user profile (name)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProfileRequest"
+      responses:
+        "200":
+          description: Profile updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          description: No valid fields
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /user/withdrawal-request:
+    post:
+      operationId: createWithdrawalRequest
+      tags: [users]
+      summary: Submit a withdrawal request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateWithdrawalRequest"
+      responses:
+        "201":
+          description: Withdrawal request created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WithdrawalRequest"
+        "400":
+          description: Invalid amount or insufficient balance
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /user/withdrawal-requests:
+    get:
+      operationId: getUserWithdrawalRequests
+      tags: [users]
+      summary: Get user's withdrawal requests
+      responses:
+        "200":
+          description: List of withdrawal requests
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/WithdrawalRequest"
 
   /user/dashboard:
     get:
@@ -1097,3 +1237,99 @@ components:
         - description
         - status
         - createdAt
+
+    UpdateProfileRequest:
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+
+    CreateWithdrawalRequest:
+      type: object
+      properties:
+        amount:
+          type: number
+        method:
+          type: string
+        walletAddress:
+          type: string
+        bankDetails:
+          type: string
+      required:
+        - amount
+
+    WithdrawalRequest:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        amount:
+          type: number
+        method:
+          type: string
+        walletAddress:
+          type: ["string", "null"]
+        bankDetails:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [pending, approved, rejected]
+        adminNote:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - userId
+        - amount
+        - method
+        - status
+        - createdAt
+
+    AdminWithdrawalRequest:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        amount:
+          type: number
+        method:
+          type: string
+        walletAddress:
+          type: ["string", "null"]
+        bankDetails:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [pending, approved, rejected]
+        adminNote:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+        userName:
+          type: string
+        userEmail:
+          type: string
+      required:
+        - id
+        - userId
+        - amount
+        - method
+        - status
+        - createdAt
+        - userName
+        - userEmail
+
+    AdminWithdrawalAction:
+      type: object
+      properties:
+        adminNote:
+          type: string

@@ -37,6 +37,7 @@ import AdminOverview from "@/pages/admin/Overview";
 import AdminUsers from "@/pages/admin/Users";
 import AdminChat from "@/pages/admin/Chat";
 import AdminApplications from "@/pages/admin/Applications";
+import AdminWithdrawals from "@/pages/admin/Withdrawals";
 
 const queryClient = new QueryClient();
 
@@ -156,6 +157,11 @@ function AppRouter() {
       <Route path="/admin/applications">
         <AdminRoute>
           <DashboardLayout><AdminApplications /></DashboardLayout>
+        </AdminRoute>
+      </Route>
+      <Route path="/admin/withdrawals">
+        <AdminRoute>
+          <DashboardLayout><AdminWithdrawals /></DashboardLayout>
         </AdminRoute>
       </Route>
 

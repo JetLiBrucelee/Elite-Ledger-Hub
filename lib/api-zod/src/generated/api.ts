@@ -473,6 +473,72 @@ export const AdminUpdateApplicationStatusResponse = zod.object({
 });
 
 /**
+ * @summary Get all withdrawal requests (admin)
+ */
+export const AdminGetWithdrawalsResponseItem = zod.object({
+  id: zod.number(),
+  userId: zod.number(),
+  amount: zod.number(),
+  method: zod.string(),
+  walletAddress: zod.string().nullish(),
+  bankDetails: zod.string().nullish(),
+  status: zod.enum(["pending", "approved", "rejected"]),
+  adminNote: zod.string().nullish(),
+  createdAt: zod.date(),
+  userName: zod.string(),
+  userEmail: zod.string(),
+});
+export const AdminGetWithdrawalsResponse = zod.array(
+  AdminGetWithdrawalsResponseItem,
+);
+
+/**
+ * @summary Approve a withdrawal request (deducts from user balance)
+ */
+export const AdminApproveWithdrawalParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const AdminApproveWithdrawalBody = zod.object({
+  adminNote: zod.string().optional(),
+});
+
+export const AdminApproveWithdrawalResponse = zod.object({
+  id: zod.number(),
+  userId: zod.number(),
+  amount: zod.number(),
+  method: zod.string(),
+  walletAddress: zod.string().nullish(),
+  bankDetails: zod.string().nullish(),
+  status: zod.enum(["pending", "approved", "rejected"]),
+  adminNote: zod.string().nullish(),
+  createdAt: zod.date(),
+});
+
+/**
+ * @summary Reject a withdrawal request
+ */
+export const AdminRejectWithdrawalParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const AdminRejectWithdrawalBody = zod.object({
+  adminNote: zod.string().optional(),
+});
+
+export const AdminRejectWithdrawalResponse = zod.object({
+  id: zod.number(),
+  userId: zod.number(),
+  amount: zod.number(),
+  method: zod.string(),
+  walletAddress: zod.string().nullish(),
+  bankDetails: zod.string().nullish(),
+  status: zod.enum(["pending", "approved", "rejected"]),
+  adminNote: zod.string().nullish(),
+  createdAt: zod.date(),
+});
+
+/**
  * @summary Get all chat sessions (admin)
  */
 export const AdminGetChatSessionsResponseItem = zod.object({
@@ -525,6 +591,60 @@ export const AdminGetStatsResponse = zod.object({
   activeChatSessions: zod.number(),
   totalRevenue: zod.number(),
 });
+
+/**
+ * @summary Update current user profile (name)
+ */
+export const UpdateUserProfileBody = zod.object({
+  firstName: zod.string().optional(),
+  lastName: zod.string().optional(),
+});
+
+export const UpdateUserProfileResponse = zod.object({
+  id: zod.number(),
+  firstName: zod.string(),
+  lastName: zod.string(),
+  email: zod.string(),
+  phone: zod.string().nullish(),
+  country: zod.string().nullish(),
+  address: zod.string().nullish(),
+  city: zod.string().nullish(),
+  stateProvince: zod.string().nullish(),
+  zipCode: zod.string().nullish(),
+  role: zod.enum(["user", "admin"]),
+  status: zod.enum(["pending", "approved", "rejected", "blocked"]),
+  balance: zod.number(),
+  plan: zod.string().nullish(),
+  createdAt: zod.date(),
+});
+
+/**
+ * @summary Submit a withdrawal request
+ */
+export const CreateWithdrawalRequestBody = zod.object({
+  amount: zod.number(),
+  method: zod.string().optional(),
+  walletAddress: zod.string().optional(),
+  bankDetails: zod.string().optional(),
+});
+
+/**
+ * @summary Get user's withdrawal requests
+ */
+export const GetUserWithdrawalRequestsResponseItem = zod.object({
+  id: zod.number(),
+  userId: zod.number(),
+  amount: zod.number(),
+  method: zod.string(),
+  walletAddress: zod.string().nullish(),
+  bankDetails: zod.string().nullish(),
+  status: zod.enum(["pending", "approved", "rejected"]),
+  adminNote: zod.string().nullish(),
+  createdAt: zod.date(),
+});
+export const GetUserWithdrawalRequestsResponse = zod.array(
+  GetUserWithdrawalRequestsResponseItem,
+);
 
 /**
  * @summary Get user dashboard data

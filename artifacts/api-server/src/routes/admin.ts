@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import bcryptjs from "bcryptjs";
-import { db, usersTable, sessionsTable, chatMessagesTable, chatSessionsTable, userInvestmentsTable, transactionsTable, jobApplicationsTable } from "@workspace/db";
+import { db, usersTable, sessionsTable, chatMessagesTable, chatSessionsTable, userInvestmentsTable, transactionsTable, jobApplicationsTable, withdrawalRequestsTable } from "@workspace/db";
 import { eq, desc, count, sql } from "drizzle-orm";
 import { AdminApproveUserParams, AdminRejectUserParams, AdminReplyChatBody, AdminGetSessionMessagesParams } from "@workspace/api-zod";
 import { requireAdmin } from "../lib/auth";
@@ -516,6 +516,147 @@ router.get("/admin/stats", requireAdmin, async (_req, res): Promise<void> => {
     totalInvestments: Number(investmentResult?.total || 0),
     activeChatSessions: activeChatResult.count,
     totalRevenue: Number(investmentResult?.total || 0) * 0.05,
+  });
+});
+
+router.get("/admin/withdrawals", requireAdmin, async (_req, res): Promise<void> => {
+  const requests = await db
+    .select({
+      id: withdrawalRequestsTable.id,
+      userId: withdrawalRequestsTable.userId,
+      amount: withdrawalRequestsTable.amount,
+      method: withdrawalRequestsTable.method,
+      walletAddress: withdrawalRequestsTable.walletAddress,
+      bankDetails: withdrawalRequestsTable.bankDetails,
+      status: withdrawalRequestsTable.status,
+      adminNote: withdrawalRequestsTable.adminNote,
+      createdAt: withdrawalRequestsTable.createdAt,
+      firstName: usersTable.firstName,
+      lastName: usersTable.lastName,
+      email: usersTable.email,
+    })
+    .from(withdrawalRequestsTable)
+    .innerJoin(usersTable, eq(withdrawalRequestsTable.userId, usersTable.id))
+    .orderBy(desc(withdrawalRequestsTable.createdAt));
+
+  res.json(
+    requests.map((r) => ({
+      id: r.id,
+      userId: r.userId,
+      amount: Number(r.amount),
+      method: r.method,
+      walletAddress: r.walletAddress,
+      bankDetails: r.bankDetails,
+      status: r.status,
+      adminNote: r.adminNote,
+      createdAt: r.createdAt.toISOString(),
+      userName: `${r.firstName} ${r.lastName}`,
+      userEmail: r.email,
+    }))
+  );
+});
+
+router.post("/admin/withdrawals/:id/approve", requireAdmin, async (req, res): Promise<void> => {
+  const id = Number(req.params.id);
+  if (!id || isNaN(id)) {
+    res.status(400).json({ error: "Invalid withdrawal ID" });
+    return;
+  }
+
+  const adminNote = req.body?.adminNote || null;
+
+  try {
+    const result = await db.transaction(async (tx) => {
+      const [request] = await tx
+        .update(withdrawalRequestsTable)
+        .set({ status: "approved", adminNote })
+        .where(sql`${withdrawalRequestsTable.id} = ${id} AND ${withdrawalRequestsTable.status} = 'pending'`)
+        .returning();
+
+      if (!request) {
+        return { error: "Withdrawal request not found or already processed", status: 400 };
+      }
+
+      const [user] = await tx
+        .update(usersTable)
+        .set({ balance: sql`(balance::numeric - ${request.amount})::numeric` })
+        .where(sql`${usersTable.id} = ${request.userId} AND balance::numeric >= ${request.amount}`)
+        .returning();
+
+      if (!user) {
+        throw new Error("INSUFFICIENT_BALANCE");
+      }
+
+      await tx.insert(transactionsTable).values({
+        userId: request.userId,
+        type: "withdrawal",
+        amount: request.amount,
+        description: `Withdrawal approved via ${request.method}`,
+        status: "completed",
+      });
+
+      return {
+        id: request.id,
+        userId: request.userId,
+        amount: Number(request.amount),
+        method: request.method,
+        walletAddress: request.walletAddress,
+        bankDetails: request.bankDetails,
+        status: request.status,
+        adminNote: request.adminNote,
+        createdAt: request.createdAt.toISOString(),
+      };
+    });
+
+    if ("error" in result) {
+      res.status(result.status).json({ error: result.error });
+      return;
+    }
+
+    res.json(result);
+  } catch (err) {
+    if (err instanceof Error && err.message === "INSUFFICIENT_BALANCE") {
+      await db
+        .update(withdrawalRequestsTable)
+        .set({ status: "pending", adminNote: null })
+        .where(eq(withdrawalRequestsTable.id, id));
+      res.status(400).json({ error: "Insufficient user balance" });
+      return;
+    }
+    throw err;
+  }
+});
+
+router.post("/admin/withdrawals/:id/reject", requireAdmin, async (req, res): Promise<void> => {
+  const id = Number(req.params.id);
+  if (!id || isNaN(id)) {
+    res.status(400).json({ error: "Invalid withdrawal ID" });
+    return;
+  }
+
+  const adminNote = req.body?.adminNote || null;
+
+  const [updated] = await db
+    .update(withdrawalRequestsTable)
+    .set({ status: "rejected", adminNote })
+    .where(sql`${withdrawalRequestsTable.id} = ${id} AND ${withdrawalRequestsTable.status} = 'pending'`)
+    .returning();
+
+  if (!updated) {
+    res.status(400).json({ error: "Withdrawal request not found or already processed" });
+    return;
+  }
+
+  res.json({
+    id: updated.id,
+    userId: updated.userId,
+    amount: Number(updated.amount),
+    method: updated.method,
+    walletAddress: updated.walletAddress,
+    bankDetails: updated.bankDetails,
+    status: updated.status,
+    adminNote: updated.adminNote,
+    createdAt: updated.createdAt.toISOString(),
   });
 });
 
