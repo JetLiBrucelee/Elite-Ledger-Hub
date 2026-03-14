@@ -625,11 +625,13 @@ export default function AdminUsers() {
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
-              {users.map((u) => (
+              {users.map((u) => {
+                const presence = getPresenceInfo(u);
+                return (
                 <tr key={u.id} className="hover:bg-white/[0.02] transition-colors">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
-                      <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${getPresenceInfo(u).dot}`} title={getPresenceInfo(u).label} />
+                      <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${presence.dot}`} title={presence.label} />
                       <div>
                         <div className="font-bold text-white">{u.firstName} {u.lastName}</div>
                         <div className="text-xs text-muted-foreground mt-0.5">Joined {formatDate(u.createdAt)}</div>
@@ -709,7 +711,8 @@ export default function AdminUsers() {
                     </div>
                   </td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
         </div>
