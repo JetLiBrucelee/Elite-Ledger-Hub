@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { ArrowRight, ShieldCheck, TrendingUp, Globe2, BarChart3, ChevronRight, Copy, Star, Users2, Award, CheckCircle2 } from "lucide-react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { CryptoTicker } from "@/components/layout/CryptoTicker";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
@@ -97,6 +98,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <CryptoTicker />
 
       {/* Stats Section */}
       <section className="py-12 border-y border-white/5 relative z-10 bg-background/50 backdrop-blur-lg">
