@@ -595,7 +595,7 @@ router.post("/admin/withdrawals/:id/approve", requireAdmin, async (req, res): Pr
           status: "completed",
           description: `Withdrawal approved via ${request.method}`,
         })
-        .where(sql`${transactionsTable.userId} = ${request.userId} AND ${transactionsTable.type} = 'withdrawal' AND ${transactionsTable.status} = 'pending' AND ${transactionsTable.amount} = ${request.amount}`);
+        .where(eq(transactionsTable.withdrawalRequestId, request.id));
 
       return {
         success: true,
@@ -659,7 +659,7 @@ router.post("/admin/withdrawals/:id/reject", requireAdmin, async (req, res): Pro
         status: "rejected",
         description: `Withdrawal rejected via ${updated.method}`,
       })
-      .where(sql`${transactionsTable.userId} = ${updated.userId} AND ${transactionsTable.type} = 'withdrawal' AND ${transactionsTable.status} = 'pending' AND ${transactionsTable.amount} = ${updated.amount}`);
+      .where(eq(transactionsTable.withdrawalRequestId, updated.id));
 
     return updated;
   });

@@ -166,6 +166,7 @@ router.post("/user/withdrawal-request", requireApproved, async (req, res): Promi
       amount: String(amount),
       description: `Withdrawal request via ${request.method} (pending approval)`,
       status: "pending",
+      withdrawalRequestId: request.id,
     });
 
     return request;

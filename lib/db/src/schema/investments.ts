@@ -38,6 +38,7 @@ export const transactionsTable = pgTable("transactions", {
   amount: numeric("amount", { precision: 15, scale: 2 }).notNull(),
   description: text("description").notNull(),
   status: varchar("status", { length: 20 }).notNull().default("completed"),
+  withdrawalRequestId: integer("withdrawal_request_id"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
