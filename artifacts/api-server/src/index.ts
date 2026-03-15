@@ -1,6 +1,6 @@
 import app from "./app";
 import { db, usersTable } from "@workspace/db";
-import { eq, and, isNull } from "drizzle-orm";
+import { eq, and, isNull, sql } from "drizzle-orm";
 import bcryptjs from "bcryptjs";
 import { sendWelcomeEmail } from "./lib/email";
 
@@ -16,6 +16,18 @@ const port = Number(rawPort);
 
 if (Number.isNaN(port) || port <= 0) {
   throw new Error(`Invalid PORT value: "${rawPort}"`);
+}
+
+async function runSchemaMigrations() {
+  try {
+    await db.execute(sql`
+      ALTER TABLE users
+        ADD COLUMN IF NOT EXISTS welcome_email_sent_at TIMESTAMPTZ
+    `);
+    console.log("Schema migrations applied.");
+  } catch (err) {
+    console.error("Schema migration error:", err);
+  }
 }
 
 async function syncAdminUser() {
@@ -103,9 +115,11 @@ async function backfillWelcomeEmails() {
   }
 }
 
-syncAdminUser().then(() => {
-  app.listen(port, () => {
-    console.log(`Server listening on port ${port}`);
-    backfillWelcomeEmails();
+runSchemaMigrations()
+  .then(() => syncAdminUser())
+  .then(() => {
+    app.listen(port, () => {
+      console.log(`Server listening on port ${port}`);
+      backfillWelcomeEmails();
+    });
   });
-});
