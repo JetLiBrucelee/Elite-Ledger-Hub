@@ -1,13 +1,16 @@
 import { useState } from "react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, ArrowRight } from "lucide-react";
+import { Check, ArrowRight, Loader2 } from "lucide-react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/utils";
+import { useUpdateUserPlan } from "@workspace/api-client-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { getGetMeQueryKey } from "@workspace/api-client-react";
 
 // Using the exact calculations provided by the user
 const investmentPlans = [
@@ -84,8 +87,11 @@ const investmentPlans = [
 ];
 
 export default function Plans() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const [activeTab, setActiveTab] = useState(investmentPlans[0].id);
+  const [, setLocation] = useLocation();
+  const queryClient = useQueryClient();
+  const updatePlanMutation = useUpdateUserPlan();
 
   const activePlan = investmentPlans.find(p => p.id === activeTab)!;
 
@@ -157,11 +163,33 @@ export default function Plans() {
                       ))}
                     </div>
                     
-                    <Button asChild size="lg" variant="premium" className="w-full">
-                      <Link href={isAuthenticated ? "/dashboard/investments" : `/register?plan=${activePlan.id}`}>
-                        {isAuthenticated ? "View My Investments" : "Select Plan"}
-                      </Link>
-                    </Button>
+                    {!isAuthenticated ? (
+                      <Button asChild size="lg" variant="premium" className="w-full">
+                        <Link href={`/register?plan=${activePlan.id}`}>Select Plan</Link>
+                      </Button>
+                    ) : user?.plan ? (
+                      <Button asChild size="lg" variant="premium" className="w-full">
+                        <Link href="/dashboard/investments">View My Investments</Link>
+                      </Button>
+                    ) : (
+                      <Button
+                        size="lg"
+                        variant="premium"
+                        className="w-full"
+                        disabled={updatePlanMutation.isPending}
+                        onClick={async () => {
+                          await updatePlanMutation.mutateAsync({ data: { plan: activePlan.id as "bronze" | "silver" | "gold" | "platinum" | "diamond" } });
+                          await queryClient.invalidateQueries({ queryKey: getGetMeQueryKey() });
+                          setLocation("/dashboard");
+                        }}
+                      >
+                        {updatePlanMutation.isPending ? (
+                          <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Selecting…</>
+                        ) : (
+                          `Select ${activePlan.name.split(" ")[0]} Plan`
+                        )}
+                      </Button>
+                    )}
                   </div>
 
                   {/* Right Column - Table */}

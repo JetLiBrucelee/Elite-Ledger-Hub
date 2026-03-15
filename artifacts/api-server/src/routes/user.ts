@@ -112,6 +112,25 @@ router.patch("/user/profile", requireApproved, async (req, res): Promise<void> =
   });
 });
 
+router.patch("/user/plan", requireApproved, async (req, res): Promise<void> => {
+  const user = (req as AuthenticatedRequest).user;
+  const { plan } = req.body || {};
+
+  const validPlans = ["bronze", "silver", "gold", "platinum", "diamond"];
+  if (typeof plan !== "string" || !validPlans.includes(plan.toLowerCase())) {
+    res.status(400).json({ error: "Invalid plan. Must be one of: bronze, silver, gold, platinum, diamond" });
+    return;
+  }
+
+  const [updated] = await db
+    .update(usersTable)
+    .set({ plan: plan.toLowerCase() })
+    .where(eq(usersTable.id, user.id))
+    .returning();
+
+  res.json({ plan: updated.plan });
+});
+
 router.get("/user/investments", requireApproved, async (req, res): Promise<void> => {
   const user = (req as AuthenticatedRequest).user;
 

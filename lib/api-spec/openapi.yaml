@@ -722,6 +722,42 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
+  /user/plan:
+    patch:
+      operationId: updateUserPlan
+      tags: [users]
+      summary: Update current user plan selection
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                plan:
+                  type: string
+                  enum: [bronze, silver, gold, platinum, diamond]
+              required:
+                - plan
+      responses:
+        "200":
+          description: Plan updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  plan:
+                    type: string
+                required:
+                  - plan
+        "400":
+          description: Invalid plan
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /user/withdrawal-request:
     post:
       operationId: createWithdrawalRequest

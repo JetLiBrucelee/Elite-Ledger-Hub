@@ -691,6 +691,17 @@ export const UpdateUserProfileResponse = zod.object({
 });
 
 /**
+ * @summary Update current user plan selection
+ */
+export const UpdateUserPlanBody = zod.object({
+  plan: zod.enum(["bronze", "silver", "gold", "platinum", "diamond"]),
+});
+
+export const UpdateUserPlanResponse = zod.object({
+  plan: zod.string(),
+});
+
+/**
  * @summary Submit a withdrawal request
  */
 export const CreateWithdrawalRequestBody = zod.object({

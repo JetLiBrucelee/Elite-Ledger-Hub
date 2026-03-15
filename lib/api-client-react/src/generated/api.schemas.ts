@@ -442,3 +442,22 @@ export const AdminGetUsersStatus = {
   blocked: "blocked",
   suspended: "suspended",
 } as const;
+
+export type UpdateUserPlanBodyPlan =
+  (typeof UpdateUserPlanBodyPlan)[keyof typeof UpdateUserPlanBodyPlan];
+
+export const UpdateUserPlanBodyPlan = {
+  bronze: "bronze",
+  silver: "silver",
+  gold: "gold",
+  platinum: "platinum",
+  diamond: "diamond",
+} as const;
+
+export type UpdateUserPlanBody = {
+  plan: UpdateUserPlanBodyPlan;
+};
+
+export type UpdateUserPlan200 = {
+  plan: string;
+};

@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/hooks/use-auth";
+import { useInactivityLogout } from "@/hooks/use-inactivity-logout";
 import { CustomCursor } from "@/components/CustomCursor";
 import { ChatWidget } from "@/components/ChatWidget";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
@@ -92,10 +93,17 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+function HomeOrRedirect() {
+  const { isAuthenticated, isAdmin, isLoading } = useAuth();
+  if (isLoading) return null;
+  if (isAuthenticated) return <Redirect to={isAdmin ? "/admin" : "/dashboard"} />;
+  return <Home />;
+}
+
 function AppRouter() {
   return (
     <Switch>
-      <Route path="/" component={Home} />
+      <Route path="/" component={HomeOrRedirect} />
       <Route path="/plans" component={Plans} />
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
@@ -177,15 +185,25 @@ function PublicChatWidget() {
   return <ChatWidget />;
 }
 
+function AppContent() {
+  const { isAuthenticated } = useAuth();
+  useInactivityLogout(isAuthenticated);
+  return (
+    <>
+      <CustomCursor />
+      <AppRouter />
+      <PublicChatWidget />
+    </>
+  );
+}
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <TooltipProvider>
           <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-            <CustomCursor />
-            <AppRouter />
-            <PublicChatWidget />
+            <AppContent />
           </WouterRouter>
           <Toaster />
         </TooltipProvider>

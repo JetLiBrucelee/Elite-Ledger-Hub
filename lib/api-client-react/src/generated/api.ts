@@ -43,6 +43,8 @@ import type {
   Transaction,
   UpdateApplicationStatusRequest,
   UpdateProfileRequest,
+  UpdateUserPlan200,
+  UpdateUserPlanBody,
   User,
   UserDashboard,
   UserInvestment,
@@ -2877,6 +2879,92 @@ export const useUpdateUserProfile = <
   TContext
 > => {
   return useMutation(getUpdateUserProfileMutationOptions(options));
+};
+
+/**
+ * @summary Update current user plan selection
+ */
+export const getUpdateUserPlanUrl = () => {
+  return `/api/user/plan`;
+};
+
+export const updateUserPlan = async (
+  updateUserPlanBody: UpdateUserPlanBody,
+  options?: RequestInit,
+): Promise<UpdateUserPlan200> => {
+  return customFetch<UpdateUserPlan200>(getUpdateUserPlanUrl(), {
+    ...options,
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(updateUserPlanBody),
+  });
+};
+
+export const getUpdateUserPlanMutationOptions = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateUserPlan>>,
+    TError,
+    { data: BodyType<UpdateUserPlanBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof updateUserPlan>>,
+  TError,
+  { data: BodyType<UpdateUserPlanBody> },
+  TContext
+> => {
+  const mutationKey = ["updateUserPlan"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof updateUserPlan>>,
+    { data: BodyType<UpdateUserPlanBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return updateUserPlan(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type UpdateUserPlanMutationResult = NonNullable<
+  Awaited<ReturnType<typeof updateUserPlan>>
+>;
+export type UpdateUserPlanMutationBody = BodyType<UpdateUserPlanBody>;
+export type UpdateUserPlanMutationError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Update current user plan selection
+ */
+export const useUpdateUserPlan = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateUserPlan>>,
+    TError,
+    { data: BodyType<UpdateUserPlanBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof updateUserPlan>>,
+  TError,
+  { data: BodyType<UpdateUserPlanBody> },
+  TContext
+> => {
+  return useMutation(getUpdateUserPlanMutationOptions(options));
 };
 
 /**

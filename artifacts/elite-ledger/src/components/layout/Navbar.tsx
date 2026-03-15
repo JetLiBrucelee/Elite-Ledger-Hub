@@ -123,6 +123,12 @@ export function Navbar() {
   const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
   const { isAuthenticated, isAdmin } = useAuth();
 
+  const homeHref = isAuthenticated ? (isAdmin ? "/admin" : "/dashboard") : "/";
+
+  const resolvedNavGroups = navGroups.map((g) =>
+    g.label === "Home" ? { ...g, href: homeHref } : g
+  );
+
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
@@ -137,7 +143,7 @@ export function Navbar() {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
-          <Link href="/" className="flex items-center group">
+          <Link href={homeHref} className="flex items-center group">
             <img
               src={`${import.meta.env.BASE_URL}images/logo-mark.png`}
               alt="Elite Ledger Capital"
@@ -146,7 +152,7 @@ export function Navbar() {
           </Link>
 
           <nav className="hidden lg:flex items-center gap-7">
-            {navGroups.map((g) => (
+            {resolvedNavGroups.map((g) => (
               <DropdownMenu key={g.label} group={g} location={location} />
             ))}
           </nav>
@@ -172,7 +178,7 @@ export function Navbar() {
       {mobileMenuOpen && (
         <div className="lg:hidden absolute top-full left-0 right-0 bg-[#111318] border-b border-white/10 shadow-xl max-h-[80vh] overflow-y-auto">
           <div className="p-4 space-y-1">
-            {navGroups.map((g) => (
+            {resolvedNavGroups.map((g) => (
               <div key={g.label}>
                 {g.items ? (
                   <>
