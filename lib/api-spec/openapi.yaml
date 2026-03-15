@@ -259,7 +259,7 @@ paths:
           required: false
           schema:
             type: string
-            enum: [pending, approved, rejected, blocked]
+            enum: [pending, approved, rejected, blocked, suspended]
       responses:
         "200":
           description: List of users
@@ -858,6 +858,7 @@ components:
           type: string
         plan:
           type: string
+          minLength: 1
       required:
         - firstName
         - lastName
@@ -916,7 +917,7 @@ components:
           enum: [user, admin]
         status:
           type: string
-          enum: [pending, approved, rejected, blocked]
+          enum: [pending, approved, rejected, blocked, suspended]
         balance:
           type: number
         plan:
@@ -966,7 +967,7 @@ components:
           enum: [user, admin]
         status:
           type: string
-          enum: [pending, approved, rejected, blocked]
+          enum: [pending, approved, rejected, blocked, suspended]
         balance:
           type: number
         plan:
@@ -996,7 +997,7 @@ components:
           enum: [user, admin]
         status:
           type: string
-          enum: [pending, approved, rejected, blocked]
+          enum: [pending, approved, rejected, blocked, suspended]
         balance:
           type: number
         plan:

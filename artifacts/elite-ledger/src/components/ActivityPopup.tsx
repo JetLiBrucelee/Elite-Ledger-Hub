@@ -11,9 +11,20 @@ const FIRST_NAMES = [
   "Raj", "Fatima", "Andre", "Yuki"
 ];
 
-const LAST_INITIALS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const CRYPTO_CONFIG: Record<string, { color: string }> = {
+  BTC: { color: "text-orange-400" },
+  ETH: { color: "text-indigo-400" },
+  BNB: { color: "text-yellow-400" },
+  SOL: { color: "text-purple-400" },
+  ADA: { color: "text-blue-400" },
+  XRP: { color: "text-cyan-400" },
+  MATIC: { color: "text-violet-400" },
+  DOT: { color: "text-pink-400" },
+  AVAX: { color: "text-red-400" },
+  LINK: { color: "text-blue-300" },
+};
 
-const CRYPTOS = ["BTC", "ETH", "BNB", "SOL", "ADA", "XRP", "MATIC", "DOT", "AVAX", "LINK"];
+const CRYPTOS = Object.keys(CRYPTO_CONFIG);
 
 const ACTIONS = ["Earned", "Invested", "Withdrew"];
 
@@ -31,9 +42,8 @@ function randomFrom<T>(arr: T[]): T {
 function generateAmount(): number {
   const ranges = [
     { min: 200000, max: 500000, weight: 40 },
-    { min: 500000, max: 1000000, weight: 30 },
-    { min: 1000000, max: 5000000, weight: 20 },
-    { min: 5000000, max: 15000000, weight: 10 },
+    { min: 500000, max: 1000000, weight: 35 },
+    { min: 1000000, max: 2000000, weight: 25 },
   ];
   const totalWeight = ranges.reduce((s, r) => s + r.weight, 0);
   let rand = Math.random() * totalWeight;
@@ -48,16 +58,15 @@ function generateAmount(): number {
 
 function generateEntry() {
   const firstName = randomFrom(FIRST_NAMES);
-  const lastInit = LAST_INITIALS[Math.floor(Math.random() * LAST_INITIALS.length)];
   const action = randomFrom(ACTIONS);
   const crypto = randomFrom(CRYPTOS);
   const amount = generateAmount();
   const country = randomFrom(COUNTRIES);
   const minutesAgo = Math.floor(Math.random() * 45) + 1;
-  return { firstName, lastInit, action, crypto, amount, country, minutesAgo };
+  return { firstName, action, crypto, amount, country, minutesAgo };
 }
 
-const pregenerated = Array.from({ length: 30 }, () => generateEntry());
+const pregenerated = Array.from({ length: 25 }, () => generateEntry());
 
 export function ActivityPopup() {
   const [current, setCurrent] = useState<ReturnType<typeof generateEntry> | null>(null);
@@ -93,6 +102,8 @@ export function ActivityPopup() {
     return undefined;
   }, [visible, index, showNext]);
 
+  const cryptoColor = current ? CRYPTO_CONFIG[current.crypto]?.color || "text-blue-400" : "text-blue-400";
+
   return (
     <AnimatePresence>
       {visible && current && (
@@ -106,11 +117,11 @@ export function ActivityPopup() {
           <div className="bg-[#14161c]/95 border border-white/10 backdrop-blur-xl rounded-xl p-4 shadow-2xl shadow-black/40">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/80 to-yellow-600 flex items-center justify-center text-sm font-bold text-black shrink-0">
-                {current.firstName[0]}{current.lastInit}
+                {current.firstName[0]}
               </div>
               <div className="min-w-0">
                 <p className="text-sm text-white font-medium truncate">
-                  {current.firstName} {current.lastInit}.{" "}
+                  {current.firstName}{" "}
                   <span className="text-emerald-400 font-semibold">{current.action}</span>{" "}
                   <span className="text-primary font-bold">
                     ${current.amount >= 1000000
@@ -118,7 +129,7 @@ export function ActivityPopup() {
                       : `${(current.amount / 1000).toFixed(0)}K`}
                   </span>{" "}
                   <span className="text-white/60">in</span>{" "}
-                  <span className="text-blue-400 font-semibold">{current.crypto}</span>
+                  <span className={`${cryptoColor} font-semibold`}>{current.crypto}</span>
                 </p>
                 <p className="text-xs text-white/40 mt-0.5">
                   {current.country} · {current.minutesAgo}m ago

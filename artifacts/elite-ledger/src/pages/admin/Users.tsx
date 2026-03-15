@@ -541,7 +541,7 @@ function UserDetailDialog({ user, onClose }: { user: User; onClose: () => void }
     { label: "Status", value: user.status },
     { label: "Plan", value: user.plan || "None" },
     { label: "Balance", value: `$${(user.balance ?? 0).toLocaleString("en-US", { minimumFractionDigits: 2 })}` },
-    { label: "Trial Started", value: (user as unknown as Record<string, unknown>).trialStartedAt ? new Date((user as unknown as Record<string, unknown>).trialStartedAt as string).toLocaleString() : "—" },
+    { label: "Trial Started", value: user.trialStartedAt ? new Date(user.trialStartedAt).toLocaleString() : "—" },
     { label: "Last Seen", value: user.lastSeen ? new Date(user.lastSeen).toLocaleString() : "Never" },
     { label: "Presence", value: user.presenceStatus },
     { label: "Joined", value: new Date(user.createdAt).toLocaleString() },

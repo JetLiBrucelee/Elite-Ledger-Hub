@@ -14,4 +14,5 @@ export const AdminGetUsersStatus = {
   approved: "approved",
   rejected: "rejected",
   blocked: "blocked",
+  suspended: "suspended",
 } as const;

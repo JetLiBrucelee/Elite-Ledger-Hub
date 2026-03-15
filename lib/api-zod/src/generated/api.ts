@@ -30,7 +30,7 @@ export const RegisterBody = zod.object({
   city: zod.string().optional(),
   stateProvince: zod.string().optional(),
   zipCode: zod.string().optional(),
-  plan: zod.string(),
+  plan: zod.string().min(1),
 });
 
 /**
@@ -54,7 +54,13 @@ export const LoginResponse = zod.object({
     stateProvince: zod.string().nullish(),
     zipCode: zod.string().nullish(),
     role: zod.enum(["user", "admin"]),
-    status: zod.enum(["pending", "approved", "rejected", "blocked"]),
+    status: zod.enum([
+      "pending",
+      "approved",
+      "rejected",
+      "blocked",
+      "suspended",
+    ]),
     balance: zod.number(),
     plan: zod.string().nullish(),
     trialStartedAt: zod.date().nullish(),
@@ -80,7 +86,7 @@ export const GetMeResponse = zod.object({
   stateProvince: zod.string().nullish(),
   zipCode: zod.string().nullish(),
   role: zod.enum(["user", "admin"]),
-  status: zod.enum(["pending", "approved", "rejected", "blocked"]),
+  status: zod.enum(["pending", "approved", "rejected", "blocked", "suspended"]),
   balance: zod.number(),
   plan: zod.string().nullish(),
   trialStartedAt: zod.date().nullish(),
@@ -182,7 +188,9 @@ export const SubmitApplicationBody = zod.object({
  * @summary Get all users (admin only)
  */
 export const AdminGetUsersQueryParams = zod.object({
-  status: zod.enum(["pending", "approved", "rejected", "blocked"]).optional(),
+  status: zod
+    .enum(["pending", "approved", "rejected", "blocked", "suspended"])
+    .optional(),
 });
 
 export const AdminGetUsersResponseItem = zod.object({
@@ -197,7 +205,7 @@ export const AdminGetUsersResponseItem = zod.object({
   stateProvince: zod.string().nullish(),
   zipCode: zod.string().nullish(),
   role: zod.enum(["user", "admin"]),
-  status: zod.enum(["pending", "approved", "rejected", "blocked"]),
+  status: zod.enum(["pending", "approved", "rejected", "blocked", "suspended"]),
   balance: zod.number(),
   plan: zod.string().nullish(),
   trialStartedAt: zod.date().nullish(),
@@ -220,7 +228,9 @@ export const AdminCreateUserBody = zod.object({
   phone: zod.string().optional(),
   country: zod.string().optional(),
   role: zod.enum(["user", "admin"]).optional(),
-  status: zod.enum(["pending", "approved", "rejected", "blocked"]).optional(),
+  status: zod
+    .enum(["pending", "approved", "rejected", "blocked", "suspended"])
+    .optional(),
   balance: zod.number().optional(),
   plan: zod.string().optional(),
 });
@@ -244,7 +254,7 @@ export const AdminApproveUserResponse = zod.object({
   stateProvince: zod.string().nullish(),
   zipCode: zod.string().nullish(),
   role: zod.enum(["user", "admin"]),
-  status: zod.enum(["pending", "approved", "rejected", "blocked"]),
+  status: zod.enum(["pending", "approved", "rejected", "blocked", "suspended"]),
   balance: zod.number(),
   plan: zod.string().nullish(),
   trialStartedAt: zod.date().nullish(),
@@ -272,7 +282,7 @@ export const AdminRejectUserResponse = zod.object({
   stateProvince: zod.string().nullish(),
   zipCode: zod.string().nullish(),
   role: zod.enum(["user", "admin"]),
-  status: zod.enum(["pending", "approved", "rejected", "blocked"]),
+  status: zod.enum(["pending", "approved", "rejected", "blocked", "suspended"]),
   balance: zod.number(),
   plan: zod.string().nullish(),
   trialStartedAt: zod.date().nullish(),
@@ -300,7 +310,7 @@ export const AdminBlockUserResponse = zod.object({
   stateProvince: zod.string().nullish(),
   zipCode: zod.string().nullish(),
   role: zod.enum(["user", "admin"]),
-  status: zod.enum(["pending", "approved", "rejected", "blocked"]),
+  status: zod.enum(["pending", "approved", "rejected", "blocked", "suspended"]),
   balance: zod.number(),
   plan: zod.string().nullish(),
   trialStartedAt: zod.date().nullish(),
@@ -328,7 +338,7 @@ export const AdminUnblockUserResponse = zod.object({
   stateProvince: zod.string().nullish(),
   zipCode: zod.string().nullish(),
   role: zod.enum(["user", "admin"]),
-  status: zod.enum(["pending", "approved", "rejected", "blocked"]),
+  status: zod.enum(["pending", "approved", "rejected", "blocked", "suspended"]),
   balance: zod.number(),
   plan: zod.string().nullish(),
   trialStartedAt: zod.date().nullish(),
@@ -356,7 +366,7 @@ export const AdminSuspendUserResponse = zod.object({
   stateProvince: zod.string().nullish(),
   zipCode: zod.string().nullish(),
   role: zod.enum(["user", "admin"]),
-  status: zod.enum(["pending", "approved", "rejected", "blocked"]),
+  status: zod.enum(["pending", "approved", "rejected", "blocked", "suspended"]),
   balance: zod.number(),
   plan: zod.string().nullish(),
   trialStartedAt: zod.date().nullish(),
@@ -388,7 +398,7 @@ export const AdminCreditUserResponse = zod.object({
   stateProvince: zod.string().nullish(),
   zipCode: zod.string().nullish(),
   role: zod.enum(["user", "admin"]),
-  status: zod.enum(["pending", "approved", "rejected", "blocked"]),
+  status: zod.enum(["pending", "approved", "rejected", "blocked", "suspended"]),
   balance: zod.number(),
   plan: zod.string().nullish(),
   trialStartedAt: zod.date().nullish(),
@@ -420,7 +430,7 @@ export const AdminDebitUserResponse = zod.object({
   stateProvince: zod.string().nullish(),
   zipCode: zod.string().nullish(),
   role: zod.enum(["user", "admin"]),
-  status: zod.enum(["pending", "approved", "rejected", "blocked"]),
+  status: zod.enum(["pending", "approved", "rejected", "blocked", "suspended"]),
   balance: zod.number(),
   plan: zod.string().nullish(),
   trialStartedAt: zod.date().nullish(),
@@ -443,7 +453,9 @@ export const AdminEditUserBody = zod.object({
   phone: zod.string().optional(),
   country: zod.string().optional(),
   role: zod.enum(["user", "admin"]).optional(),
-  status: zod.enum(["pending", "approved", "rejected", "blocked"]).optional(),
+  status: zod
+    .enum(["pending", "approved", "rejected", "blocked", "suspended"])
+    .optional(),
   balance: zod.number().optional(),
   plan: zod.string().optional(),
 });
@@ -460,7 +472,7 @@ export const AdminEditUserResponse = zod.object({
   stateProvince: zod.string().nullish(),
   zipCode: zod.string().nullish(),
   role: zod.enum(["user", "admin"]),
-  status: zod.enum(["pending", "approved", "rejected", "blocked"]),
+  status: zod.enum(["pending", "approved", "rejected", "blocked", "suspended"]),
   balance: zod.number(),
   plan: zod.string().nullish(),
   trialStartedAt: zod.date().nullish(),
@@ -669,7 +681,7 @@ export const UpdateUserProfileResponse = zod.object({
   stateProvince: zod.string().nullish(),
   zipCode: zod.string().nullish(),
   role: zod.enum(["user", "admin"]),
-  status: zod.enum(["pending", "approved", "rejected", "blocked"]),
+  status: zod.enum(["pending", "approved", "rejected", "blocked", "suspended"]),
   balance: zod.number(),
   plan: zod.string().nullish(),
   trialStartedAt: zod.date().nullish(),

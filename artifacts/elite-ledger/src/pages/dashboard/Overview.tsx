@@ -119,10 +119,14 @@ export default function UserOverview() {
   const planTier = user?.plan?.toLowerCase() ?? "";
   const hasPlan = !!user?.plan;
 
-  const trialStartedAt = (user as unknown as Record<string, unknown>)?.trialStartedAt as string | null;
+  const trialStartedAt = user?.trialStartedAt ?? null;
 
   return (
     <div className="space-y-6">
+      <h2 className="text-2xl font-display font-bold text-white">
+        Welcome back, {user?.firstName || "Investor"}!
+      </h2>
+
       {showWelcome && (
         <Card className="p-4 border-emerald-500/30 bg-emerald-500/10 relative">
           <button onClick={() => setShowWelcome(false)} className="absolute top-3 right-3 text-white/40 hover:text-white">

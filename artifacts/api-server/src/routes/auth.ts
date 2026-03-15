@@ -90,7 +90,7 @@ router.post("/auth/register", async (req, res): Promise<void> => {
       city: city || null,
       stateProvince: stateProvince || null,
       zipCode: zipCode || null,
-      plan: plan || null,
+      plan: plan && plan.trim() ? plan.trim() : null,
       role: "user",
       status: "pending",
     })

@@ -158,8 +158,8 @@ export default function Plans() {
                     </div>
                     
                     <Button asChild size="lg" variant="premium" className="w-full">
-                      <Link href={isAuthenticated ? "/dashboard" : `/register?plan=${activePlan.id}`}>
-                        {isAuthenticated ? "Go to Dashboard" : "Select Plan"}
+                      <Link href={isAuthenticated ? "/dashboard/investments" : `/register?plan=${activePlan.id}`}>
+                        {isAuthenticated ? "View My Investments" : "Select Plan"}
                       </Link>
                     </Button>
                   </div>

@@ -29,6 +29,7 @@ export interface RegisterRequest {
   city?: string;
   stateProvince?: string;
   zipCode?: string;
+  /** @minLength 1 */
   plan: string;
 }
 
@@ -51,6 +52,7 @@ export const UserStatus = {
   approved: "approved",
   rejected: "rejected",
   blocked: "blocked",
+  suspended: "suspended",
 } as const;
 
 export type UserPresenceStatus =
@@ -112,6 +114,7 @@ export const AdminCreateUserRequestStatus = {
   approved: "approved",
   rejected: "rejected",
   blocked: "blocked",
+  suspended: "suspended",
 } as const;
 
 export interface AdminCreateUserRequest {
@@ -144,6 +147,7 @@ export const AdminEditUserRequestStatus = {
   approved: "approved",
   rejected: "rejected",
   blocked: "blocked",
+  suspended: "suspended",
 } as const;
 
 export interface AdminEditUserRequest {
@@ -436,4 +440,5 @@ export const AdminGetUsersStatus = {
   approved: "approved",
   rejected: "rejected",
   blocked: "blocked",
+  suspended: "suspended",
 } as const;

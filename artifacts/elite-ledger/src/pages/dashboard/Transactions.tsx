@@ -1,12 +1,50 @@
+import { useState } from "react";
 import { useGetUserTransactions, useGetUserWithdrawalRequests } from "@workspace/api-client-react";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowDownToLine } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ArrowDownToLine, X } from "lucide-react";
+
+function WithdrawalBlockedOverlay({ onClose }: { onClose: () => void }) {
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={onClose}>
+      <div
+        className="bg-[#14161c] border border-white/10 rounded-2xl p-8 w-full max-w-md relative"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button onClick={onClose} className="absolute top-4 right-4 text-white/50 hover:text-white transition-colors">
+          <X className="w-5 h-5" />
+        </button>
+
+        <div className="flex flex-col items-center text-center gap-4">
+          <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+            <ArrowDownToLine className="w-8 h-8 text-primary" />
+          </div>
+          <h3 className="text-2xl font-bold text-white">Withdrawal Request</h3>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            Withdrawal requests are currently processed manually by our support team for your security and compliance.
+          </p>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            To request a withdrawal, please contact us at{" "}
+            <a href="mailto:eliteledgercapital@gmail.com" className="text-primary hover:underline font-medium">
+              eliteledgercapital@gmail.com
+            </a>{" "}
+            with your account details and desired amount. Our team will process your request within 24–48 hours.
+          </p>
+          <Button variant="premium" className="w-full mt-2" onClick={onClose}>
+            Understood
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function Transactions() {
   const { data: transactions = [], isLoading } = useGetUserTransactions();
   const { data: withdrawals = [] } = useGetUserWithdrawalRequests();
+  const [showWithdrawalOverlay, setShowWithdrawalOverlay] = useState(false);
 
   if (isLoading) return <div className="text-white p-8">Loading transactions...</div>;
 
@@ -17,6 +55,9 @@ export default function Transactions() {
           <h1 className="text-3xl font-display font-bold text-white">Transaction History</h1>
           <p className="text-muted-foreground">Comprehensive ledger of all account activities.</p>
         </div>
+        <Button variant="premium" onClick={() => setShowWithdrawalOverlay(true)}>
+          <ArrowDownToLine className="w-4 h-4 mr-2" /> Request Withdrawal
+        </Button>
       </div>
 
       <Card className="p-6 border-primary/20 bg-primary/5">
@@ -138,6 +179,7 @@ export default function Transactions() {
         </div>
       </Card>
 
+      {showWithdrawalOverlay && <WithdrawalBlockedOverlay onClose={() => setShowWithdrawalOverlay(false)} />}
     </div>
   );
 }
