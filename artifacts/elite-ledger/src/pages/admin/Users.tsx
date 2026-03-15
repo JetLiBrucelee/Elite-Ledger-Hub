@@ -547,10 +547,10 @@ function UserDetailDialog({ user, onClose }: { user: User; onClose: () => void }
     { label: "Status", value: user.status },
     { label: "Plan", value: user.plan || "None" },
     { label: "Balance", value: `$${(user.balance ?? 0).toLocaleString("en-US", { minimumFractionDigits: 2 })}` },
-    { label: "Trial Started", value: user.trialStartedAt ? new Date(user.trialStartedAt).toLocaleString() : "—" },
-    { label: "Last Seen", value: user.lastSeen ? new Date(user.lastSeen).toLocaleString() : "Never" },
+    { label: "Trial Started", value: user.trialStartedAt ? new Date(user.trialStartedAt).toLocaleString('en-US', { timeZone: 'America/New_York', dateStyle: 'medium', timeStyle: 'short' }) + ' ET' : "—" },
+    { label: "Last Seen", value: user.lastSeen ? new Date(user.lastSeen).toLocaleString('en-US', { timeZone: 'America/New_York', dateStyle: 'medium', timeStyle: 'short' }) + ' ET' : "Never" },
     { label: "Presence", value: user.presenceStatus },
-    { label: "Joined", value: new Date(user.createdAt).toLocaleString() },
+    { label: "Joined", value: new Date(user.createdAt).toLocaleString('en-US', { timeZone: 'America/New_York', dateStyle: 'medium', timeStyle: 'short' }) + ' ET' },
   ];
 
   return (

@@ -270,7 +270,7 @@ export default function Settings() {
               <div className="text-sm text-muted-foreground">Account creation date</div>
             </div>
             <span className="text-white text-sm">
-              {new Date(user.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}
+              {new Date(user.createdAt).toLocaleDateString("en-US", { day: "numeric", month: "long", year: "numeric", timeZone: "America/New_York" })}
             </span>
           </div>
         </div>

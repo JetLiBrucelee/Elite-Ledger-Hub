@@ -295,7 +295,7 @@ export default function UserOverview() {
                     <div className="flex-1 min-w-0">
                       <div className="font-semibold text-white capitalize">{inv.planName} Plan</div>
                       <div className="text-xs text-muted-foreground">
-                        Started {new Date(inv.startDate).toLocaleDateString()} · ends {new Date(inv.endDate).toLocaleDateString()}
+                        Started {new Date(inv.startDate).toLocaleDateString("en-US", { timeZone: "America/New_York" })} · ends {new Date(inv.endDate).toLocaleDateString("en-US", { timeZone: "America/New_York" })}
                       </div>
                     </div>
                     <div className="text-right">
@@ -320,7 +320,7 @@ export default function UserOverview() {
                 <div key={tx.id} className="flex items-center justify-between pb-4 border-b border-white/5 last:border-0 last:pb-0">
                   <div>
                     <div className="font-medium text-sm text-white capitalize">{tx.type}</div>
-                    <div className="text-xs text-muted-foreground">{new Date(tx.createdAt).toLocaleDateString()}</div>
+                    <div className="text-xs text-muted-foreground">{new Date(tx.createdAt).toLocaleDateString("en-US", { timeZone: "America/New_York" })}</div>
                   </div>
                   <div className={`font-bold text-sm ${tx.type === "deposit" || tx.type === "profit" ? "text-emerald-500" : "text-white"}`}>
                     {tx.type === "withdrawal" ? "-" : "+"}{formatCurrency(tx.amount)}

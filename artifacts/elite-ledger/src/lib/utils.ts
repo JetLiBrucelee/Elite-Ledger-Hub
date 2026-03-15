@@ -19,5 +19,9 @@ export function formatDate(dateString: string) {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
-  }).format(new Date(dateString))
+    hour: 'numeric',
+    minute: '2-digit',
+    timeZone: 'America/New_York',
+    timeZoneName: 'short',
+  }).format(new Date(dateString));
 }
