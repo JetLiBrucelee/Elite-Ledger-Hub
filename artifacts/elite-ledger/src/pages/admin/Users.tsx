@@ -144,13 +144,14 @@ function CreateUserDialog({ onClose }: { onClose: () => void }) {
               <label className="block text-sm font-medium text-white mb-1.5">Status</label>
               <select
                 value={formData.status || "approved"}
-                onChange={(e) => setFormData({ ...formData, status: e.target.value as "pending" | "approved" | "rejected" | "blocked" })}
+                onChange={(e) => setFormData({ ...formData, status: e.target.value as "pending" | "approved" | "rejected" | "blocked" | "suspended" })}
                 className="w-full px-4 py-3 bg-background border border-white/10 rounded-lg text-white focus:outline-none focus:border-primary/50 transition-colors"
               >
                 <option value="approved">Approved</option>
                 <option value="pending">Pending</option>
                 <option value="rejected">Rejected</option>
                 <option value="blocked">Blocked</option>
+                <option value="suspended">Suspended</option>
               </select>
             </div>
           </div>
@@ -204,7 +205,7 @@ function EditUserDialog({ user, onClose }: { user: User; onClose: () => void }) 
     phone: user.phone || "",
     country: user.country || "",
     role: user.role as "user" | "admin",
-    status: user.status as "pending" | "approved" | "rejected" | "blocked",
+    status: user.status as "pending" | "approved" | "rejected" | "blocked" | "suspended",
     balance: user.balance ?? 0,
     plan: user.plan || "",
   });
@@ -303,13 +304,14 @@ function EditUserDialog({ user, onClose }: { user: User; onClose: () => void }) 
               <label className="block text-sm font-medium text-white mb-1.5">Status</label>
               <select
                 value={formData.status || "approved"}
-                onChange={(e) => setFormData({ ...formData, status: e.target.value as "pending" | "approved" | "rejected" | "blocked" })}
+                onChange={(e) => setFormData({ ...formData, status: e.target.value as "pending" | "approved" | "rejected" | "blocked" | "suspended" })}
                 className="w-full px-4 py-3 bg-background border border-white/10 rounded-lg text-white focus:outline-none focus:border-primary/50 transition-colors"
               >
                 <option value="approved">Approved</option>
                 <option value="pending">Pending</option>
                 <option value="rejected">Rejected</option>
                 <option value="blocked">Blocked</option>
+                <option value="suspended">Suspended</option>
               </select>
             </div>
           </div>
