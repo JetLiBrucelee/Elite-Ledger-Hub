@@ -1,7 +1,7 @@
 import { Router, type IRouter } from "express";
 import bcryptjs from "bcryptjs";
 import { db, usersTable, sessionsTable, chatMessagesTable, chatSessionsTable, userInvestmentsTable, transactionsTable, jobApplicationsTable, withdrawalRequestsTable } from "@workspace/db";
-import { eq, desc, count, sql } from "drizzle-orm";
+import { eq, desc, count, sql, and, isNull } from "drizzle-orm";
 import { AdminApproveUserParams, AdminRejectUserParams, AdminReplyChatBody, AdminGetSessionMessagesParams } from "@workspace/api-zod";
 import { requireAdmin } from "../lib/auth";
 import { sendWelcomeEmail } from "../lib/email";
@@ -152,6 +152,33 @@ router.post("/admin/users/:id/unblock", requireAdmin, async (req, res): Promise<
   }
 
   res.json(userToDTO(user));
+});
+
+router.post("/admin/send-welcome-emails", requireAdmin, async (req, res): Promise<void> => {
+  const users = await db
+    .select()
+    .from(usersTable)
+    .where(and(eq(usersTable.status, "approved"), isNull(usersTable.welcomeEmailSentAt)));
+
+  const eligible = users.filter(u => u.role !== "admin");
+  let sent = 0;
+  let failed = 0;
+  const sentTo: string[] = [];
+
+  for (const user of eligible) {
+    try {
+      await sendWelcomeEmail(user);
+      await db.update(usersTable).set({ welcomeEmailSentAt: new Date() }).where(eq(usersTable.id, user.id));
+      sent++;
+      sentTo.push(user.email);
+      console.log("Welcome email sent (manual trigger):", user.email);
+    } catch (err) {
+      console.error("Failed welcome email for", user.email, err);
+      failed++;
+    }
+  }
+
+  res.json({ sent, failed, users: sentTo });
 });
 
 router.post("/admin/users/:id/suspend", requireAdmin, async (req, res): Promise<void> => {

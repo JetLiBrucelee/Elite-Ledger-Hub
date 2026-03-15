@@ -19,7 +19,7 @@ import { formatDate } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Check, X, Ban, Unlock, Pencil, Plus, DollarSign, Pause, Trash2, Eye } from "lucide-react";
+import { Check, X, Ban, Unlock, Pencil, Plus, DollarSign, Pause, Trash2, Eye, Mail, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 function CreateUserDialog({ onClose }: { onClose: () => void }) {
@@ -592,6 +592,7 @@ export default function AdminUsers() {
   const [adjustingUser, setAdjustingUser] = useState<User | null>(null);
   const [deletingUser, setDeletingUser] = useState<User | null>(null);
   const [viewingUser, setViewingUser] = useState<User | null>(null);
+  const [sendingWelcomeEmails, setSendingWelcomeEmails] = useState(false);
   const { data: allUsers = [], isLoading } = useAdminGetUsers({}, { query: { queryKey: getAdminGetUsersQueryKey(), refetchInterval: 30_000 } });
   const approveMutation = useAdminApproveUser();
   const rejectMutation = useAdminRejectUser();
@@ -604,6 +605,24 @@ export default function AdminUsers() {
   const users = allUsers.filter((u) => u.role !== "admin");
 
   if (isLoading) return <div className="text-white p-8">Loading users...</div>;
+
+  const handleSendWelcomeEmails = async () => {
+    setSendingWelcomeEmails(true);
+    try {
+      const res = await fetch("/api/admin/send-welcome-emails", { method: "POST", credentials: "include" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed");
+      if (data.sent === 0) {
+        toast({ title: "All caught up", description: "All approved users have already received their welcome email." });
+      } else {
+        toast({ title: `Welcome emails sent to ${data.sent} user${data.sent !== 1 ? "s" : ""}`, description: data.users.join(", ") });
+      }
+    } catch {
+      toast({ title: "Failed to send welcome emails", variant: "destructive" });
+    } finally {
+      setSendingWelcomeEmails(false);
+    }
+  };
 
   const handleAction = async (id: number, action: "approve" | "reject" | "block" | "unblock" | "suspend") => {
     try {
@@ -659,12 +678,25 @@ export default function AdminUsers() {
           <h1 className="text-3xl font-display font-bold text-white">User Management</h1>
           <p className="text-muted-foreground">Review and manage platform access.</p>
         </div>
-        <Button
-          onClick={() => setShowCreateDialog(true)}
-          className="bg-primary hover:bg-primary/90 text-primary-foreground"
-        >
-          <Plus className="w-4 h-4 mr-2" /> Create User
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={handleSendWelcomeEmails}
+            disabled={sendingWelcomeEmails}
+            variant="outline"
+            className="border-white/20 text-white/80 hover:text-white hover:border-white/40"
+          >
+            {sendingWelcomeEmails
+              ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Sending...</>
+              : <><Mail className="w-4 h-4 mr-2" /> Send Welcome Emails</>
+            }
+          </Button>
+          <Button
+            onClick={() => setShowCreateDialog(true)}
+            className="bg-primary hover:bg-primary/90 text-primary-foreground"
+          >
+            <Plus className="w-4 h-4 mr-2" /> Create User
+          </Button>
+        </div>
       </div>
 
       <Card className="overflow-hidden">
