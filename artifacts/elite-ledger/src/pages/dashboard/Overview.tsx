@@ -170,7 +170,7 @@ export default function UserOverview() {
         Welcome back, {user?.firstName || "Investor"}!
       </h2>
 
-      {showWelcome && (
+      {user?.role !== "admin" && showWelcome && (
         <Card className="p-4 border-emerald-500/30 bg-emerald-500/10 relative">
           <button onClick={() => setShowWelcome(false)} className="absolute top-3 right-3 text-white/40 hover:text-white">
             <X className="w-4 h-4" />
@@ -189,7 +189,7 @@ export default function UserOverview() {
         </Card>
       )}
 
-      {showPaymentNote && (
+      {user?.role !== "admin" && showPaymentNote && (
         <Card className="p-4 border-primary/30 bg-primary/5 relative">
           <button onClick={() => setShowPaymentNote(false)} className="absolute top-3 right-3 text-white/40 hover:text-white">
             <X className="w-4 h-4" />

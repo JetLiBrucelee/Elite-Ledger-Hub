@@ -7,8 +7,8 @@ const FIRST_NAMES = [
   "Harper", "Daniel", "Evelyn", "Henry", "Abigail", "Sebastian", "Emily",
   "Jack", "Ella", "Owen", "Scarlett", "Gabriel", "Grace", "Samuel", "Chloe",
   "Benjamin", "Victoria", "Elijah", "Riley", "Julian", "Aria", "Leo", "Lily",
-  "David", "Layla", "Carlos", "Zoe", "Hassan", "Nora", "Wei", "Sakura",
-  "Raj", "Fatima", "Andre", "Yuki"
+  "David", "Layla", "Carlos", "Zoe", "Wei", "Sakura", "Raj", "Yuki",
+  "Connor", "Elena", "Mateo", "Ingrid", "Hiroshi", "Priya", "Andres", "Mei"
 ];
 
 const CRYPTO_CONFIG: Record<string, { color: string }> = {
@@ -29,10 +29,13 @@ const CRYPTOS = Object.keys(CRYPTO_CONFIG);
 const ACTIONS = ["Earned", "Invested", "Withdrew"];
 
 const COUNTRIES = [
-  "United States", "United Kingdom", "Germany", "Canada", "Australia",
-  "France", "Japan", "Singapore", "UAE", "Switzerland", "Netherlands",
-  "Sweden", "Norway", "South Korea", "Hong Kong", "Brazil", "Mexico",
-  "Spain", "Italy", "India"
+  "United States", "Canada", "Mexico", "Brazil", "Argentina", "Chile", "Colombia", "Peru",
+  "United Kingdom", "Germany", "France", "Netherlands", "Switzerland", "Sweden", "Norway",
+  "Denmark", "Ireland", "Portugal", "Spain", "Italy", "Austria", "Belgium", "Poland",
+  "Greece", "Czech Republic", "Finland",
+  "Japan", "South Korea", "Singapore", "Hong Kong", "Taiwan", "Australia", "New Zealand",
+  "Thailand", "Malaysia", "Philippines", "Vietnam", "Indonesia",
+  "UAE", "Qatar", "Saudi Arabia", "Kuwait", "Bahrain",
 ];
 
 function randomFrom<T>(arr: T[]): T {
@@ -41,19 +44,41 @@ function randomFrom<T>(arr: T[]): T {
 
 function generateAmount(): number {
   const ranges = [
-    { min: 200000, max: 500000, weight: 40 },
-    { min: 500000, max: 1000000, weight: 35 },
-    { min: 1000000, max: 2000000, weight: 25 },
+    { min: 1_000_000,  max: 3_000_000,  weight: 30 },
+    { min: 3_000_000,  max: 8_000_000,  weight: 35 },
+    { min: 8_000_000,  max: 15_000_000, weight: 25 },
+    { min: 15_000_000, max: 25_000_000, weight: 10 },
   ];
   const totalWeight = ranges.reduce((s, r) => s + r.weight, 0);
   let rand = Math.random() * totalWeight;
   for (const range of ranges) {
     rand -= range.weight;
     if (rand <= 0) {
-      return Math.round((range.min + Math.random() * (range.max - range.min)) / 1000) * 1000;
+      return Math.round((range.min + Math.random() * (range.max - range.min)) / 100_000) * 100_000;
     }
   }
-  return 250000;
+  return 2_000_000;
+}
+
+function generateTimeAgo(): string {
+  const roll = Math.random();
+  if (roll < 0.15) {
+    const hours = Math.floor(Math.random() * 23) + 1;
+    return `${hours} ${hours === 1 ? "hour" : "hours"} ago`;
+  } else if (roll < 0.60) {
+    const days = Math.floor(Math.random() * 29) + 1;
+    return `${days} ${days === 1 ? "day" : "days"} ago`;
+  } else {
+    const months = Math.floor(Math.random() * 11) + 1;
+    return `${months} ${months === 1 ? "month" : "months"} ago`;
+  }
+}
+
+function formatAmount(amount: number): string {
+  if (amount >= 1_000_000) {
+    return `$${(amount / 1_000_000).toFixed(1)}M`;
+  }
+  return `$${(amount / 1000).toFixed(0)}K`;
 }
 
 function generateEntry() {
@@ -62,8 +87,8 @@ function generateEntry() {
   const crypto = randomFrom(CRYPTOS);
   const amount = generateAmount();
   const country = randomFrom(COUNTRIES);
-  const minutesAgo = Math.floor(Math.random() * 45) + 1;
-  return { firstName, action, crypto, amount, country, minutesAgo };
+  const timeAgo = generateTimeAgo();
+  return { firstName, action, crypto, amount, country, timeAgo };
 }
 
 const pregenerated = Array.from({ length: 25 }, () => generateEntry());
@@ -124,15 +149,13 @@ export function ActivityPopup() {
                   {current.firstName}{" "}
                   <span className="text-emerald-400 font-semibold">{current.action}</span>{" "}
                   <span className="text-primary font-bold">
-                    ${current.amount >= 1000000
-                      ? `${(current.amount / 1000000).toFixed(1)}M`
-                      : `${(current.amount / 1000).toFixed(0)}K`}
+                    {formatAmount(current.amount)}
                   </span>{" "}
                   <span className="text-white/60">in</span>{" "}
                   <span className={`${cryptoColor} font-semibold`}>{current.crypto}</span>
                 </p>
                 <p className="text-xs text-white/40 mt-0.5">
-                  {current.country} · {current.minutesAgo}m ago
+                  {current.country} · {current.timeAgo}
                 </p>
               </div>
             </div>
