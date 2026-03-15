@@ -146,6 +146,12 @@ router.post("/auth/login", async (req, res): Promise<void> => {
     return;
   }
 
+  if (user.status === "approved" && !user.trialStartedAt) {
+    const now = new Date();
+    await db.update(usersTable).set({ trialStartedAt: now }).where(eq(usersTable.id, user.id));
+    user.trialStartedAt = now;
+  }
+
   if (user.trialStartedAt && user.status === "approved") {
     const trialEnd = new Date(user.trialStartedAt.getTime() + 3 * 24 * 60 * 60 * 1000);
     if (new Date() > trialEnd) {
