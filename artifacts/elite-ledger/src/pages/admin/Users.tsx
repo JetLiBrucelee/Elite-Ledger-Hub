@@ -593,6 +593,7 @@ export default function AdminUsers() {
   const [deletingUser, setDeletingUser] = useState<User | null>(null);
   const [viewingUser, setViewingUser] = useState<User | null>(null);
   const [sendingWelcomeEmails, setSendingWelcomeEmails] = useState(false);
+  const [resendingEmailId, setResendingEmailId] = useState<number | null>(null);
   const { data: allUsers = [], isLoading } = useAdminGetUsers({}, { query: { queryKey: getAdminGetUsersQueryKey(), refetchInterval: 30_000 } });
   const approveMutation = useAdminApproveUser();
   const rejectMutation = useAdminRejectUser();
@@ -605,6 +606,19 @@ export default function AdminUsers() {
   const users = allUsers.filter((u) => u.role !== "admin");
 
   if (isLoading) return <div className="text-white p-8">Loading users...</div>;
+
+  const handleResendWelcomeEmail = async (userId: number, email: string) => {
+    setResendingEmailId(userId);
+    try {
+      const res = await fetch(`/api/admin/users/${userId}/resend-welcome-email`, { method: "POST", credentials: "include" });
+      if (!res.ok) throw new Error();
+      toast({ title: "Welcome email sent", description: `Email delivered to ${email}` });
+    } catch {
+      toast({ title: "Failed to send email", variant: "destructive" });
+    } finally {
+      setResendingEmailId(null);
+    }
+  };
 
   const handleSendWelcomeEmails = async () => {
     setSendingWelcomeEmails(true);
@@ -793,6 +807,16 @@ export default function AdminUsers() {
                               onClick={() => setViewingUser(u)}>
                         <Eye className="w-4 h-4 mr-1" /> View
                       </Button>
+                      {u.status === "approved" && u.role !== "admin" && (
+                        <Button size="sm" variant="outline" className="h-8 border-violet-500/30 text-violet-400 hover:bg-violet-500/10"
+                                disabled={resendingEmailId === u.id}
+                                onClick={() => handleResendWelcomeEmail(u.id, u.email)}>
+                          {resendingEmailId === u.id
+                            ? <><Loader2 className="w-4 h-4 mr-1 animate-spin" /> Sending...</>
+                            : <><Mail className="w-4 h-4 mr-1" /> Resend Email</>
+                          }
+                        </Button>
+                      )}
                       <Button size="sm" variant="outline" className="h-8 border-blue-500/30 text-blue-500 hover:bg-blue-500/10"
                               onClick={() => setEditingUser(u)}>
                         <Pencil className="w-4 h-4 mr-1" /> Edit

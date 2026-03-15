@@ -154,6 +154,30 @@ router.post("/admin/users/:id/unblock", requireAdmin, async (req, res): Promise<
   res.json(userToDTO(user));
 });
 
+router.post("/admin/users/:id/resend-welcome-email", requireAdmin, async (req, res): Promise<void> => {
+  const id = Number(req.params.id);
+  if (!id || isNaN(id)) {
+    res.status(400).json({ error: "Invalid user ID" });
+    return;
+  }
+
+  const [user] = await db.select().from(usersTable).where(eq(usersTable.id, id));
+  if (!user) {
+    res.status(404).json({ error: "User not found" });
+    return;
+  }
+
+  try {
+    await sendWelcomeEmail(user);
+    await db.update(usersTable).set({ welcomeEmailSentAt: new Date() }).where(eq(usersTable.id, id));
+    console.log("Welcome email resent (manual) to:", user.email);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error("Resend welcome email failed for", user.email, err);
+    res.status(500).json({ error: "Failed to send email" });
+  }
+});
+
 router.post("/admin/send-welcome-emails", requireAdmin, async (req, res): Promise<void> => {
   const users = await db
     .select()
