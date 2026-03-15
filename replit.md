@@ -154,7 +154,7 @@ artifacts-monorepo/
 - Floating live chat widget (bottom-right)
 - ActivityPopup: slide-in notifications (bottom-left) showing fake crypto transactions on Home/Register pages
 - Trial system: 3-day trial starts on admin approval; login/heartbeat auto-suspend expired trials
-- Withdrawals processed manually via support email (eliteledgercapital@gmail.com)
+- Withdrawals processed manually via support email (support@eliteledgercapital.com)
 - Plans page: logged-in users see "Go to Dashboard" instead of "Select Plan"
 
 ## TypeScript & Composite Projects

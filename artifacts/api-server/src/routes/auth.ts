@@ -142,7 +142,7 @@ router.post("/auth/login", async (req, res): Promise<void> => {
   }
 
   if (user.status === "suspended") {
-    res.status(403).json({ error: "Your free trial has expired. Please contact support at eliteledgercapital@gmail.com to continue.", code: "TRIAL_EXPIRED" });
+    res.status(403).json({ error: "Your free trial has expired. Please contact support at support@eliteledgercapital.com to continue.", code: "TRIAL_EXPIRED" });
     return;
   }
 
@@ -156,7 +156,7 @@ router.post("/auth/login", async (req, res): Promise<void> => {
     const trialEnd = new Date(user.trialStartedAt.getTime() + 3 * 24 * 60 * 60 * 1000);
     if (new Date() > trialEnd) {
       await db.update(usersTable).set({ status: "suspended" }).where(eq(usersTable.id, user.id));
-      res.status(403).json({ error: "Your free trial has expired. Please contact support at eliteledgercapital@gmail.com to continue.", code: "TRIAL_EXPIRED" });
+      res.status(403).json({ error: "Your free trial has expired. Please contact support at support@eliteledgercapital.com to continue.", code: "TRIAL_EXPIRED" });
       return;
     }
   }

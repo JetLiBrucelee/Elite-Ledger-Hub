@@ -68,7 +68,7 @@ function TrialCountdown({ trialStartedAt }: { trialStartedAt: string }) {
             <p className="text-sm font-medium text-red-400">Your free trial has expired.</p>
             <p className="text-xs text-muted-foreground mt-0.5">
               Please make payment for your selected plan to continue using Elite Ledger Capital. Contact support at{" "}
-              <a href="mailto:eliteledgercapital@gmail.com" className="text-primary hover:underline">eliteledgercapital@gmail.com</a>.
+              <a href="mailto:support@eliteledgercapital.com" className="text-primary hover:underline">support@eliteledgercapital.com</a>.
             </p>
           </div>
         </div>
@@ -91,7 +91,7 @@ function TrialCountdown({ trialStartedAt }: { trialStartedAt: string }) {
           <p className="text-xs text-muted-foreground mt-0.5">
             {days > 0 ? `${days}d ` : ""}{hours}h {minutes}m {seconds}s remaining.
             Contact{" "}
-            <a href="mailto:eliteledgercapital@gmail.com" className="text-primary hover:underline">eliteledgercapital@gmail.com</a>
+            <a href="mailto:support@eliteledgercapital.com" className="text-primary hover:underline">support@eliteledgercapital.com</a>
             {" "}to upgrade.
           </p>
         </div>
@@ -137,8 +137,8 @@ export default function UserOverview() {
             </p>
             <p className="text-sm text-muted-foreground">
               Contact support at{" "}
-              <a href="mailto:eliteledgercapital@gmail.com" className="text-primary hover:underline font-medium">
-                eliteledgercapital@gmail.com
+              <a href="mailto:support@eliteledgercapital.com" className="text-primary hover:underline font-medium">
+                support@eliteledgercapital.com
               </a>{" "}
               to make your payment and reactivate your account.
             </p>
@@ -206,8 +206,8 @@ export default function UserOverview() {
               {paymentNoteExpanded && (
                 <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">
                   To fund your account or make payments, please contact our support team at{" "}
-                  <a href="mailto:eliteledgercapital@gmail.com" className="text-primary hover:underline font-medium">
-                    eliteledgercapital@gmail.com
+                  <a href="mailto:support@eliteledgercapital.com" className="text-primary hover:underline font-medium">
+                    support@eliteledgercapital.com
                   </a>.
                   We will provide you with the necessary payment instructions.
                 </p>

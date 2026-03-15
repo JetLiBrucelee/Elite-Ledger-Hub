@@ -27,8 +27,8 @@ function WithdrawalBlockedOverlay({ onClose }: { onClose: () => void }) {
           </p>
           <p className="text-sm text-muted-foreground leading-relaxed">
             For further assistance or to discuss your withdrawal options, please contact our support team at{" "}
-            <a href="mailto:eliteledgercapital@gmail.com" className="text-primary hover:underline font-medium">
-              eliteledgercapital@gmail.com
+            <a href="mailto:support@eliteledgercapital.com" className="text-primary hover:underline font-medium">
+              support@eliteledgercapital.com
             </a>{" "}
             with your account details.
           </p>
@@ -69,8 +69,8 @@ export default function Transactions() {
             <h3 className="text-lg font-bold text-white mb-1">Withdrawals</h3>
             <p className="text-sm text-muted-foreground leading-relaxed">
               Withdrawal requests are currently processed manually by our support team. To request a withdrawal, please contact us at{" "}
-              <a href="mailto:eliteledgercapital@gmail.com" className="text-primary hover:underline font-medium">
-                eliteledgercapital@gmail.com
+              <a href="mailto:support@eliteledgercapital.com" className="text-primary hover:underline font-medium">
+                support@eliteledgercapital.com
               </a>{" "}
               with your account details and desired amount.
             </p>
