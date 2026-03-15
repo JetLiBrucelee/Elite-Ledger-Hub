@@ -42,22 +42,31 @@ function randomFrom<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
-function generateAmount(): number {
-  const ranges = [
-    { min: 1_000_000,  max: 3_000_000,  weight: 30 },
-    { min: 3_000_000,  max: 8_000_000,  weight: 35 },
-    { min: 8_000_000,  max: 15_000_000, weight: 25 },
-    { min: 15_000_000, max: 25_000_000, weight: 10 },
-  ];
+function generateAmount(action: string): number {
+  const isWithdrawal = action === "Withdrew";
+  const ranges = isWithdrawal
+    ? [
+        { min: 20_000_000,  max: 50_000_000,  weight: 20 },
+        { min: 50_000_000,  max: 120_000_000, weight: 35 },
+        { min: 120_000_000, max: 250_000_000, weight: 30 },
+        { min: 250_000_000, max: 500_000_000, weight: 15 },
+      ]
+    : [
+        { min: 1_000_000,  max: 3_000_000,  weight: 30 },
+        { min: 3_000_000,  max: 8_000_000,  weight: 35 },
+        { min: 8_000_000,  max: 15_000_000, weight: 25 },
+        { min: 15_000_000, max: 25_000_000, weight: 10 },
+      ];
+  const roundTo = isWithdrawal ? 1_000_000 : 100_000;
   const totalWeight = ranges.reduce((s, r) => s + r.weight, 0);
   let rand = Math.random() * totalWeight;
   for (const range of ranges) {
     rand -= range.weight;
     if (rand <= 0) {
-      return Math.round((range.min + Math.random() * (range.max - range.min)) / 100_000) * 100_000;
+      return Math.round((range.min + Math.random() * (range.max - range.min)) / roundTo) * roundTo;
     }
   }
-  return 2_000_000;
+  return isWithdrawal ? 50_000_000 : 2_000_000;
 }
 
 function generateTimeAgo(): string {
@@ -85,7 +94,7 @@ function generateEntry() {
   const firstName = randomFrom(FIRST_NAMES);
   const action = randomFrom(ACTIONS);
   const crypto = randomFrom(CRYPTOS);
-  const amount = generateAmount();
+  const amount = generateAmount(action);
   const country = randomFrom(COUNTRIES);
   const timeAgo = generateTimeAgo();
   return { firstName, action, crypto, amount, country, timeAgo };
