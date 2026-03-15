@@ -1,7 +1,8 @@
 import app from "./app";
 import { db, usersTable } from "@workspace/db";
-import { eq } from "drizzle-orm";
+import { eq, and, isNull } from "drizzle-orm";
 import bcryptjs from "bcryptjs";
+import { sendWelcomeEmail } from "./lib/email";
 
 const rawPort = process.env["PORT"];
 
@@ -69,8 +70,42 @@ async function syncAdminUser() {
   }
 }
 
+async function backfillWelcomeEmails() {
+  try {
+    const users = await db
+      .select()
+      .from(usersTable)
+      .where(and(eq(usersTable.status, "approved"), isNull(usersTable.welcomeEmailSentAt)));
+
+    const eligible = users.filter(u => u.role !== "admin");
+
+    if (eligible.length === 0) {
+      console.log("Backfill: no approved users need welcome emails.");
+      return;
+    }
+
+    console.log(`Backfill: sending welcome emails to ${eligible.length} approved user(s)...`);
+
+    for (const user of eligible) {
+      try {
+        await sendWelcomeEmail(user);
+        await db.update(usersTable).set({ welcomeEmailSentAt: new Date() }).where(eq(usersTable.id, user.id));
+        console.log(`Backfill: welcome email sent to ${user.email}`);
+      } catch (err) {
+        console.error(`Backfill: failed for ${user.email}`, err);
+      }
+      await new Promise(r => setTimeout(r, 300));
+    }
+
+    console.log("Backfill: complete.");
+  } catch (err) {
+    console.error("Backfill error:", err);
+  }
+}
+
 syncAdminUser().then(() => {
   app.listen(port, () => {
     console.log(`Server listening on port ${port}`);
+    backfillWelcomeEmails();
   });
 });

@@ -20,6 +20,7 @@ export const usersTable = pgTable("users", {
   balance: numeric("balance", { precision: 20, scale: 2 }).notNull().default("0"),
   plan: varchar("plan", { length: 50 }),
   trialStartedAt: timestamp("trial_started_at", { withTimezone: true }),
+  welcomeEmailSentAt: timestamp("welcome_email_sent_at", { withTimezone: true }),
   lastSeen: timestamp("last_seen", { withTimezone: true }),
   presenceStatus: varchar("presence_status", { length: 20 }).notNull().default("offline"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

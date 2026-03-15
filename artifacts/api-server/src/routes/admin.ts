@@ -4,6 +4,7 @@ import { db, usersTable, sessionsTable, chatMessagesTable, chatSessionsTable, us
 import { eq, desc, count, sql } from "drizzle-orm";
 import { AdminApproveUserParams, AdminRejectUserParams, AdminReplyChatBody, AdminGetSessionMessagesParams } from "@workspace/api-zod";
 import { requireAdmin } from "../lib/auth";
+import { sendWelcomeEmail } from "../lib/email";
 import { broadcastToSession, addSSEClient, removeSSEClient, createSSEClientId } from "../lib/sse";
 import type { AuthenticatedRequest } from "../types";
 
@@ -80,6 +81,10 @@ router.post("/admin/users/:id/approve", requireAdmin, async (req, res): Promise<
     res.status(404).json({ error: "User not found" });
     return;
   }
+
+  sendWelcomeEmail(user)
+    .then(() => db.update(usersTable).set({ welcomeEmailSentAt: new Date() }).where(eq(usersTable.id, user.id)))
+    .catch(err => console.error("Welcome email error for user", user.id, err));
 
   res.json(userToDTO(user));
 });
