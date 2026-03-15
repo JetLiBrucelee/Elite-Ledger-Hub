@@ -113,22 +113,6 @@ export default function UserOverview() {
   const [showPaymentNote, setShowPaymentNote] = useState(true);
   const [paymentNoteExpanded, setPaymentNoteExpanded] = useState(false);
 
-  if (isLoading || !dashboard) {
-    return <div className="p-8 text-white">Loading dashboard data...</div>;
-  }
-
-  const displayBalance = user?.balance ?? dashboard.accountBalance;
-
-  const stats = [
-    { label: "Account Balance", value: displayBalance, icon: Wallet, color: "text-blue-500", bg: "bg-blue-500/10" },
-    { label: "Total Invested", value: dashboard.totalInvested, icon: PieChart, color: "text-primary", bg: "bg-primary/10" },
-    { label: "Total Returns", value: dashboard.totalReturns, icon: ArrowUpRight, color: "text-emerald-500", bg: "bg-emerald-500/10" },
-    { label: "Active Plans", value: dashboard.activeInvestments, icon: Activity, color: "text-purple-500", bg: "bg-purple-500/10", isCount: true },
-  ];
-
-  const planTier = user?.plan?.toLowerCase() ?? "";
-  const hasPlan = !!user?.plan;
-
   const trialStartedAt = user?.trialStartedAt ?? null;
   const isTrialExpired = trialStartedAt
     ? new Date(trialStartedAt).getTime() + 3 * 24 * 60 * 60 * 1000 < Date.now()
@@ -163,6 +147,22 @@ export default function UserOverview() {
       </div>
     );
   }
+
+  if (isLoading || !dashboard) {
+    return <div className="p-8 text-white">Loading dashboard data...</div>;
+  }
+
+  const displayBalance = user?.balance ?? dashboard.accountBalance;
+
+  const stats = [
+    { label: "Account Balance", value: displayBalance, icon: Wallet, color: "text-blue-500", bg: "bg-blue-500/10" },
+    { label: "Total Invested", value: dashboard.totalInvested, icon: PieChart, color: "text-primary", bg: "bg-primary/10" },
+    { label: "Total Returns", value: dashboard.totalReturns, icon: ArrowUpRight, color: "text-emerald-500", bg: "bg-emerald-500/10" },
+    { label: "Active Plans", value: dashboard.activeInvestments, icon: Activity, color: "text-purple-500", bg: "bg-purple-500/10", isCount: true },
+  ];
+
+  const planTier = user?.plan?.toLowerCase() ?? "";
+  const hasPlan = !!user?.plan;
 
   return (
     <div className="space-y-6">
