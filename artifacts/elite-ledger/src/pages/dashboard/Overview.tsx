@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useGetUserDashboard, useGetUserInvestments } from "@workspace/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
 import { formatCurrency } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
-import { ArrowUpRight, Wallet, PieChart, Activity, TrendingUp, Crown, Info, Clock, Mail, X } from "lucide-react";
+import { ArrowUpRight, Wallet, PieChart, Activity, TrendingUp, Crown, Info, Clock, Mail, X, AlertTriangle } from "lucide-react";
 
 const TIER_COLORS: Record<string, string> = {
   bronze: "bg-orange-700",
@@ -46,9 +46,18 @@ const TIER_GRADIENT: Record<string, string> = {
 };
 
 function TrialCountdown({ trialStartedAt }: { trialStartedAt: string }) {
-  const trialEnd = new Date(new Date(trialStartedAt).getTime() + 3 * 24 * 60 * 60 * 1000);
-  const now = new Date();
-  const remaining = trialEnd.getTime() - now.getTime();
+  const [remaining, setRemaining] = useState(() => {
+    const trialEnd = new Date(new Date(trialStartedAt).getTime() + 3 * 24 * 60 * 60 * 1000);
+    return trialEnd.getTime() - Date.now();
+  });
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const trialEnd = new Date(new Date(trialStartedAt).getTime() + 3 * 24 * 60 * 60 * 1000);
+      setRemaining(trialEnd.getTime() - Date.now());
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [trialStartedAt]);
 
   if (remaining <= 0) {
     return (
@@ -58,9 +67,8 @@ function TrialCountdown({ trialStartedAt }: { trialStartedAt: string }) {
           <div>
             <p className="text-sm font-medium text-red-400">Your free trial has expired.</p>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Contact support at{" "}
-              <a href="mailto:eliteledgercapital@gmail.com" className="text-primary hover:underline">eliteledgercapital@gmail.com</a>
-              {" "}to continue.
+              Please make payment for your selected plan to continue using Elite Ledger Capital. Contact support at{" "}
+              <a href="mailto:eliteledgercapital@gmail.com" className="text-primary hover:underline">eliteledgercapital@gmail.com</a>.
             </p>
           </div>
         </div>
@@ -68,10 +76,11 @@ function TrialCountdown({ trialStartedAt }: { trialStartedAt: string }) {
     );
   }
 
-  const hours = Math.floor(remaining / (1000 * 60 * 60));
-  const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
-  const days = Math.floor(hours / 24);
-  const remHours = hours % 24;
+  const totalSeconds = Math.floor(remaining / 1000);
+  const days = Math.floor(totalSeconds / 86400);
+  const hours = Math.floor((totalSeconds % 86400) / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
 
   return (
     <Card className="p-4 border-amber-500/30 bg-amber-500/10">
@@ -80,7 +89,7 @@ function TrialCountdown({ trialStartedAt }: { trialStartedAt: string }) {
         <div className="flex-1">
           <p className="text-sm font-medium text-amber-400">Free Trial Active</p>
           <p className="text-xs text-muted-foreground mt-0.5">
-            {days > 0 ? `${days}d ` : ""}{remHours}h {minutes}m remaining.
+            {days > 0 ? `${days}d ` : ""}{hours}h {minutes}m {seconds}s remaining.
             Contact{" "}
             <a href="mailto:eliteledgercapital@gmail.com" className="text-primary hover:underline">eliteledgercapital@gmail.com</a>
             {" "}to upgrade.
@@ -88,7 +97,7 @@ function TrialCountdown({ trialStartedAt }: { trialStartedAt: string }) {
         </div>
         <div className="text-right shrink-0">
           <span className="text-2xl font-bold text-amber-400 font-mono">
-            {days > 0 ? `${days}d` : `${remHours}h`}
+            {days > 0 ? `${days}d ${hours}h` : `${hours}h ${minutes}m`}
           </span>
         </div>
       </div>
@@ -102,6 +111,7 @@ export default function UserOverview() {
   const { data: investments = [] } = useGetUserInvestments();
   const [showWelcome, setShowWelcome] = useState(true);
   const [showPaymentNote, setShowPaymentNote] = useState(true);
+  const [paymentNoteExpanded, setPaymentNoteExpanded] = useState(false);
 
   if (isLoading || !dashboard) {
     return <div className="p-8 text-white">Loading dashboard data...</div>;
@@ -120,6 +130,39 @@ export default function UserOverview() {
   const hasPlan = !!user?.plan;
 
   const trialStartedAt = user?.trialStartedAt ?? null;
+  const isTrialExpired = trialStartedAt
+    ? new Date(trialStartedAt).getTime() + 3 * 24 * 60 * 60 * 1000 < Date.now()
+    : false;
+  const isSuspended = user?.status === "suspended";
+
+  if (isSuspended || isTrialExpired) {
+    return (
+      <div className="space-y-6">
+        <h2 className="text-2xl font-display font-bold text-white">
+          Welcome back, {user?.firstName || "Investor"}!
+        </h2>
+        <Card className="p-8 border-red-500/30 bg-red-500/5">
+          <div className="flex flex-col items-center text-center gap-4">
+            <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center">
+              <AlertTriangle className="w-8 h-8 text-red-400" />
+            </div>
+            <h3 className="text-xl font-bold text-white">Account Suspended</h3>
+            <p className="text-sm text-muted-foreground leading-relaxed max-w-md">
+              Make payment for your selected <span className="text-primary font-semibold capitalize">{user?.plan || ""} Plan</span> to
+              continue using Elite Ledger Capital. Your trial period has ended.
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Contact support at{" "}
+              <a href="mailto:eliteledgercapital@gmail.com" className="text-primary hover:underline font-medium">
+                eliteledgercapital@gmail.com
+              </a>{" "}
+              to make your payment and reactivate your account.
+            </p>
+          </div>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -147,21 +190,28 @@ export default function UserOverview() {
       )}
 
       {showPaymentNote && (
-        <Card className="p-4 border-blue-500/30 bg-blue-500/10 relative">
+        <Card className="p-4 border-primary/30 bg-primary/5 relative">
           <button onClick={() => setShowPaymentNote(false)} className="absolute top-3 right-3 text-white/40 hover:text-white">
             <X className="w-4 h-4" />
           </button>
           <div className="flex items-start gap-3 pr-6">
-            <Mail className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" />
+            <AlertTriangle className="w-5 h-5 text-primary shrink-0 mt-0.5" />
             <div>
-              <p className="text-sm font-medium text-blue-400">Payment & Funding</p>
-              <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                To fund your account or make payments, please contact our support team at{" "}
-                <a href="mailto:eliteledgercapital@gmail.com" className="text-primary hover:underline font-medium">
-                  eliteledgercapital@gmail.com
-                </a>.
-                We will provide you with the necessary payment instructions.
-              </p>
+              <button
+                onClick={() => setPaymentNoteExpanded(!paymentNoteExpanded)}
+                className="text-sm font-bold text-primary hover:underline cursor-pointer"
+              >
+                Note: {paymentNoteExpanded ? "▾" : "▸"} Payment & Funding Information
+              </button>
+              {paymentNoteExpanded && (
+                <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">
+                  To fund your account or make payments, please contact our support team at{" "}
+                  <a href="mailto:eliteledgercapital@gmail.com" className="text-primary hover:underline font-medium">
+                    eliteledgercapital@gmail.com
+                  </a>.
+                  We will provide you with the necessary payment instructions.
+                </p>
+              )}
             </div>
           </div>
         </Card>

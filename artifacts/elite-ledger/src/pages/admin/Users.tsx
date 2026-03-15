@@ -532,11 +532,15 @@ function DeleteUserDialog({ user, onClose }: { user: User; onClose: () => void }
 
 function UserDetailDialog({ user, onClose }: { user: User; onClose: () => void }) {
   const fields = [
-    { label: "Full Name", value: `${user.firstName} ${user.lastName}` },
+    { label: "First Name", value: user.firstName },
+    { label: "Last Name", value: user.lastName },
     { label: "Email", value: user.email },
     { label: "Phone", value: user.phone || "—" },
     { label: "Country", value: user.country || "—" },
-    { label: "Address", value: [user.address, user.city, user.stateProvince, user.zipCode].filter(Boolean).join(", ") || "—" },
+    { label: "Address", value: user.address || "—" },
+    { label: "City", value: user.city || "—" },
+    { label: "State / Province", value: user.stateProvince || "—" },
+    { label: "ZIP / Postal Code", value: user.zipCode || "—" },
     { label: "Role", value: user.role },
     { label: "Status", value: user.status },
     { label: "Plan", value: user.plan || "None" },
@@ -679,7 +683,7 @@ export default function AdminUsers() {
               {users.map((u) => {
                 const presence = getPresenceInfo(u);
                 return (
-                <tr key={u.id} className="hover:bg-white/[0.02] transition-colors">
+                <tr key={u.id} className="hover:bg-white/[0.02] transition-colors cursor-pointer" onClick={() => setViewingUser(u)}>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
                       <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${presence.dot}`} title={presence.label} />
@@ -708,7 +712,7 @@ export default function AdminUsers() {
                       {u.status}
                     </Badge>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
                     <div className="flex items-center gap-2 flex-wrap">
                       {u.status === "pending" && u.role !== "admin" && (
                         <>

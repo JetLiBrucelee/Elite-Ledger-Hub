@@ -23,14 +23,14 @@ function WithdrawalBlockedOverlay({ onClose }: { onClose: () => void }) {
           </div>
           <h3 className="text-2xl font-bold text-white">Withdrawal Request</h3>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            Withdrawal requests are currently processed manually by our support team for your security and compliance.
+            Withdrawals cannot be processed at this time. Funds are locked until your investment reaches its maturity date.
           </p>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            To request a withdrawal, please contact us at{" "}
+            For further assistance or to discuss your withdrawal options, please contact our support team at{" "}
             <a href="mailto:eliteledgercapital@gmail.com" className="text-primary hover:underline font-medium">
               eliteledgercapital@gmail.com
             </a>{" "}
-            with your account details and desired amount. Our team will process your request within 24–48 hours.
+            with your account details.
           </p>
           <Button variant="premium" className="w-full mt-2" onClick={onClose}>
             Understood
