@@ -8,6 +8,16 @@ const router: IRouter = Router();
 
 router.post("/user/heartbeat", requireAuth, async (req, res): Promise<void> => {
   const user = (req as AuthenticatedRequest).user;
+
+  if (user.trialStartedAt && user.status === "approved") {
+    const trialEnd = new Date(user.trialStartedAt.getTime() + 3 * 24 * 60 * 60 * 1000);
+    if (new Date() > trialEnd) {
+      await db.update(usersTable).set({ status: "suspended" }).where(eq(usersTable.id, user.id));
+      res.status(403).json({ error: "Trial expired", code: "TRIAL_EXPIRED" });
+      return;
+    }
+  }
+
   await db
     .update(usersTable)
     .set({ lastSeen: new Date(), presenceStatus: "online" })

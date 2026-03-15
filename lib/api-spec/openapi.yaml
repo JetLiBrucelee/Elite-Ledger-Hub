@@ -856,11 +856,14 @@ components:
           type: string
         zipCode:
           type: string
+        plan:
+          type: string
       required:
         - firstName
         - lastName
         - email
         - password
+        - plan
 
     LoginRequest:
       type: object
@@ -918,6 +921,9 @@ components:
           type: number
         plan:
           type: ["string", "null"]
+        trialStartedAt:
+          type: ["string", "null"]
+          format: date-time
         lastSeen:
           type: ["string", "null"]
           format: date-time

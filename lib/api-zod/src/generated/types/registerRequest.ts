@@ -18,4 +18,5 @@ export interface RegisterRequest {
   city?: string;
   stateProvince?: string;
   zipCode?: string;
+  plan: string;
 }

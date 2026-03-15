@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Check, ArrowRight } from "lucide-react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/utils";
@@ -83,6 +84,7 @@ const investmentPlans = [
 ];
 
 export default function Plans() {
+  const { isAuthenticated } = useAuth();
   const [activeTab, setActiveTab] = useState(investmentPlans[0].id);
 
   const activePlan = investmentPlans.find(p => p.id === activeTab)!;
@@ -156,7 +158,9 @@ export default function Plans() {
                     </div>
                     
                     <Button asChild size="lg" variant="premium" className="w-full">
-                      <Link href={`/register?plan=${activePlan.id}`}>Select Plan</Link>
+                      <Link href={isAuthenticated ? "/dashboard" : `/register?plan=${activePlan.id}`}>
+                        {isAuthenticated ? "Go to Dashboard" : "Select Plan"}
+                      </Link>
                     </Button>
                   </div>
 

@@ -32,6 +32,8 @@ export interface User {
   /** @nullable */
   plan?: string | null;
   /** @nullable */
+  trialStartedAt?: Date | null;
+  /** @nullable */
   lastSeen?: Date | null;
   presenceStatus: UserPresenceStatus;
   createdAt: Date;

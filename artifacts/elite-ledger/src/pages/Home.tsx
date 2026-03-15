@@ -4,6 +4,7 @@ import { ArrowRight, ShieldCheck, TrendingUp, Globe2, BarChart3, ChevronRight, C
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { CryptoTicker } from "@/components/layout/CryptoTicker";
+import { ActivityPopup } from "@/components/ActivityPopup";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
@@ -409,6 +410,7 @@ export default function Home() {
       </section>
 
       <Footer />
+      <ActivityPopup />
     </div>
   );
 }

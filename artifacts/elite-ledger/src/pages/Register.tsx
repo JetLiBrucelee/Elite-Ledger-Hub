@@ -5,11 +5,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { ArrowLeft, CheckCircle2, ChevronDown, Search, MapPin, Eye, EyeOff } from "lucide-react";
 import { useRegister } from "@workspace/api-client-react";
+import { ActivityPopup } from "@/components/ActivityPopup";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { COUNTRIES } from "@/lib/countries";
 import { lookupUSZip, isUSZip, lookupPostalCode, searchAddress, type AddressSuggestion } from "@/lib/zip-lookup";
+
+const PLAN_OPTIONS = ["Bronze", "Silver", "Gold", "Platinum", "Diamond"];
 
 const registerSchema = z.object({
   firstName: z.string().min(2, "First name is required"),
@@ -22,6 +25,7 @@ const registerSchema = z.object({
   city: z.string().optional(),
   stateProvince: z.string().optional(),
   zipCode: z.string().optional(),
+  plan: z.string().min(1, "Please select an investment plan"),
 });
 
 type RegisterForm = z.infer<typeof registerSchema>;
@@ -57,8 +61,17 @@ export default function Register() {
 
   const form = useForm<RegisterForm>({
     resolver: zodResolver(registerSchema),
-    defaultValues: { firstName: "", lastName: "", email: "", password: "", phone: "", country: "", address: "", city: "", stateProvince: "", zipCode: "" },
+    defaultValues: { firstName: "", lastName: "", email: "", password: "", phone: "", country: "", address: "", city: "", stateProvince: "", zipCode: "", plan: "" },
   });
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const planParam = params.get("plan");
+    if (planParam) {
+      const match = PLAN_OPTIONS.find(p => p.toLowerCase() === planParam.toLowerCase());
+      if (match) form.setValue("plan", match);
+    }
+  }, [form]);
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -352,6 +365,20 @@ export default function Register() {
               </div>
             </div>
 
+            <div>
+              <label className="block text-sm font-medium text-white/80 mb-1.5">Investment Plan <span className="text-destructive">*</span></label>
+              <select
+                {...form.register("plan")}
+                className="flex h-10 w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm text-white ring-offset-background focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+              >
+                <option value="" className="bg-[#1a1a2e]">Select a plan</option>
+                {PLAN_OPTIONS.map((p) => (
+                  <option key={p} value={p} className="bg-[#1a1a2e]">{p}</option>
+                ))}
+              </select>
+              {form.formState.errors.plan && <p className="text-xs text-destructive mt-1">{form.formState.errors.plan.message}</p>}
+            </div>
+
             <Button type="submit" variant="premium" className="w-full mt-6" disabled={registerMutation.isPending}>
               {registerMutation.isPending ? "Creating Account..." : "Create Account"}
             </Button>
@@ -365,6 +392,7 @@ export default function Register() {
           </div>
         </Card>
       </div>
+      <ActivityPopup />
     </div>
   );
 }

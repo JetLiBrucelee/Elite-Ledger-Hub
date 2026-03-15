@@ -19,7 +19,7 @@ import { formatDate } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Check, X, Ban, Unlock, Pencil, Plus, DollarSign, Pause, Trash2 } from "lucide-react";
+import { Check, X, Ban, Unlock, Pencil, Plus, DollarSign, Pause, Trash2, Eye } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 function CreateUserDialog({ onClose }: { onClose: () => void }) {
@@ -530,12 +530,63 @@ function DeleteUserDialog({ user, onClose }: { user: User; onClose: () => void }
   );
 }
 
+function UserDetailDialog({ user, onClose }: { user: User; onClose: () => void }) {
+  const fields = [
+    { label: "Full Name", value: `${user.firstName} ${user.lastName}` },
+    { label: "Email", value: user.email },
+    { label: "Phone", value: user.phone || "—" },
+    { label: "Country", value: user.country || "—" },
+    { label: "Address", value: [user.address, user.city, user.stateProvince, user.zipCode].filter(Boolean).join(", ") || "—" },
+    { label: "Role", value: user.role },
+    { label: "Status", value: user.status },
+    { label: "Plan", value: user.plan || "None" },
+    { label: "Balance", value: `$${(user.balance ?? 0).toLocaleString("en-US", { minimumFractionDigits: 2 })}` },
+    { label: "Trial Started", value: (user as unknown as Record<string, unknown>).trialStartedAt ? new Date((user as unknown as Record<string, unknown>).trialStartedAt as string).toLocaleString() : "—" },
+    { label: "Last Seen", value: user.lastSeen ? new Date(user.lastSeen).toLocaleString() : "Never" },
+    { label: "Presence", value: user.presenceStatus },
+    { label: "Joined", value: new Date(user.createdAt).toLocaleString() },
+  ];
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={onClose}>
+      <div
+        className="bg-[#14161c] border border-white/10 rounded-2xl p-8 w-full max-w-lg relative max-h-[90vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button onClick={onClose} className="absolute top-4 right-4 text-white/50 hover:text-white transition-colors">
+          <X className="w-5 h-5" />
+        </button>
+
+        <div className="flex items-center gap-4 mb-6">
+          <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-lg">
+            {user.firstName[0]}{user.lastName[0]}
+          </div>
+          <div>
+            <h3 className="text-2xl font-bold text-white">{user.firstName} {user.lastName}</h3>
+            <p className="text-sm text-muted-foreground">{user.email}</p>
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          {fields.map((f) => (
+            <div key={f.label} className="flex items-start justify-between gap-4 py-2 border-b border-white/5 last:border-0">
+              <span className="text-sm text-muted-foreground shrink-0">{f.label}</span>
+              <span className="text-sm text-white text-right font-medium">{f.value}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function AdminUsers() {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [adjustingUser, setAdjustingUser] = useState<User | null>(null);
   const [deletingUser, setDeletingUser] = useState<User | null>(null);
-  const { data: allUsers = [], isLoading } = useAdminGetUsers({}, { query: { refetchInterval: 30_000 } });
+  const [viewingUser, setViewingUser] = useState<User | null>(null);
+  const { data: allUsers = [], isLoading } = useAdminGetUsers({}, { query: { queryKey: getAdminGetUsersQueryKey(), refetchInterval: 30_000 } });
   const approveMutation = useAdminApproveUser();
   const rejectMutation = useAdminRejectUser();
   const blockMutation = useAdminBlockUser();
@@ -700,6 +751,10 @@ export default function AdminUsers() {
                           <DollarSign className="w-4 h-4 mr-1" /> Adjust Balance
                         </Button>
                       )}
+                      <Button size="sm" variant="outline" className="h-8 border-white/20 text-white/70 hover:bg-white/10"
+                              onClick={() => setViewingUser(u)}>
+                        <Eye className="w-4 h-4 mr-1" /> View
+                      </Button>
                       <Button size="sm" variant="outline" className="h-8 border-blue-500/30 text-blue-500 hover:bg-blue-500/10"
                               onClick={() => setEditingUser(u)}>
                         <Pencil className="w-4 h-4 mr-1" /> Edit
@@ -722,6 +777,7 @@ export default function AdminUsers() {
       {editingUser && <EditUserDialog user={editingUser} onClose={() => setEditingUser(null)} />}
       {adjustingUser && <AdjustBalanceDialog user={adjustingUser} onClose={() => setAdjustingUser(null)} />}
       {deletingUser && <DeleteUserDialog user={deletingUser} onClose={() => setDeletingUser(null)} />}
+      {viewingUser && <UserDetailDialog user={viewingUser} onClose={() => setViewingUser(null)} />}
     </div>
   );
 }

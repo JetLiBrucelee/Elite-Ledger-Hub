@@ -29,6 +29,7 @@ export interface RegisterRequest {
   city?: string;
   stateProvince?: string;
   zipCode?: string;
+  plan: string;
 }
 
 export interface LoginRequest {
@@ -82,6 +83,8 @@ export interface User {
   balance: number;
   /** @nullable */
   plan?: string | null;
+  /** @nullable */
+  trialStartedAt?: string | null;
   /** @nullable */
   lastSeen?: string | null;
   presenceStatus: UserPresenceStatus;

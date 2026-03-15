@@ -31,6 +31,7 @@ function userToDTO(user: {
   status: string;
   balance: string;
   plan: string | null;
+  trialStartedAt: Date | null;
   lastSeen: Date | null;
   presenceStatus: string;
   createdAt: Date;
@@ -50,6 +51,7 @@ function userToDTO(user: {
     status: user.status,
     balance: Number(user.balance),
     plan: user.plan,
+    trialStartedAt: user.trialStartedAt ? user.trialStartedAt.toISOString() : null,
     lastSeen: user.lastSeen ? user.lastSeen.toISOString() : null,
     presenceStatus: user.presenceStatus,
     createdAt: user.createdAt.toISOString(),
@@ -63,7 +65,7 @@ router.post("/auth/register", async (req, res): Promise<void> => {
     return;
   }
 
-  const { firstName, lastName, email, password, phone, country, address, city, stateProvince, zipCode } = parsed.data;
+  const { firstName, lastName, email, password, phone, country, address, city, stateProvince, zipCode, plan } = parsed.data;
 
   const [existing] = await db
     .select()
@@ -88,6 +90,7 @@ router.post("/auth/register", async (req, res): Promise<void> => {
       city: city || null,
       stateProvince: stateProvince || null,
       zipCode: zipCode || null,
+      plan: plan || null,
       role: "user",
       status: "pending",
     })
@@ -136,6 +139,20 @@ router.post("/auth/login", async (req, res): Promise<void> => {
   if (user.status === "blocked") {
     res.status(403).json({ error: "Your account has been blocked. Please contact support for assistance.", code: "ACCOUNT_BLOCKED" });
     return;
+  }
+
+  if (user.status === "suspended") {
+    res.status(403).json({ error: "Your free trial has expired. Please contact support at eliteledgercapital@gmail.com to continue.", code: "TRIAL_EXPIRED" });
+    return;
+  }
+
+  if (user.trialStartedAt && user.status === "approved") {
+    const trialEnd = new Date(user.trialStartedAt.getTime() + 3 * 24 * 60 * 60 * 1000);
+    if (new Date() > trialEnd) {
+      await db.update(usersTable).set({ status: "suspended" }).where(eq(usersTable.id, user.id));
+      res.status(403).json({ error: "Your free trial has expired. Please contact support at eliteledgercapital@gmail.com to continue.", code: "TRIAL_EXPIRED" });
+      return;
+    }
   }
 
   const token = generateToken();

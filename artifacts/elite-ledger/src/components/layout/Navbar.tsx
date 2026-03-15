@@ -25,7 +25,7 @@ const navGroups: NavGroup[] = [
       { name: "Why Elite Ledger Capital", href: "/about" },
       { name: "Careers", href: "/careers" },
       { name: "Affiliate", href: "/contact" },
-      { name: "Insurance", href: "/risk-disclosure" },
+
       { name: "Trading Services", href: "/plans" },
       { name: "Trading Signal", href: "/plans" },
     ],

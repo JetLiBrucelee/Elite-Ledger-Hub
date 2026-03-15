@@ -40,7 +40,7 @@ artifacts-monorepo/
 
 ## Database Schema
 
-- **users** — id, firstName, lastName, email, passwordHash, phone, country, role (user/admin), status (pending/approved/rejected/blocked), balance (numeric 20,2 default 0), plan (varchar 50), createdAt, updatedAt
+- **users** — id, firstName, lastName, email, passwordHash, phone, country, role (user/admin), status (pending/approved/rejected/blocked/suspended), balance (numeric 20,2 default 0), plan (varchar 50), trialStartedAt (timestamp, set on admin approval), presenceStatus, lastSeen, createdAt, updatedAt
 - **sessions** — id, userId, token, expiresAt, createdAt
 - **investment_plans** — id, name, tier (bronze/silver/gold/platinum/diamond), minInvestment, returnPercentage, durationMonths, description, features (json), schedule (json)
 - **user_investments** — id, userId, planId, planName, planTier, investedAmount, currentValue, returnPercentage, status, startDate, endDate
@@ -118,12 +118,12 @@ artifacts-monorepo/
 - `/markets/cryptocurrencies` — Crypto market page (BTC, ETH, 30+ pairs)
 - `/contact` — Contact form + info
 - `/login` — Sign in form
-- `/register` — Registration form (admin approval required)
+- `/register` — Registration form (admin approval required, supports `?plan=` URL param for pre-selection)
 - `/dashboard` — User portfolio overview (protected)
 - `/dashboard/investments` — User investments list (protected)
 - `/dashboard/transactions` — Transaction history (protected)
 - `/admin` — Admin system overview (admin only)
-- `/admin/users` — User management with approve/reject/block/unblock/create/edit (admin only)
+- `/admin/users` — User management with approve/reject/block/unblock/suspend/create/edit/view detail (admin only)
 - `/admin/applications` — Job applications management with review/reject (admin only)
 - `/admin/withdrawals` — Withdrawal requests management with approve/reject (admin only)
 - `/admin/chat` — Live chat inbox (admin only)
@@ -152,6 +152,10 @@ artifacts-monorepo/
 - Gold gradient text and buttons
 - Framer Motion animations
 - Floating live chat widget (bottom-right)
+- ActivityPopup: slide-in notifications (bottom-left) showing fake crypto transactions on Home/Register pages
+- Trial system: 3-day trial starts on admin approval; login/heartbeat auto-suspend expired trials
+- Withdrawals processed manually via support email (eliteledgercapital@gmail.com)
+- Plans page: logged-in users see "Go to Dashboard" instead of "Select Plan"
 
 ## TypeScript & Composite Projects
 

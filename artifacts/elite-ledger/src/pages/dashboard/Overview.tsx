@@ -1,8 +1,9 @@
+import { useState } from "react";
 import { useGetUserDashboard, useGetUserInvestments } from "@workspace/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
 import { formatCurrency } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
-import { ArrowUpRight, Wallet, PieChart, Activity, TrendingUp, Crown } from "lucide-react";
+import { ArrowUpRight, Wallet, PieChart, Activity, TrendingUp, Crown, Info, Clock, Mail, X } from "lucide-react";
 
 const TIER_COLORS: Record<string, string> = {
   bronze: "bg-orange-700",
@@ -44,10 +45,63 @@ const TIER_GRADIENT: Record<string, string> = {
   diamond: "from-blue-900/40 via-indigo-700/20 to-transparent border-blue-400/30",
 };
 
+function TrialCountdown({ trialStartedAt }: { trialStartedAt: string }) {
+  const trialEnd = new Date(new Date(trialStartedAt).getTime() + 3 * 24 * 60 * 60 * 1000);
+  const now = new Date();
+  const remaining = trialEnd.getTime() - now.getTime();
+
+  if (remaining <= 0) {
+    return (
+      <Card className="p-4 border-red-500/30 bg-red-500/10">
+        <div className="flex items-center gap-3">
+          <Clock className="w-5 h-5 text-red-400 shrink-0" />
+          <div>
+            <p className="text-sm font-medium text-red-400">Your free trial has expired.</p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Contact support at{" "}
+              <a href="mailto:eliteledgercapital@gmail.com" className="text-primary hover:underline">eliteledgercapital@gmail.com</a>
+              {" "}to continue.
+            </p>
+          </div>
+        </div>
+      </Card>
+    );
+  }
+
+  const hours = Math.floor(remaining / (1000 * 60 * 60));
+  const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+  const days = Math.floor(hours / 24);
+  const remHours = hours % 24;
+
+  return (
+    <Card className="p-4 border-amber-500/30 bg-amber-500/10">
+      <div className="flex items-center gap-3">
+        <Clock className="w-5 h-5 text-amber-400 shrink-0" />
+        <div className="flex-1">
+          <p className="text-sm font-medium text-amber-400">Free Trial Active</p>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            {days > 0 ? `${days}d ` : ""}{remHours}h {minutes}m remaining.
+            Contact{" "}
+            <a href="mailto:eliteledgercapital@gmail.com" className="text-primary hover:underline">eliteledgercapital@gmail.com</a>
+            {" "}to upgrade.
+          </p>
+        </div>
+        <div className="text-right shrink-0">
+          <span className="text-2xl font-bold text-amber-400 font-mono">
+            {days > 0 ? `${days}d` : `${remHours}h`}
+          </span>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
 export default function UserOverview() {
   const { user } = useAuth();
   const { data: dashboard, isLoading } = useGetUserDashboard();
   const { data: investments = [] } = useGetUserInvestments();
+  const [showWelcome, setShowWelcome] = useState(true);
+  const [showPaymentNote, setShowPaymentNote] = useState(true);
 
   if (isLoading || !dashboard) {
     return <div className="p-8 text-white">Loading dashboard data...</div>;
@@ -65,8 +119,52 @@ export default function UserOverview() {
   const planTier = user?.plan?.toLowerCase() ?? "";
   const hasPlan = !!user?.plan;
 
+  const trialStartedAt = (user as unknown as Record<string, unknown>)?.trialStartedAt as string | null;
+
   return (
     <div className="space-y-6">
+      {showWelcome && (
+        <Card className="p-4 border-emerald-500/30 bg-emerald-500/10 relative">
+          <button onClick={() => setShowWelcome(false)} className="absolute top-3 right-3 text-white/40 hover:text-white">
+            <X className="w-4 h-4" />
+          </button>
+          <div className="flex items-start gap-3 pr-6">
+            <Info className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-medium text-emerald-400">Welcome to Elite Ledger Capital!</p>
+              <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                Your account has been approved. Explore your dashboard to monitor your portfolio,
+                track investments, and view transaction history. If you need any assistance,
+                our support team is available 24/7.
+              </p>
+            </div>
+          </div>
+        </Card>
+      )}
+
+      {showPaymentNote && (
+        <Card className="p-4 border-blue-500/30 bg-blue-500/10 relative">
+          <button onClick={() => setShowPaymentNote(false)} className="absolute top-3 right-3 text-white/40 hover:text-white">
+            <X className="w-4 h-4" />
+          </button>
+          <div className="flex items-start gap-3 pr-6">
+            <Mail className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-medium text-blue-400">Payment & Funding</p>
+              <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                To fund your account or make payments, please contact our support team at{" "}
+                <a href="mailto:eliteledgercapital@gmail.com" className="text-primary hover:underline font-medium">
+                  eliteledgercapital@gmail.com
+                </a>.
+                We will provide you with the necessary payment instructions.
+              </p>
+            </div>
+          </div>
+        </Card>
+      )}
+
+      {trialStartedAt && <TrialCountdown trialStartedAt={trialStartedAt} />}
+
       {hasPlan ? (
         <div className={`rounded-2xl border p-6 bg-gradient-to-r ${TIER_GRADIENT[planTier] || "from-primary/20 to-transparent border-primary/20"}`}>
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">

@@ -35,7 +35,7 @@ export function Footer() {
               <li><Link href="/about" className="text-sm text-muted-foreground hover:text-primary transition-colors">Why Elite Ledger Capital</Link></li>
               <li><Link href="/careers" className="text-sm text-muted-foreground hover:text-primary transition-colors">Careers</Link></li>
               <li><Link href="/contact" className="text-sm text-muted-foreground hover:text-primary transition-colors">Affiliate</Link></li>
-              <li><Link href="/risk-disclosure" className="text-sm text-muted-foreground hover:text-primary transition-colors">Insurance</Link></li>
+
               <li><Link href="/plans" className="text-sm text-muted-foreground hover:text-primary transition-colors">Trading Services</Link></li>
               <li><Link href="/plans" className="text-sm text-muted-foreground hover:text-primary transition-colors">Trading Signal</Link></li>
             </ul>

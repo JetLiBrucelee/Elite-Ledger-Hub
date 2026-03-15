@@ -15,7 +15,7 @@ import About from "@/pages/About";
 import Contact from "@/pages/Contact";
 import Terms from "@/pages/Terms";
 import Privacy from "@/pages/Privacy";
-import RiskDisclosure from "@/pages/RiskDisclosure";
+
 import Careers from "@/pages/Careers";
 import Promotion from "@/pages/Promotion";
 import GiveAways from "@/pages/GiveAways";
@@ -103,7 +103,7 @@ function AppRouter() {
       <Route path="/contact" component={Contact} />
       <Route path="/terms" component={Terms} />
       <Route path="/privacy" component={Privacy} />
-      <Route path="/risk-disclosure" component={RiskDisclosure} />
+
       <Route path="/careers" component={Careers} />
       <Route path="/promotion" component={Promotion} />
       <Route path="/giveaways" component={GiveAways} />

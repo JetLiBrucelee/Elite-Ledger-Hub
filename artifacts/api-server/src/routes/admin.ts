@@ -24,6 +24,7 @@ function userToDTO(u: {
   status: string;
   balance: string;
   plan: string | null;
+  trialStartedAt: Date | null;
   lastSeen: Date | null;
   presenceStatus: string;
   createdAt: Date;
@@ -43,6 +44,7 @@ function userToDTO(u: {
     status: u.status,
     balance: Number(u.balance),
     plan: u.plan,
+    trialStartedAt: u.trialStartedAt ? u.trialStartedAt.toISOString() : null,
     lastSeen: u.lastSeen ? u.lastSeen.toISOString() : null,
     presenceStatus: u.presenceStatus,
     createdAt: u.createdAt.toISOString(),
@@ -50,7 +52,7 @@ function userToDTO(u: {
 }
 
 const VALID_ROLES = ["user", "admin"];
-const VALID_STATUSES = ["pending", "approved", "rejected", "blocked"];
+const VALID_STATUSES = ["pending", "approved", "rejected", "blocked", "suspended"];
 
 router.get("/admin/users", requireAdmin, async (req, res): Promise<void> => {
   const statusFilter = req.query.status as string | undefined;
@@ -70,7 +72,7 @@ router.post("/admin/users/:id/approve", requireAdmin, async (req, res): Promise<
 
   const [user] = await db
     .update(usersTable)
-    .set({ status: "approved" })
+    .set({ status: "approved", trialStartedAt: new Date() })
     .where(eq(usersTable.id, params.data.id))
     .returning();
 
