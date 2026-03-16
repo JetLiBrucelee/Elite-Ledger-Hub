@@ -52,7 +52,7 @@ export function useChat() {
 
       eventSource.onerror = () => {
         eventSource?.close();
-        retryTimeout = setTimeout(connect, 3000);
+        retryTimeout = setTimeout(connect, 10000);
       };
     };
 

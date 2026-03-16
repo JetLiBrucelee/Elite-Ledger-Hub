@@ -22,8 +22,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     query: {
       queryKey: getGetMeQueryKey(),
       retry: false,
-      refetchOnWindowFocus: true,
-      refetchInterval: 15000,
+      refetchOnWindowFocus: false,
+      refetchInterval: 60000,
+      staleTime: 30000,
     }
   });
 
